@@ -1,6 +1,6 @@
 {
-  "name": "CipherPrint",
-  "short_name": "CipherPrint",
+  "name": "Cipher Prints",
+  "short_name": "Cipher Prints",
   "description": "Printable offline cryptography mission generator",
   "start_url": "/CipherPrint/",
   "display": "standalone",
