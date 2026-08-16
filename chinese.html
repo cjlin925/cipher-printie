@@ -1,0 +1,1678 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <!-- Google tag (gtag.js) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-70VSYRX0L2"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+
+    gtag('config', 'G-70VSYRX0L2');
+  </script>
+  <title>Chinese · Cipher Printie</title>
+  <meta name="description" content="Practice Traditional Chinese with 注音 flashcards and printable worksheets. Offline study for kids and parents.">
+  <meta name="robots" content="index, follow">
+  <meta name="theme-color" content="#215c42">
+  <link rel="canonical" href="https://cjlin925.github.io/cipher-printie/chinese.html">
+  <link rel="icon" href="/cipher-printie/favicon.ico" sizes="any">
+  <link rel="icon" href="/cipher-printie/favicon.svg" type="image/svg+xml">
+  <link rel="icon" href="/cipher-printie/favicon-32.png" type="image/png" sizes="32x32">
+  <link rel="apple-touch-icon" href="/cipher-printie/apple-touch-icon.png" sizes="180x180">
+  <link rel="manifest" href="/cipher-printie/site.webmanifest">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Cipher Printie">
+  <meta property="og:title" content="Chinese · Cipher Printie">
+  <meta property="og:description" content="Practice Traditional Chinese with 注音 flashcards and printable worksheets. Offline study for kids and parents.">
+  <meta property="og:url" content="https://cjlin925.github.io/cipher-printie/chinese.html">
+  <meta property="og:locale" content="en_US">
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="Chinese · Cipher Printie">
+  <meta name="twitter:description" content="Practice Traditional Chinese with 注音 flashcards and printable worksheets.">
+  <script src="https://cdn.jsdelivr.net/npm/hanzi-writer@3.7.2/dist/hanzi-writer.min.js"></script>
+  <style>
+    :root {
+      color-scheme: light;
+      --ink: #17201b;
+      --muted: #69736d;
+      --paper: #ffffff;
+      --accent: #215c42;
+      --accent-dark: #17412f;
+      --line: #dfe5e1;
+      --han: "Noto Sans TC", "PingFang TC", "Hiragino Sans CNS", "Microsoft JhengHei", "Heiti TC", sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at 12% 8%, rgba(33, 92, 66, 0.08), transparent 28rem),
+        #f4f6f4;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    .site-nav {
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.75rem 1rem;
+      padding: 0.85rem clamp(1rem, 4vw, 2rem);
+      border-bottom: 1px solid rgba(23, 32, 27, 0.08);
+      background: rgba(244, 246, 244, 0.88);
+      backdrop-filter: blur(10px);
+    }
+
+    .site-nav-brand {
+      color: var(--ink);
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: 1.15rem;
+      font-weight: 500;
+      letter-spacing: -0.03em;
+      text-decoration: none;
+    }
+
+    .nav-toggle {
+      display: none;
+      align-items: center;
+      justify-content: center;
+      width: 2.6rem;
+      height: 2.6rem;
+      padding: 0;
+      border: 1px solid rgba(23, 32, 27, 0.12);
+      border-radius: 0.65rem;
+      background: rgba(255, 255, 255, 0.9);
+      color: var(--ink);
+      cursor: pointer;
+    }
+
+    .nav-toggle-bars,
+    .nav-toggle-bars::before,
+    .nav-toggle-bars::after {
+      display: block;
+      width: 1.1rem;
+      height: 2px;
+      border-radius: 999px;
+      background: currentColor;
+      transition: transform 160ms ease, opacity 160ms ease;
+    }
+
+    .nav-toggle-bars {
+      position: relative;
+    }
+
+    .nav-toggle-bars::before,
+    .nav-toggle-bars::after {
+      content: "";
+      position: absolute;
+      left: 0;
+    }
+
+    .nav-toggle-bars::before { top: -6px; }
+    .nav-toggle-bars::after { top: 6px; }
+
+    .nav-toggle[aria-expanded="true"] .nav-toggle-bars {
+      background: transparent;
+    }
+
+    .nav-toggle[aria-expanded="true"] .nav-toggle-bars::before {
+      top: 0;
+      transform: rotate(45deg);
+    }
+
+    .nav-toggle[aria-expanded="true"] .nav-toggle-bars::after {
+      top: 0;
+      transform: rotate(-45deg);
+    }
+
+    .site-nav-menu {
+      margin-left: auto;
+    }
+
+    .site-nav-links {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 0.35rem;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+
+    .site-nav-links a {
+      display: inline-block;
+      padding: 0.45rem 0.8rem;
+      border-radius: 0.55rem;
+      color: var(--muted);
+      font-size: 0.92rem;
+      font-weight: 650;
+      text-decoration: none;
+      transition: color 150ms ease, background-color 150ms ease;
+    }
+
+    .site-nav-links a:hover {
+      color: var(--ink);
+      background: rgba(33, 92, 66, 0.08);
+    }
+
+    .site-nav-links a[aria-current="page"] {
+      color: var(--accent-dark);
+      background: rgba(33, 92, 66, 0.12);
+    }
+
+    @media (max-width: 720px) {
+      .nav-toggle {
+        display: inline-flex;
+      }
+
+      .site-nav-menu {
+        display: none;
+        width: 100%;
+        margin-left: 0;
+        padding-top: 0.35rem;
+      }
+
+      .site-nav-menu.is-open {
+        display: block;
+      }
+
+      .site-nav-links {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 0.25rem;
+      }
+
+      .site-nav-links a {
+        width: 100%;
+        padding: 0.75rem 0.85rem;
+      }
+    }
+
+    .screen {
+      display: grid;
+      min-height: calc(100vh - 3.6rem);
+      place-items: start center;
+      padding: 2rem;
+    }
+
+    .studio {
+      width: min(100%, 52rem);
+      padding: clamp(1.75rem, 5vw, 3rem);
+      border: 1px solid rgba(23, 32, 27, 0.08);
+      border-radius: 1.25rem;
+      background: rgba(255, 255, 255, 0.94);
+      box-shadow: 0 1.5rem 4rem rgba(23, 32, 27, 0.09);
+    }
+
+    .eyebrow {
+      margin: 0 0 0.75rem;
+      color: var(--accent);
+      font-size: 0.72rem;
+      font-weight: 800;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+    }
+
+    h1 {
+      margin: 0;
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: clamp(2.1rem, 6vw, 3.1rem);
+      font-weight: 500;
+      letter-spacing: -0.045em;
+      line-height: 1;
+    }
+
+    .intro {
+      margin: 1rem 0 0;
+      color: var(--muted);
+      font-size: 1.02rem;
+      line-height: 1.6;
+    }
+
+    .section {
+      margin-top: 2rem;
+      padding-top: 1.5rem;
+      border-top: 1px solid var(--line);
+    }
+
+    .section-title {
+      margin: 0 0 0.85rem;
+      font-size: 0.78rem;
+      font-weight: 800;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+
+    .deck-chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.45rem;
+    }
+
+    .deck-chip {
+      padding: 0.45rem 0.85rem;
+      border: 1px solid rgba(23, 32, 27, 0.12);
+      border-radius: 0.65rem;
+      background: #fff;
+      color: var(--ink);
+      font: inherit;
+      font-size: 0.9rem;
+      font-weight: 650;
+      cursor: pointer;
+    }
+
+    .deck-chip:hover {
+      border-color: rgba(33, 92, 66, 0.35);
+      background: rgba(33, 92, 66, 0.06);
+    }
+
+    .deck-chip[aria-pressed="true"] {
+      border-color: transparent;
+      color: #fff;
+      background: var(--accent);
+    }
+
+    .flashcard {
+      position: relative;
+      display: grid;
+      place-items: center;
+      width: 100%;
+      min-height: 16rem;
+      margin-top: 1rem;
+      padding: 2rem 1.5rem;
+      border: 1px solid rgba(23, 32, 27, 0.1);
+      border-radius: 1rem;
+      background:
+        linear-gradient(180deg, rgba(33, 92, 66, 0.04), transparent 40%),
+        #fff;
+      cursor: pointer;
+      text-align: center;
+      user-select: none;
+    }
+
+    .flashcard:focus-visible {
+      outline: 2px solid var(--accent);
+      outline-offset: 3px;
+    }
+
+    .flashcard-char {
+      font-family: var(--han);
+      font-size: clamp(5rem, 18vw, 7.5rem);
+      font-weight: 500;
+      line-height: 1;
+    }
+
+    .flashcard-back {
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.65rem;
+    }
+
+    .flashcard.is-flipped .flashcard-front {
+      display: none;
+    }
+
+    .flashcard.is-flipped .flashcard-back {
+      display: flex;
+    }
+
+    .flashcard-zhuyin {
+      font-family: var(--han);
+      font-size: clamp(2rem, 7vw, 2.75rem);
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      color: var(--accent-dark);
+    }
+
+    .flashcard-meaning {
+      color: var(--muted);
+      font-size: 1.2rem;
+      font-weight: 650;
+    }
+
+    .flashcard-hint {
+      position: absolute;
+      bottom: 0.85rem;
+      left: 0;
+      right: 0;
+      margin: 0;
+      color: var(--muted);
+      font-size: 0.78rem;
+    }
+
+    .study-layout {
+      display: grid;
+      grid-template-columns: minmax(0, 1.15fr) minmax(12rem, 0.85fr);
+      gap: 1rem;
+      margin-top: 1rem;
+      align-items: stretch;
+    }
+
+    @media (max-width: 720px) {
+      .study-layout {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .study-meta {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.75rem;
+      margin-top: 1rem;
+    }
+
+    .progress {
+      color: var(--muted);
+      font-size: 0.92rem;
+      font-weight: 650;
+    }
+
+    .study-controls {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.45rem;
+    }
+
+    .stroke-panel {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 0.85rem;
+      padding: 1rem;
+      border: 1px solid rgba(23, 32, 27, 0.1);
+      border-radius: 1rem;
+      background:
+        linear-gradient(180deg, rgba(33, 92, 66, 0.04), transparent 40%),
+        #fff;
+    }
+
+    .stroke-panel-label {
+      margin: 0;
+      color: var(--muted);
+      font-size: 0.72rem;
+      font-weight: 800;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+    }
+
+    .stroke-target {
+      position: relative;
+      width: min(100%, 12.5rem);
+      height: 12.5rem;
+      border: 1px solid var(--line);
+      border-radius: 0.75rem;
+      overflow: visible;
+      background:
+        linear-gradient(#e8ebe9, #e8ebe9) center/100% 1px no-repeat,
+        linear-gradient(#e8ebe9, #e8ebe9) center/1px 100% no-repeat,
+        #fafbfa;
+    }
+
+    .stroke-writer {
+      width: 100%;
+      height: 100%;
+    }
+
+    .stroke-writer svg {
+      display: block;
+    }
+
+    .stroke-labels {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      overflow: visible;
+      pointer-events: none;
+    }
+
+    .stroke-actions {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 0.45rem;
+    }
+
+    .stroke-status {
+      min-height: 1.2em;
+      margin: 0;
+      color: var(--muted);
+      font-size: 0.82rem;
+      text-align: center;
+    }
+
+    .stroke-status.is-error {
+      color: #9b3b32;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0.7rem 1.05rem;
+      border: 0;
+      border-radius: 0.75rem;
+      background: var(--accent);
+      color: #fff;
+      font: inherit;
+      font-weight: 700;
+      cursor: pointer;
+      transition: background-color 150ms ease, transform 150ms ease;
+    }
+
+    .btn:hover {
+      background: var(--accent-dark);
+      transform: translateY(-1px);
+    }
+
+    .btn-secondary {
+      border: 1px solid rgba(23, 32, 27, 0.14);
+      background: #fff;
+      color: var(--ink);
+    }
+
+    .btn-secondary:hover {
+      background: rgba(33, 92, 66, 0.06);
+      color: var(--ink);
+    }
+
+    .print-options {
+      display: grid;
+      gap: 0.85rem;
+    }
+
+    .option-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.85rem 1.25rem;
+    }
+
+    .option-row label {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.45rem;
+      font-size: 0.95rem;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    .field {
+      display: grid;
+      gap: 0.4rem;
+      max-width: 16rem;
+    }
+
+    .field label {
+      font-size: 0.82rem;
+      font-weight: 700;
+      color: var(--muted);
+    }
+
+    .field select {
+      width: 100%;
+      padding: 0.65rem 0.75rem;
+      border: 1px solid rgba(23, 32, 27, 0.14);
+      border-radius: 0.65rem;
+      background: #fff;
+      color: var(--ink);
+      font: inherit;
+    }
+
+    .print-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.55rem;
+      margin-top: 0.35rem;
+    }
+
+    .preview-note {
+      margin: 0.85rem 0 0;
+      color: var(--muted);
+      font-size: 0.88rem;
+      line-height: 1.5;
+    }
+
+    .disclaimer {
+      margin: 1.75rem 0 0;
+      color: var(--muted);
+      font-size: 0.78rem;
+      line-height: 1.5;
+    }
+
+    .print-pack {
+      display: none;
+    }
+
+    @media (max-width: 560px) {
+      .screen {
+        padding: 1.25rem;
+      }
+    }
+
+    @media print {
+      :root {
+        --ink: #000;
+      }
+
+      @page {
+        size: letter;
+        margin: 12mm;
+      }
+
+      html,
+      body {
+        min-height: auto;
+        background: #fff;
+      }
+
+      .site-nav,
+      .screen {
+        display: none !important;
+      }
+
+      .print-pack {
+        display: block;
+      }
+
+      .print-sheet {
+        display: block;
+        width: 100%;
+        max-width: 186mm;
+        margin: 0 auto;
+        color: #000;
+        font-family: Arial, Helvetica, sans-serif;
+        break-after: page;
+        page-break-after: always;
+      }
+
+      .print-sheet:last-child {
+        break-after: auto;
+        page-break-after: auto;
+      }
+
+      .sheet-header {
+        padding-bottom: 2.5mm;
+        border-bottom: 2px solid #000;
+        text-align: center;
+      }
+
+      .sheet-header p {
+        margin: 0 0 1.5mm;
+        font-size: 8pt;
+        font-weight: 700;
+        letter-spacing: 0.2em;
+        text-transform: uppercase;
+      }
+
+      .sheet-header h2 {
+        margin: 0;
+        font-size: 15pt;
+        letter-spacing: 0.04em;
+      }
+
+      .sheet-meta {
+        margin: 2.5mm 0 4mm;
+        color: #333;
+        font-size: 9pt;
+      }
+
+      .sheet-page {
+        float: right;
+        color: #555;
+        font-size: 8pt;
+      }
+
+      .trace-grid {
+        display: grid;
+        gap: 3.2mm;
+      }
+
+      .trace-row {
+        display: flex;
+        flex-wrap: nowrap;
+        align-items: center;
+        gap: 1.8mm;
+        break-inside: avoid;
+        page-break-inside: avoid;
+      }
+
+      .trace-cell {
+        box-sizing: border-box;
+        width: 12.5mm;
+        height: 12.5mm;
+        flex: 0 0 12.5mm;
+        border: 1px solid #666;
+        background:
+          linear-gradient(#ddd, #ddd) center/100% 1px no-repeat,
+          linear-gradient(#ddd, #ddd) center/1px 100% no-repeat;
+        overflow: hidden;
+      }
+
+      .trace-cell.is-example {
+        border-color: #222;
+      }
+
+      .trace-char-svg {
+        display: block;
+        width: 100%;
+        height: 100%;
+      }
+
+      .trace-fallback {
+        display: grid;
+        place-items: center;
+        width: 100%;
+        height: 100%;
+        color: #777;
+        font-family: "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", sans-serif;
+        font-size: 9pt;
+        line-height: 1;
+      }
+
+      .practice-boxes {
+        display: grid;
+        grid-template-columns: repeat(5, 1fr);
+        gap: 2mm;
+      }
+
+      .practice-box {
+        position: relative;
+        display: grid;
+        place-items: center;
+        aspect-ratio: 1;
+        border: 1px solid #666;
+        background:
+          linear-gradient(#ddd, #ddd) center/100% 1px no-repeat,
+          linear-gradient(#ddd, #ddd) center/1px 100% no-repeat;
+        overflow: hidden;
+      }
+
+      .zhuyin-grid {
+        display: grid;
+        gap: 4mm;
+      }
+
+      .zhuyin-row {
+        display: grid;
+        grid-template-columns: 34mm 1fr;
+        gap: 2.5mm;
+        align-items: center;
+        break-inside: avoid;
+        page-break-inside: avoid;
+      }
+
+      .zhuyin-prompt {
+        display: grid;
+        place-items: center;
+        min-height: 17mm;
+        padding: 2mm;
+        border: 1px solid #000;
+        font-family: "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", sans-serif;
+        font-size: 13pt;
+        font-weight: 600;
+        letter-spacing: 0.08em;
+      }
+
+      .zhuyin-grid .practice-boxes {
+        grid-template-columns: repeat(4, 1fr);
+      }
+
+      .match-layout {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 8mm;
+        margin-top: 4mm;
+        break-inside: avoid;
+        page-break-inside: avoid;
+      }
+
+      .match-col h3 {
+        margin: 0 0 3mm;
+        font-size: 10pt;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+      }
+
+      .match-list {
+        margin: 0;
+        padding: 0;
+        list-style: none;
+      }
+
+      .match-list li {
+        display: flex;
+        align-items: center;
+        gap: 3mm;
+        margin: 0 0 3.5mm;
+        font-size: 11pt;
+        break-inside: avoid;
+        page-break-inside: avoid;
+      }
+
+      .match-num {
+        display: inline-grid;
+        place-items: center;
+        width: 6mm;
+        height: 6mm;
+        border: 1px solid #000;
+        font-size: 8pt;
+        font-weight: 700;
+      }
+
+      .match-char {
+        font-family: "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", sans-serif;
+        font-size: 16pt;
+        line-height: 1;
+      }
+
+      .match-blank {
+        flex: 1;
+        height: 0;
+        border-bottom: 1px solid #999;
+      }
+
+      .answer-key {
+        margin-top: 4mm;
+      }
+
+      .answer-key h3 {
+        margin: 0 0 3mm;
+        font-size: 11pt;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+      }
+
+      .answer-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 2.5mm 4mm;
+        font-size: 9.5pt;
+      }
+
+      .answer-item {
+        display: flex;
+        gap: 2mm;
+        align-items: baseline;
+        break-inside: avoid;
+        page-break-inside: avoid;
+      }
+
+      .answer-char {
+        font-family: "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", sans-serif;
+        font-size: 13pt;
+        font-weight: 600;
+      }
+
+      .sheet-footer {
+        margin-top: 6mm;
+        padding-top: 2mm;
+        border-top: 1px solid #999;
+        color: #555;
+        font-size: 8pt;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header class="site-nav">
+    <a class="site-nav-brand" href="/cipher-printie/">Cipher Printie</a>
+    <button class="nav-toggle" type="button" aria-expanded="false" aria-controls="site-menu" aria-label="Open menu">
+      <span class="nav-toggle-bars" aria-hidden="true"></span>
+    </button>
+    <nav id="site-menu" class="site-nav-menu" aria-label="Primary">
+      <ul class="site-nav-links">
+        <li><a href="/cipher-printie/">Cipher Printie</a></li>
+        <li><a href="/cipher-printie/flag-map.html">Flag Map</a></li>
+        <li><a href="/cipher-printie/origami.html">Origami</a></li>
+        <li><a href="/cipher-printie/merge.html">Agent Merge</a></li>
+        <li><a href="/cipher-printie/food-merge.html">Food Merge</a></li>
+        <li><a href="/cipher-printie/chinese.html" aria-current="page">Chinese</a></li>
+        <li><a href="/cipher-printie/story.html">Story</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <main class="screen">
+    <section class="studio" aria-labelledby="app-title">
+      <p class="eyebrow">Practice mission</p>
+      <h1 id="app-title">Traditional Chinese</h1>
+      <p class="intro">Study characters with 注音 on screen, then print a worksheet. Everything stays in this browser.</p>
+
+      <div class="section" aria-labelledby="deck-heading">
+        <h2 id="deck-heading" class="section-title">Choose a deck</h2>
+        <div class="deck-chips" role="group" aria-label="Character decks">
+          <button type="button" class="deck-chip" data-deck="all" aria-pressed="true">All</button>
+          <button type="button" class="deck-chip" data-deck="numbers" aria-pressed="false">Numbers</button>
+          <button type="button" class="deck-chip" data-deck="family" aria-pressed="false">Family</button>
+          <button type="button" class="deck-chip" data-deck="colors" aria-pressed="false">Colors</button>
+          <button type="button" class="deck-chip" data-deck="daily" aria-pressed="false">Daily</button>
+        </div>
+      </div>
+
+      <div class="section" aria-labelledby="study-heading">
+        <h2 id="study-heading" class="section-title">Study</h2>
+        <div class="study-layout">
+          <button type="button" class="flashcard" id="flashcard" aria-label="Flashcard. Click or press Space to flip.">
+            <div class="flashcard-front">
+              <span class="flashcard-char" id="card-char">一</span>
+            </div>
+            <div class="flashcard-back">
+              <span class="flashcard-zhuyin" id="card-zhuyin">ㄧ</span>
+              <span class="flashcard-meaning" id="card-meaning">one</span>
+            </div>
+            <p class="flashcard-hint">Tap or press Space to flip</p>
+          </button>
+          <aside class="stroke-panel" aria-labelledby="stroke-heading">
+            <p class="stroke-panel-label" id="stroke-heading">Stroke order</p>
+            <div class="stroke-target" id="stroke-target" role="img" aria-label="Stroke order animation">
+              <div class="stroke-writer" id="stroke-writer"></div>
+              <svg class="stroke-labels" id="stroke-labels" aria-hidden="true"></svg>
+            </div>
+            <div class="stroke-actions">
+              <button type="button" class="btn" id="btn-animate">Animate</button>
+              <button type="button" class="btn btn-secondary" id="btn-quiz">Quiz</button>
+            </div>
+            <p class="stroke-status" id="stroke-status" aria-live="polite">Loading stroke paths…</p>
+          </aside>
+        </div>
+        <div class="study-meta">
+          <p class="progress" id="study-progress" aria-live="polite">1 / 1</p>
+          <div class="study-controls">
+            <button type="button" class="btn btn-secondary" id="btn-prev">Previous</button>
+            <button type="button" class="btn btn-secondary" id="btn-next">Next</button>
+            <button type="button" class="btn btn-secondary" id="btn-shuffle">Shuffle</button>
+            <button type="button" class="btn btn-secondary" id="btn-reset">Reset</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="section" aria-labelledby="print-heading">
+        <h2 id="print-heading" class="section-title">Print worksheet</h2>
+        <div class="print-options">
+          <div class="option-row" role="group" aria-label="Worksheet types">
+            <label><input type="checkbox" name="sheet-type" value="trace" checked> Trace</label>
+            <label><input type="checkbox" name="sheet-type" value="zhuyin" checked> Write from 注音</label>
+            <label><input type="checkbox" name="sheet-type" value="match"> Match</label>
+            <label><input type="checkbox" name="include-answers" id="include-answers" checked> Answer key</label>
+          </div>
+          <div class="field">
+            <label for="sheet-count">Characters per sheet</label>
+            <select id="sheet-count">
+              <option value="8">8</option>
+              <option value="10" selected>10</option>
+              <option value="12">12</option>
+            </select>
+          </div>
+          <div class="print-actions">
+            <button type="button" class="btn btn-secondary" id="btn-preview">Generate preview</button>
+            <button type="button" class="btn" id="btn-print">Print</button>
+          </div>
+          <p class="preview-note" id="preview-note">Choose worksheet types, then print. Preview updates the printable pages (visible when you print).</p>
+        </div>
+      </div>
+
+      <p class="disclaimer">Cipher Printie © 2026. For personal and educational use. Traditional characters with 注音.</p>
+    </section>
+  </main>
+
+  <div class="print-pack" id="print-pack" aria-hidden="true"></div>
+
+  <script>
+    (function initMobileNav() {
+      const toggle = document.querySelector(".nav-toggle");
+      const menu = document.getElementById("site-menu");
+      if (!toggle || !menu) return;
+
+      const setOpen = (open) => {
+        menu.classList.toggle("is-open", open);
+        toggle.setAttribute("aria-expanded", open ? "true" : "false");
+        toggle.setAttribute("aria-label", open ? "Close menu" : "Open menu");
+      };
+
+      toggle.addEventListener("click", (event) => {
+        event.stopPropagation();
+        setOpen(toggle.getAttribute("aria-expanded") !== "true");
+      });
+
+      document.addEventListener("click", (event) => {
+        if (!event.target.closest(".site-nav")) setOpen(false);
+      });
+
+      document.addEventListener("keydown", (event) => {
+        if (event.key === "Escape") setOpen(false);
+      });
+
+      window.matchMedia("(max-width: 720px)").addEventListener("change", (event) => {
+        if (!event.matches) setOpen(false);
+      });
+    })();
+
+    (function initChineseStudio() {
+      const CHARACTERS = [
+        { char: "一", zhuyin: "ㄧ", meaning: "one", deck: "numbers" },
+        { char: "二", zhuyin: "ㄦˋ", meaning: "two", deck: "numbers" },
+        { char: "三", zhuyin: "ㄙㄢ", meaning: "three", deck: "numbers" },
+        { char: "四", zhuyin: "ㄙˋ", meaning: "four", deck: "numbers" },
+        { char: "五", zhuyin: "ㄨˇ", meaning: "five", deck: "numbers" },
+        { char: "六", zhuyin: "ㄌㄧㄡˋ", meaning: "six", deck: "numbers" },
+        { char: "七", zhuyin: "ㄑㄧ", meaning: "seven", deck: "numbers" },
+        { char: "八", zhuyin: "ㄅㄚ", meaning: "eight", deck: "numbers" },
+        { char: "九", zhuyin: "ㄐㄧㄡˇ", meaning: "nine", deck: "numbers" },
+        { char: "十", zhuyin: "ㄕˊ", meaning: "ten", deck: "numbers" },
+        { char: "零", zhuyin: "ㄌㄧㄥˊ", meaning: "zero", deck: "numbers" },
+        { char: "百", zhuyin: "ㄅㄞˇ", meaning: "hundred", deck: "numbers" },
+
+        { char: "我", zhuyin: "ㄨㄛˇ", meaning: "I / me", deck: "family" },
+        { char: "你", zhuyin: "ㄋㄧˇ", meaning: "you", deck: "family" },
+        { char: "他", zhuyin: "ㄊㄚ", meaning: "he / him", deck: "family" },
+        { char: "她", zhuyin: "ㄊㄚ", meaning: "she / her", deck: "family" },
+        { char: "爸", zhuyin: "ㄅㄚˋ", meaning: "dad", deck: "family" },
+        { char: "媽", zhuyin: "ㄇㄚ", meaning: "mom", deck: "family" },
+        { char: "哥", zhuyin: "ㄍㄜ", meaning: "older brother", deck: "family" },
+        { char: "姊", zhuyin: "ㄐㄧㄝˇ", meaning: "older sister", deck: "family" },
+        { char: "弟", zhuyin: "ㄉㄧˋ", meaning: "younger brother", deck: "family" },
+        { char: "妹", zhuyin: "ㄇㄟˋ", meaning: "younger sister", deck: "family" },
+        { char: "家", zhuyin: "ㄐㄧㄚ", meaning: "home / family", deck: "family" },
+        { char: "人", zhuyin: "ㄖㄣˊ", meaning: "person", deck: "family" },
+
+        { char: "紅", zhuyin: "ㄏㄨㄥˊ", meaning: "red", deck: "colors" },
+        { char: "橙", zhuyin: "ㄔㄥˊ", meaning: "orange", deck: "colors" },
+        { char: "黃", zhuyin: "ㄏㄨㄤˊ", meaning: "yellow", deck: "colors" },
+        { char: "綠", zhuyin: "ㄌㄩˋ", meaning: "green", deck: "colors" },
+        { char: "藍", zhuyin: "ㄌㄢˊ", meaning: "blue", deck: "colors" },
+        { char: "紫", zhuyin: "ㄗˇ", meaning: "purple", deck: "colors" },
+        { char: "黑", zhuyin: "ㄏㄟ", meaning: "black", deck: "colors" },
+        { char: "白", zhuyin: "ㄅㄞˊ", meaning: "white", deck: "colors" },
+        { char: "灰", zhuyin: "ㄏㄨㄟ", meaning: "gray", deck: "colors" },
+        { char: "粉", zhuyin: "ㄈㄣˇ", meaning: "pink", deck: "colors" },
+        { char: "棕", zhuyin: "ㄗㄨㄥ", meaning: "brown", deck: "colors" },
+        { char: "色", zhuyin: "ㄙㄜˋ", meaning: "color", deck: "colors" },
+
+        { char: "吃", zhuyin: "ㄔ", meaning: "eat", deck: "daily" },
+        { char: "喝", zhuyin: "ㄏㄜ", meaning: "drink", deck: "daily" },
+        { char: "看", zhuyin: "ㄎㄢˋ", meaning: "look / watch", deck: "daily" },
+        { char: "聽", zhuyin: "ㄊㄧㄥ", meaning: "listen", deck: "daily" },
+        { char: "說", zhuyin: "ㄕㄨㄛ", meaning: "speak", deck: "daily" },
+        { char: "走", zhuyin: "ㄗㄡˇ", meaning: "walk", deck: "daily" },
+        { char: "跑", zhuyin: "ㄆㄠˇ", meaning: "run", deck: "daily" },
+        { char: "來", zhuyin: "ㄌㄞˊ", meaning: "come", deck: "daily" },
+        { char: "去", zhuyin: "ㄑㄩˋ", meaning: "go", deck: "daily" },
+        { char: "大", zhuyin: "ㄉㄚˋ", meaning: "big", deck: "daily" },
+        { char: "小", zhuyin: "ㄒㄧㄠˇ", meaning: "small", deck: "daily" },
+        { char: "好", zhuyin: "ㄏㄠˇ", meaning: "good", deck: "daily" }
+      ];
+
+      const DECK_LABELS = {
+        all: "All characters",
+        numbers: "Numbers",
+        family: "Family",
+        colors: "Colors",
+        daily: "Daily"
+      };
+
+      const state = {
+        deck: "all",
+        queue: [],
+        index: 0,
+        flipped: false,
+        printItems: [],
+        writer: null,
+        writerChar: null,
+        writerReady: false,
+        charData: null,
+        animToken: 0,
+        numbersVisible: 0
+      };
+
+      const TRACE_ROWS_PER_PAGE = 9;
+      const TRACE_PRACTICE_COUNT = 5;
+      const ZHUYIN_ROWS_PER_PAGE = 8;
+      const ANSWER_ITEMS_PER_PAGE = 24;
+      const charDataCache = new Map();
+
+      const flashcard = document.getElementById("flashcard");
+      const cardChar = document.getElementById("card-char");
+      const cardZhuyin = document.getElementById("card-zhuyin");
+      const cardMeaning = document.getElementById("card-meaning");
+      const progressEl = document.getElementById("study-progress");
+      const printPack = document.getElementById("print-pack");
+      const previewNote = document.getElementById("preview-note");
+      const strokeTarget = document.getElementById("stroke-target");
+      const strokeWriterEl = document.getElementById("stroke-writer");
+      const strokeLabelsEl = document.getElementById("stroke-labels");
+      const strokeStatus = document.getElementById("stroke-status");
+      const btnAnimate = document.getElementById("btn-animate");
+      const btnQuiz = document.getElementById("btn-quiz");
+
+      function setStrokeStatus(message, isError = false) {
+        strokeStatus.textContent = message;
+        strokeStatus.classList.toggle("is-error", isError);
+      }
+
+      function strokeSize() {
+        const width = strokeTarget.clientWidth || 200;
+        return Math.max(160, Math.min(220, Math.round(width)));
+      }
+
+      function setStrokeControlsEnabled(enabled) {
+        btnAnimate.disabled = !enabled;
+        btnQuiz.disabled = !enabled;
+      }
+
+      function loadCharData(character) {
+        if (charDataCache.has(character)) {
+          return Promise.resolve(charDataCache.get(character));
+        }
+        const url = `https://cdn.jsdelivr.net/npm/hanzi-writer-data@2.0.1/${encodeURIComponent(character)}.json`;
+        const pending = fetch(url)
+          .then((response) => {
+            if (!response.ok) throw new Error(`Missing stroke data (${response.status})`);
+            return response.json();
+          })
+          .then((data) => {
+            charDataCache.set(character, data);
+            return data;
+          })
+          .catch((error) => {
+            charDataCache.delete(character);
+            throw error;
+          });
+        charDataCache.set(character, pending);
+        return pending;
+      }
+
+      async function ensureCharData(characters) {
+        const unique = Array.from(new Set(characters.filter(Boolean)));
+        await Promise.all(unique.map((character) => loadCharData(character).catch(() => null)));
+      }
+
+      function medianStartScreenPoint(median, transformData, size) {
+        const start = median[0];
+        const next = median[Math.min(1, median.length - 1)];
+        let dx = next[0] - start[0];
+        let dy = next[1] - start[1];
+        const length = Math.hypot(dx, dy) || 1;
+        dx /= length;
+        dy /= length;
+
+        // Place the number just before the stroke begins.
+        const offset = 36;
+        const charX = start[0] - dx * offset;
+        const charY = start[1] - dy * offset;
+
+        return {
+          x: transformData.x + charX * transformData.scale,
+          y: size - transformData.y - charY * transformData.scale
+        };
+      }
+
+      function renderStrokeNumbers(charData, visibleCount = 0) {
+        const size = strokeSize();
+        const transformData = HanziWriter.getScalingTransform(size, size, 12);
+        const svgNS = "http://www.w3.org/2000/svg";
+        state.numbersVisible = visibleCount;
+
+        strokeLabelsEl.setAttribute("width", String(size));
+        strokeLabelsEl.setAttribute("height", String(size));
+        strokeLabelsEl.setAttribute("viewBox", `0 0 ${size} ${size}`);
+        strokeLabelsEl.innerHTML = "";
+
+        (charData.medians || []).forEach((median, index) => {
+          if (!median || !median.length) return;
+          const point = medianStartScreenPoint(median, transformData, size);
+          const labelGroup = document.createElementNS(svgNS, "g");
+          labelGroup.setAttribute("transform", `translate(${point.x}, ${point.y})`);
+          labelGroup.dataset.strokeIndex = String(index);
+          labelGroup.style.opacity = index < visibleCount ? "1" : "0";
+          labelGroup.style.transition = "opacity 140ms ease";
+
+          const circle = document.createElementNS(svgNS, "circle");
+          circle.setAttribute("cx", "0");
+          circle.setAttribute("cy", "0");
+          circle.setAttribute("r", "8.5");
+          circle.setAttribute("fill", "#fff");
+          circle.setAttribute("stroke", "#17412f");
+          circle.setAttribute("stroke-width", "2");
+
+          const text = document.createElementNS(svgNS, "text");
+          text.setAttribute("x", "0");
+          text.setAttribute("y", "0");
+          text.setAttribute("text-anchor", "middle");
+          text.setAttribute("dominant-baseline", "central");
+          text.setAttribute("fill", "#17412f");
+          text.setAttribute("font-size", index >= 9 ? "9" : "10");
+          text.setAttribute("font-weight", "800");
+          text.setAttribute("font-family", "Inter, ui-sans-serif, system-ui, sans-serif");
+          text.textContent = String(index + 1);
+
+          labelGroup.appendChild(circle);
+          labelGroup.appendChild(text);
+          strokeLabelsEl.appendChild(labelGroup);
+        });
+      }
+
+      function setStrokeNumbersVisibleCount(count) {
+        state.numbersVisible = count;
+        Array.from(strokeLabelsEl.querySelectorAll("[data-stroke-index]")).forEach((label) => {
+          const index = Number(label.dataset.strokeIndex);
+          label.style.opacity = index < count ? "1" : "0";
+        });
+      }
+
+      function clearStrokeNumbers() {
+        strokeLabelsEl.innerHTML = "";
+      }
+
+      function wait(ms, token) {
+        return new Promise((resolve) => {
+          window.setTimeout(() => resolve(token === state.animToken), ms);
+        });
+      }
+
+      async function animateWithStrokeNumbers() {
+        if (!state.writer || !state.writerReady || !state.charData) return;
+        const token = ++state.animToken;
+        const total = state.charData.strokes.length;
+
+        if (typeof state.writer.cancelQuiz === "function") {
+          try { state.writer.cancelQuiz(); } catch (_) { /* ignore */ }
+        }
+
+        renderStrokeNumbers(state.charData, 0);
+        setStrokeControlsEnabled(false);
+        setStrokeStatus("Animating stroke order…");
+
+        try {
+          await state.writer.hideCharacter({ duration: 120 });
+        } catch (_) { /* ignore */ }
+        if (token !== state.animToken) return;
+
+        for (let i = 0; i < total; i += 1) {
+          if (token !== state.animToken) return;
+          setStrokeNumbersVisibleCount(i + 1);
+          setStrokeStatus(`Stroke ${i + 1} of ${total}`);
+          try {
+            await state.writer.animateStroke(i);
+          } catch (_) { /* ignore */ }
+          if (token !== state.animToken) return;
+          if (i < total - 1) {
+            const ok = await wait(220, token);
+            if (!ok) return;
+          }
+        }
+
+        if (token !== state.animToken) return;
+        setStrokeNumbersVisibleCount(total);
+        setStrokeControlsEnabled(true);
+        setStrokeStatus("Animation complete. Tap Animate to replay.");
+      }
+
+      function syncStrokeWriter(char) {
+        if (typeof HanziWriter === "undefined") {
+          setStrokeControlsEnabled(false);
+          setStrokeStatus("Stroke animation library failed to load.", true);
+          return;
+        }
+
+        state.animToken += 1;
+
+        if (!char) {
+          state.writerReady = false;
+          state.writerChar = null;
+          state.charData = null;
+          state.writer = null;
+          strokeWriterEl.innerHTML = "";
+          clearStrokeNumbers();
+          setStrokeControlsEnabled(false);
+          setStrokeStatus("No character selected.");
+          return;
+        }
+
+        if (state.writer && state.writerChar === char && state.writerReady) {
+          if (typeof state.writer.cancelQuiz === "function") {
+            try { state.writer.cancelQuiz(); } catch (_) { /* ignore */ }
+          }
+          state.writer.showCharacter();
+          if (state.charData) renderStrokeNumbers(state.charData, 0);
+          setStrokeStatus("Tap Animate to watch stroke order, or Quiz to practice.");
+          return;
+        }
+
+        const size = strokeSize();
+        setStrokeControlsEnabled(false);
+        setStrokeStatus("Loading stroke paths…");
+        state.writerReady = false;
+        state.writerChar = char;
+        state.charData = null;
+        strokeWriterEl.innerHTML = "";
+        clearStrokeNumbers();
+
+        const writer = HanziWriter.create(strokeWriterEl, char, {
+          width: size,
+          height: size,
+          padding: 12,
+          showOutline: true,
+          showCharacter: true,
+          strokeColor: "#17412f",
+          outlineColor: "#d5ddd8",
+          radicalColor: "#215c42",
+          drawingColor: "#215c42",
+          strokeAnimationSpeed: 1.15,
+          delayBetweenStrokes: 220,
+          strokeHighlightSpeed: 1.2,
+          highlightColor: "#215c42",
+          charDataLoader: (character, onComplete, onError) => {
+            loadCharData(character).then(onComplete).catch(onError);
+          },
+          onLoadCharDataSuccess: (charData) => {
+            if (state.writerChar !== char) return;
+            state.charData = charData;
+            state.writerReady = true;
+            renderStrokeNumbers(charData, 0);
+            setStrokeControlsEnabled(true);
+            setStrokeStatus("Tap Animate to watch stroke order, or Quiz to practice.");
+          },
+          onLoadCharDataError: () => {
+            if (state.writerChar !== char) return;
+            state.writerReady = false;
+            state.charData = null;
+            clearStrokeNumbers();
+            setStrokeControlsEnabled(false);
+            setStrokeStatus("Stroke paths unavailable for this character.", true);
+          }
+        });
+
+        state.writer = writer;
+      }
+
+      function shuffle(list) {
+        const copy = list.slice();
+        for (let i = copy.length - 1; i > 0; i -= 1) {
+          const j = Math.floor(Math.random() * (i + 1));
+          const tmp = copy[i];
+          copy[i] = copy[j];
+          copy[j] = tmp;
+        }
+        return copy;
+      }
+
+      function deckCharacters(deck) {
+        if (deck === "all") return CHARACTERS.slice();
+        return CHARACTERS.filter((item) => item.deck === deck);
+      }
+
+      function rebuildQueue(options = {}) {
+        const { keepShuffle = false } = options;
+        const base = deckCharacters(state.deck);
+        state.queue = keepShuffle ? shuffle(base) : base.slice();
+        state.index = 0;
+        state.flipped = false;
+        renderCard();
+      }
+
+      function currentCard() {
+        return state.queue[state.index] || null;
+      }
+
+      function renderCard() {
+        const card = currentCard();
+        flashcard.classList.toggle("is-flipped", state.flipped);
+        if (!card) {
+          cardChar.textContent = "—";
+          cardZhuyin.textContent = "";
+          cardMeaning.textContent = "No characters in this deck";
+          progressEl.textContent = "0 / 0";
+          syncStrokeWriter(null);
+          return;
+        }
+        cardChar.textContent = card.char;
+        cardZhuyin.textContent = card.zhuyin;
+        cardMeaning.textContent = card.meaning;
+        progressEl.textContent = `${state.index + 1} / ${state.queue.length} in this deck`;
+        syncStrokeWriter(card.char);
+      }
+
+      function setDeck(deck) {
+        state.deck = deck;
+        document.querySelectorAll(".deck-chip").forEach((chip) => {
+          chip.setAttribute("aria-pressed", chip.dataset.deck === deck ? "true" : "false");
+        });
+        rebuildQueue();
+        refreshPrintPreview();
+      }
+
+      function flipCard() {
+        if (!currentCard()) return;
+        state.flipped = !state.flipped;
+        flashcard.classList.toggle("is-flipped", state.flipped);
+      }
+
+      function go(delta) {
+        if (!state.queue.length) return;
+        state.index = (state.index + delta + state.queue.length) % state.queue.length;
+        state.flipped = false;
+        renderCard();
+      }
+
+      function selectedSheetTypes() {
+        return Array.from(document.querySelectorAll('input[name="sheet-type"]:checked')).map(
+          (input) => input.value
+        );
+      }
+
+      function sheetCount() {
+        return Number(document.getElementById("sheet-count").value) || 10;
+      }
+
+      function pickPrintItems() {
+        const pool = shuffle(deckCharacters(state.deck));
+        const count = Math.min(sheetCount(), pool.length);
+        return pool.slice(0, count);
+      }
+
+      function escapeHtml(value) {
+        return String(value)
+          .replace(/&/g, "&amp;")
+          .replace(/</g, "&lt;")
+          .replace(/>/g, "&gt;")
+          .replace(/"/g, "&quot;");
+      }
+
+      function practiceBoxes(count) {
+        return Array.from({ length: count }, () => '<div class="practice-box"></div>').join("");
+      }
+
+      function chunkItems(items, size) {
+        const pages = [];
+        for (let i = 0; i < items.length; i += size) {
+          pages.push(items.slice(i, i + size));
+        }
+        return pages.length ? pages : [[]];
+      }
+
+      function pageLabel(pageIndex, pageCount) {
+        if (pageCount <= 1) return "";
+        return `<span class="sheet-page">Page ${pageIndex + 1} / ${pageCount}</span>`;
+      }
+
+      function medianPolyline(median) {
+        return median
+          .map((point, index) => `${index === 0 ? "M" : "L"} ${point[0]} ${point[1]}`)
+          .join(" ");
+      }
+
+      function charSvgMarkup(charData, mode) {
+        if (!charData || !charData.strokes) return "";
+        const size = 100;
+        const transformData = HanziWriter.getScalingTransform(size, size, 6);
+        const transform = escapeHtml(transformData.transform.trim().replace(/\s+/g, " "));
+
+        if (mode === "example") {
+          const paths = charData.strokes
+            .map((strokePath) => `<path d="${escapeHtml(strokePath)}" fill="#222"/>`)
+            .join("");
+          return `<svg class="trace-char-svg" viewBox="0 0 ${size} ${size}" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><g transform="${transform}">${paths}</g></svg>`;
+        }
+
+        // Practice guides: light stroke fills + dashed median paths (same geometry as animation).
+        const fills = charData.strokes
+          .map((strokePath) => `<path d="${escapeHtml(strokePath)}" fill="#d7d7d7"/>`)
+          .join("");
+        const dashes = (charData.medians || [])
+          .map((median) => {
+            if (!median || median.length < 2) return "";
+            return `<path d="${escapeHtml(medianPolyline(median))}" fill="none" stroke="#8a8a8a" stroke-width="150" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="18 55"/>`;
+          })
+          .join("");
+        return `<svg class="trace-char-svg" viewBox="0 0 ${size} ${size}" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><g transform="${transform}">${fills}${dashes}</g></svg>`;
+      }
+
+      function traceCellMarkup(char, mode) {
+        const data = charDataCache.get(char);
+        const resolved = data && typeof data.then !== "function" ? data : null;
+        const svg = resolved ? charSvgMarkup(resolved, mode) : `<span class="trace-fallback">${escapeHtml(char)}</span>`;
+        const className = mode === "example" ? "trace-cell is-example" : "trace-cell";
+        return `<div class="${className}">${svg}</div>`;
+      }
+
+      function renderTraceSheets(items, deckLabel) {
+        const pages = chunkItems(items, TRACE_ROWS_PER_PAGE);
+        return pages.map((pageItems, pageIndex) => {
+          const rows = pageItems.map((item) => {
+            const practice = Array.from({ length: TRACE_PRACTICE_COUNT }, () =>
+              traceCellMarkup(item.char, "practice")
+            ).join("");
+            return `
+              <div class="trace-row">
+                ${traceCellMarkup(item.char, "example")}
+                ${practice}
+              </div>
+            `;
+          }).join("");
+
+          return `
+            <article class="print-sheet">
+              <header class="sheet-header">
+                <p>Cipher Printie · Chinese</p>
+                <h2>Trace the characters</h2>
+              </header>
+              <p class="sheet-meta">${pageLabel(pageIndex, pages.length)}Deck: ${escapeHtml(deckLabel)} · Trace over the dashed SVG guides</p>
+              <div class="trace-grid">${rows}</div>
+              <footer class="sheet-footer">Traditional Chinese practice · 注音 study companion</footer>
+            </article>
+          `;
+        }).join("");
+      }
+
+      function renderZhuyinSheets(items, deckLabel) {
+        const pages = chunkItems(items, ZHUYIN_ROWS_PER_PAGE);
+        return pages.map((pageItems, pageIndex) => {
+          const rows = pageItems.map((item) => `
+            <div class="zhuyin-row">
+              <div class="zhuyin-prompt">${escapeHtml(item.zhuyin)}</div>
+              <div class="practice-boxes">${practiceBoxes(4)}</div>
+            </div>
+          `).join("");
+
+          return `
+            <article class="print-sheet">
+              <header class="sheet-header">
+                <p>Cipher Printie · Chinese</p>
+                <h2>Write from 注音</h2>
+              </header>
+              <p class="sheet-meta">${pageLabel(pageIndex, pages.length)}Deck: ${escapeHtml(deckLabel)} · Write the Traditional character for each 注音</p>
+              <div class="zhuyin-grid">${rows}</div>
+              <footer class="sheet-footer">Traditional Chinese practice · 注音 study companion</footer>
+            </article>
+          `;
+        }).join("");
+      }
+
+      function renderMatchSheet(items, deckLabel) {
+        const meanings = items.map((item, index) => `
+          <li>
+            <span class="match-num">${index + 1}</span>
+            <span>${escapeHtml(item.meaning)}</span>
+            <span class="match-blank" aria-hidden="true"></span>
+          </li>
+        `).join("");
+
+        const chars = shuffle(items).map((item) => `
+          <li>
+            <span class="match-char">${escapeHtml(item.char)}</span>
+            <span class="match-blank" aria-hidden="true"></span>
+          </li>
+        `).join("");
+
+        return `
+          <article class="print-sheet">
+            <header class="sheet-header">
+              <p>Cipher Printie · Chinese</p>
+              <h2>Match meanings</h2>
+            </header>
+            <p class="sheet-meta">Deck: ${escapeHtml(deckLabel)} · Draw a line from each meaning to the matching character</p>
+            <div class="match-layout">
+              <div class="match-col">
+                <h3>Meanings</h3>
+                <ul class="match-list">${meanings}</ul>
+              </div>
+              <div class="match-col">
+                <h3>Characters</h3>
+                <ul class="match-list">${chars}</ul>
+              </div>
+            </div>
+            <footer class="sheet-footer">Traditional Chinese practice · 注音 study companion</footer>
+          </article>
+        `;
+      }
+
+      function renderAnswerSheets(items, deckLabel) {
+        const pages = chunkItems(items, ANSWER_ITEMS_PER_PAGE);
+        return pages.map((pageItems, pageIndex) => {
+          const answers = pageItems.map((item) => `
+            <div class="answer-item">
+              <span class="answer-char">${escapeHtml(item.char)}</span>
+              <span>${escapeHtml(item.zhuyin)} · ${escapeHtml(item.meaning)}</span>
+            </div>
+          `).join("");
+
+          return `
+            <article class="print-sheet">
+              <header class="sheet-header">
+                <p>Cipher Printie · Chinese</p>
+                <h2>Answer key</h2>
+              </header>
+              <p class="sheet-meta">${pageLabel(pageIndex, pages.length)}Deck: ${escapeHtml(deckLabel)} · For parents and teachers</p>
+              <div class="answer-key">
+                <div class="answer-grid">${answers}</div>
+              </div>
+              <footer class="sheet-footer">Traditional Chinese practice · 注音 study companion</footer>
+            </article>
+          `;
+        }).join("");
+      }
+
+      async function refreshPrintPreview(forceNewPick = true) {
+        if (forceNewPick || !state.printItems.length) {
+          state.printItems = pickPrintItems();
+        }
+
+        const types = selectedSheetTypes();
+        const includeAnswers = document.getElementById("include-answers").checked;
+        const deckLabel = DECK_LABELS[state.deck] || "All characters";
+        const items = state.printItems;
+
+        if (!items.length || !types.length) {
+          printPack.innerHTML = "";
+          previewNote.textContent = types.length
+            ? "No characters available for this deck."
+            : "Select at least one worksheet type, then generate or print.";
+          return;
+        }
+
+        if (types.includes("trace")) {
+          previewNote.textContent = "Loading stroke SVGs for print…";
+          await ensureCharData(items.map((item) => item.char));
+        }
+
+        const sheets = [];
+        if (types.includes("trace")) sheets.push(renderTraceSheets(items, deckLabel));
+        if (types.includes("zhuyin")) sheets.push(renderZhuyinSheets(items, deckLabel));
+        if (types.includes("match")) sheets.push(renderMatchSheet(items, deckLabel));
+        if (includeAnswers) sheets.push(renderAnswerSheets(items, deckLabel));
+
+        printPack.innerHTML = sheets.join("");
+        const pageCount = printPack.querySelectorAll(".print-sheet").length;
+        previewNote.textContent = `Ready: ${items.length} characters · ${pageCount} print page${pageCount === 1 ? "" : "s"} (${deckLabel}). Use Print to open the dialog.`;
+      }
+
+      document.querySelectorAll(".deck-chip").forEach((chip) => {
+        chip.addEventListener("click", () => setDeck(chip.dataset.deck));
+      });
+
+      flashcard.addEventListener("click", flipCard);
+
+      document.getElementById("btn-prev").addEventListener("click", () => go(-1));
+      document.getElementById("btn-next").addEventListener("click", () => go(1));
+      document.getElementById("btn-shuffle").addEventListener("click", () => rebuildQueue({ keepShuffle: true }));
+      document.getElementById("btn-reset").addEventListener("click", () => rebuildQueue());
+
+      btnAnimate.addEventListener("click", () => {
+        animateWithStrokeNumbers();
+      });
+
+      btnQuiz.addEventListener("click", () => {
+        if (!state.writer || !state.writerReady) return;
+        state.animToken += 1;
+        if (state.charData) renderStrokeNumbers(state.charData, 0);
+        setStrokeStatus("Draw each stroke in order.");
+        state.writer.quiz({
+          onCorrectStroke: (data) => {
+            setStrokeNumbersVisibleCount((data.strokeNum || 0) + 1);
+          },
+          onComplete: () => {
+            if (state.charData) renderStrokeNumbers(state.charData, state.charData.strokes.length);
+            setStrokeStatus("Nice work — all strokes correct.");
+          }
+        });
+      });
+
+      document.getElementById("btn-preview").addEventListener("click", () => {
+        refreshPrintPreview(true);
+      });
+      document.getElementById("btn-print").addEventListener("click", async () => {
+        await refreshPrintPreview(state.printItems.length === 0);
+        window.print();
+      });
+
+      document.getElementById("sheet-count").addEventListener("change", () => {
+        refreshPrintPreview(true);
+      });
+      document.querySelectorAll('input[name="sheet-type"], #include-answers').forEach((input) => {
+        input.addEventListener("change", () => refreshPrintPreview(false));
+      });
+
+      document.addEventListener("keydown", (event) => {
+        if (event.target.matches("input, select, textarea, button")) return;
+        if (event.code === "Space") {
+          event.preventDefault();
+          flipCard();
+        } else if (event.key === "ArrowRight") {
+          go(1);
+        } else if (event.key === "ArrowLeft") {
+          go(-1);
+        }
+      });
+
+      window.addEventListener("resize", () => {
+        if (!state.writer || !state.writerReady) return;
+        const size = strokeSize();
+        if (typeof state.writer.updateDimensions === "function") {
+          state.writer.updateDimensions({ width: size, height: size });
+        }
+        if (state.charData) renderStrokeNumbers(state.charData, state.numbersVisible);
+      });
+
+      setStrokeControlsEnabled(false);
+      rebuildQueue();
+      refreshPrintPreview(true);
+    })();
+  </script>
+</body>
+</html>
