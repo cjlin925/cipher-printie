@@ -1250,7 +1250,6 @@
         <li><a href="/cipher-printie/">Cipher Printie</a></li>
         <li><a href="/cipher-printie/flag-map.html">Flag Map</a></li>
         <li><a href="/cipher-printie/origami.html">Origami</a></li>
-        <li><a href="/cipher-printie/merge.html">Agent Merge</a></li>
         <li><a href="/cipher-printie/food-merge.html">Food Merge</a></li>
         <li><a href="/cipher-printie/chinese.html" aria-current="page">Chinese</a></li>
         <li><a href="/cipher-printie/python.html">Python</a></li>
@@ -1907,7 +1906,7 @@
         // Hollow glyph with dashed outline (same stroke paths as animation).
         const paths = charData.strokes
           .map((strokePath) =>
-            `<path d="${escapeHtml(strokePath)}" fill="none" stroke="#6e6e6e" stroke-width="28" stroke-linejoin="round" stroke-linecap="round" stroke-dasharray="42 34"/>`
+            `<path d="${escapeHtml(strokePath)}" fill="none" stroke="#6e6e6e" stroke-width="12" stroke-linejoin="round" stroke-linecap="butt" stroke-dasharray="32 16"/>`
           )
           .join("");
         return `<svg class="trace-char-svg" viewBox="0 0 ${size} ${size}" width="100%" height="100%" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><g transform="${transform}">${paths}</g></svg>`;
