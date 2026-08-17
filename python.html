@@ -22,6 +22,7 @@
   <link rel="icon" href="/cipher-printie/favicon-32.png" type="image/png" sizes="32x32">
   <link rel="apple-touch-icon" href="/cipher-printie/apple-touch-icon.png" sizes="180x180">
   <link rel="manifest" href="/cipher-printie/site.webmanifest">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.css">
   <meta property="og:type" content="website">
   <meta property="og:site_name" content="Cipher Printie">
   <meta property="og:title" content="Python Playground · Cipher Printie">
@@ -471,25 +472,91 @@
     }
 
     #code-editor {
+      display: none;
+    }
+
+    .editor-shell {
       flex: 1 1 auto;
       width: 100%;
       min-height: min(70vh, 40rem);
       height: 100%;
-      padding: 0.9rem 1rem;
       border: 1px solid rgba(23, 32, 27, 0.14);
       border-radius: 0.75rem;
+      overflow: hidden;
       background: var(--code-bg);
-      color: var(--code-ink);
+    }
+
+    .editor-shell .CodeMirror {
+      height: 100%;
+      min-height: min(70vh, 40rem);
       font-family: "SF Mono", ui-monospace, Menlo, Consolas, monospace;
       font-size: 0.92rem;
       line-height: 1.5;
-      resize: vertical;
-      tab-size: 4;
+      background: var(--code-bg);
+      color: var(--code-ink);
     }
 
-    #code-editor:focus {
+    .editor-shell .CodeMirror-scroll {
+      min-height: min(70vh, 40rem);
+    }
+
+    .editor-shell .CodeMirror-gutters {
+      background: #0f1813;
+      border-right: 1px solid rgba(232, 240, 235, 0.08);
+    }
+
+    .editor-shell .CodeMirror-linenumber {
+      color: #6f8578;
+      padding: 0 0.55rem 0 0.35rem;
+    }
+
+    .editor-shell .CodeMirror-cursor {
+      border-left: 2px solid #d7e8de;
+    }
+
+    .editor-shell .CodeMirror-selected {
+      background: rgba(33, 92, 66, 0.45);
+    }
+
+    .editor-shell .CodeMirror-focused .CodeMirror-selected {
+      background: rgba(33, 92, 66, 0.55);
+    }
+
+    .editor-shell .CodeMirror-activeline-background {
+      background: rgba(255, 255, 255, 0.04);
+    }
+
+    .editor-shell .CodeMirror-matchingbracket {
+      color: #9dffc4 !important;
+      outline: 1px solid rgba(157, 255, 196, 0.45);
+    }
+
+    .editor-shell .cm-s-cipher.CodeMirror { background: var(--code-bg); color: var(--code-ink); }
+    .editor-shell .cm-s-cipher .cm-keyword { color: #7dcea0; font-weight: 600; }
+    .editor-shell .cm-s-cipher .cm-builtin { color: #8fd3ff; }
+    .editor-shell .cm-s-cipher .cm-def { color: #f0c674; }
+    .editor-shell .cm-s-cipher .cm-variable { color: #e8f0eb; }
+    .editor-shell .cm-s-cipher .cm-variable-2 { color: #c8e6d4; }
+    .editor-shell .cm-s-cipher .cm-variable-3 { color: #b8d4c4; }
+    .editor-shell .cm-s-cipher .cm-string { color: #f5c28b; }
+    .editor-shell .cm-s-cipher .cm-string-2 { color: #f0b070; }
+    .editor-shell .cm-s-cipher .cm-number { color: #b9a0ff; }
+    .editor-shell .cm-s-cipher .cm-comment { color: #7f9488; font-style: italic; }
+    .editor-shell .cm-s-cipher .cm-operator { color: #a8c5b6; }
+    .editor-shell .cm-s-cipher .cm-meta { color: #9ad0b4; }
+    .editor-shell .cm-s-cipher .cm-punctuation { color: #c5d7cc; }
+
+    .editor-shell:focus-within {
       outline: 2px solid var(--accent);
       outline-offset: 1px;
+    }
+
+    @media (max-width: 900px) {
+      .editor-shell,
+      .editor-shell .CodeMirror,
+      .editor-shell .CodeMirror-scroll {
+        min-height: 55vh;
+      }
     }
 
     #output {
@@ -527,10 +594,6 @@
         border-right: 0;
         border-bottom: 1px solid rgba(23, 32, 27, 0.1);
         min-height: 0;
-      }
-
-      #code-editor {
-        min-height: 55vh;
       }
 
       .turtle-stage {
@@ -588,7 +651,9 @@
       <div class="workspace">
         <div class="pane-code">
           <p class="panel-label" id="editor-label">Code</p>
-          <textarea id="code-editor" spellcheck="false" aria-labelledby="editor-label"></textarea>
+          <div class="editor-shell">
+            <textarea id="code-editor" spellcheck="false" aria-labelledby="editor-label"></textarea>
+          </div>
         </div>
 
         <div class="pane-side">
@@ -621,6 +686,11 @@
     </section>
   </main>
 
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/python/python.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/addon/edit/matchbrackets.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/addon/edit/closebrackets.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/addon/selection/active-line.min.js"></script>
   <script>
     (function initMobileNav() {
       const toggle = document.querySelector(".nav-toggle");
@@ -1267,7 +1337,7 @@ Screen = Screen
 # Turtle already defined
 `;
 
-      const editor = document.getElementById("code-editor");
+      const textarea = document.getElementById("code-editor");
       const output = document.getElementById("output");
       const statusEl = document.getElementById("runtime-status");
       const btnRun = document.getElementById("btn-run");
@@ -1278,6 +1348,51 @@ Screen = Screen
       const turtleStage = document.getElementById("turtle-stage");
       const studio = document.getElementById("studio");
       const canvasBgInput = document.getElementById("canvas-bg-input");
+
+      const codeMirror = CodeMirror.fromTextArea(textarea, {
+        mode: {
+          name: "python",
+          version: 3,
+          singleLineStringErrors: false
+        },
+        theme: "cipher",
+        lineNumbers: true,
+        indentUnit: 4,
+        tabSize: 4,
+        indentWithTabs: false,
+        smartIndent: true,
+        electricChars: true,
+        lineWrapping: true,
+        matchBrackets: true,
+        autoCloseBrackets: true,
+        styleActiveLine: true,
+        extraKeys: {
+          Tab: (cm) => {
+            if (cm.somethingSelected()) {
+              cm.indentSelection("add");
+            } else {
+              cm.replaceSelection("    ", "end");
+            }
+          },
+          "Shift-Tab": (cm) => cm.indentSelection("subtract"),
+          Enter: (cm) => {
+            cm.execCommand("newlineAndIndent");
+          }
+        }
+      });
+
+      function getCode() {
+        return codeMirror.getValue();
+      }
+
+      function setCode(value) {
+        codeMirror.setValue(value || "");
+        codeMirror.clearHistory();
+      }
+
+      function refreshEditor() {
+        requestAnimationFrame(() => codeMirror.refresh());
+      }
 
       let pyodide = null;
       let currentExample = "turtle";
@@ -1302,7 +1417,7 @@ Screen = Screen
       function writeCache() {
         try {
           localStorage.setItem(CACHE_KEY, JSON.stringify({
-            code: editor.value,
+            code: getCode(),
             example: currentExample,
             canvasBg: window.__turtleCanvasBg || "#ffffff"
           }));
@@ -1323,6 +1438,7 @@ Screen = Screen
       function setTurtleMode(enabled) {
         const wasEnabled = studio.classList.contains("mode-turtle");
         studio.classList.toggle("mode-turtle", enabled);
+        refreshEditor();
         if (enabled && !wasEnabled) {
           requestAnimationFrame(() => {
             fitTurtleCanvas();
@@ -1353,7 +1469,7 @@ Screen = Screen
 
       function setExample(name, { persist = true } = {}) {
         currentExample = name;
-        editor.value = EXAMPLES[name] || EXAMPLES.hello;
+        setCode(EXAMPLES[name] || EXAMPLES.hello);
         document.querySelectorAll(".example-chip").forEach((chip) => {
           chip.setAttribute("aria-pressed", chip.dataset.example === name ? "true" : "false");
         });
@@ -1371,9 +1487,9 @@ Screen = Screen
         document.querySelectorAll(".example-chip").forEach((chip) => {
           chip.setAttribute("aria-pressed", chip.dataset.example === example ? "true" : "false");
         });
-        editor.value = code != null ? code : (EXAMPLES[example] || EXAMPLES.turtle);
+        setCode(code != null ? code : (EXAMPLES[example] || EXAMPLES.turtle));
         const usesTurtle = example === "turtle"
-          || /\b(import\s+turtle|from\s+turtle\s+import)\b/.test(editor.value);
+          || /\b(import\s+turtle|from\s+turtle\s+import)\b/.test(getCode());
         setTurtleMode(usesTurtle);
         setCanvasBackground(canvasBg, { refill: false, persist: false });
       }
@@ -1475,7 +1591,7 @@ turtle.resetscreen()
         setStatus("Running…");
         clearOutput();
 
-        const usesTurtle = /\b(import\s+turtle|from\s+turtle\s+import)\b/.test(editor.value);
+        const usesTurtle = /\b(import\s+turtle|from\s+turtle\s+import)\b/.test(getCode());
         if (usesTurtle || currentExample === "turtle") {
           setTurtleMode(true);
           fitTurtleCanvas();
@@ -1490,7 +1606,7 @@ if "turtle" in sys.modules:
     import turtle
     turtle.resetscreen()
 `);
-          await pyodide.runPythonAsync(editor.value);
+          await pyodide.runPythonAsync(getCode());
           // Keep the color picker in sync if the program called bgcolor().
           if (window.__turtleCanvasBg) {
             setCanvasBackground(window.__turtleCanvasBg, { refill: false });
@@ -1507,7 +1623,7 @@ if "turtle" in sys.modules:
         } finally {
           running = false;
           btnRun.disabled = false;
-          editor.focus();
+          codeMirror.focus();
         }
       }
 
@@ -1569,22 +1685,9 @@ if "turtle" in sys.modules:
         }
       });
 
-      editor.addEventListener("keydown", (event) => {
-        if (event.key === "Tab") {
-          event.preventDefault();
-          const start = editor.selectionStart;
-          const end = editor.selectionEnd;
-          const value = editor.value;
-          editor.value = `${value.slice(0, start)}\t${value.slice(end)}`;
-          editor.selectionStart = editor.selectionEnd = start + 1;
-          scheduleSave();
-        }
-      });
-
-      // Auto-enter turtle layout if the user types turtle imports.
-      editor.addEventListener("input", () => {
+      codeMirror.on("change", () => {
         scheduleSave();
-        const usesTurtle = /\b(import\s+turtle|from\s+turtle\s+import)\b/.test(editor.value);
+        const usesTurtle = /\b(import\s+turtle|from\s+turtle\s+import)\b/.test(getCode());
         if (usesTurtle !== studio.classList.contains("mode-turtle")) {
           setTurtleMode(usesTurtle || currentExample === "turtle");
         }
@@ -1592,15 +1695,21 @@ if "turtle" in sys.modules:
 
       window.addEventListener("resize", () => {
         fitTurtleCanvas();
+        refreshEditor();
       });
 
       if (window.ResizeObserver) {
         new ResizeObserver(() => fitTurtleCanvas()).observe(turtleStage);
+        const editorShell = document.querySelector(".editor-shell");
+        if (editorShell) {
+          new ResizeObserver(() => refreshEditor()).observe(editorShell);
+        }
       }
 
       window.addEventListener("beforeunload", writeCache);
 
       restoreFromCache();
+      refreshEditor();
       loadPyodideRuntime();
     })();
   </script>
