@@ -803,28 +803,26 @@
         --ink: #000;
       }
 
+      /* Letter = 8.5×11in. Keep sheet under printable area to avoid spill. */
       @page {
         size: letter portrait;
-        margin: 0.4in;
+        margin: 0.5in;
       }
 
       html,
       body {
-        min-height: auto;
-        width: auto;
-        height: auto;
-        margin: 0;
-        padding: 0;
-        background: #fff;
+        min-height: auto !important;
+        width: auto !important;
+        height: auto !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        background: #fff !important;
         -webkit-print-color-adjust: exact;
         print-color-adjust: exact;
       }
 
       .site-nav,
-      .screen {
-        display: none !important;
-      }
-
+      .screen,
       .preview-section {
         display: none !important;
       }
@@ -836,15 +834,14 @@
         padding: 0;
       }
 
-      /* Letter content box: 11in - 0.8in margins = 10.2in usable height */
+      /* Usable area with 0.5in margins: 7.5in × 10in */
       .print-sheet {
         box-sizing: border-box;
-        display: flex;
-        flex-direction: column;
-        width: 100%;
-        max-width: 7.7in;
-        height: 10.2in;
-        max-height: 10.2in;
+        display: block;
+        width: 7.5in;
+        max-width: 7.5in;
+        height: 9.85in;
+        max-height: 9.85in;
         margin: 0 auto;
         padding: 0;
         overflow: hidden;
@@ -862,33 +859,40 @@
       }
 
       .sheet-header {
-        flex: 0 0 auto;
-        padding-bottom: 1.5mm;
+        box-sizing: border-box;
+        height: 0.42in;
+        max-height: 0.42in;
+        padding: 0 0 0.06in;
         border-bottom: 1.5px solid #000;
         text-align: center;
+        overflow: hidden;
       }
 
       .sheet-header p {
-        margin: 0 0 0.6mm;
-        font-size: 7.5pt;
+        margin: 0 0 0.02in;
+        font-size: 7pt;
         font-weight: 700;
-        letter-spacing: 0.16em;
+        letter-spacing: 0.14em;
         text-transform: uppercase;
+        line-height: 1.1;
       }
 
       .sheet-header h2 {
         margin: 0;
-        font-size: 12pt;
-        letter-spacing: 0.03em;
+        font-size: 11pt;
+        letter-spacing: 0.02em;
         line-height: 1.15;
       }
 
       .sheet-meta {
-        flex: 0 0 auto;
-        margin: 1.5mm 0 2mm;
+        box-sizing: border-box;
+        height: 0.28in;
+        max-height: 0.28in;
+        margin: 0.06in 0 0.08in;
         color: #333;
         font-size: 8pt;
-        line-height: 1.25;
+        line-height: 1.2;
+        overflow: hidden;
       }
 
       .sheet-page {
@@ -898,32 +902,43 @@
       }
 
       .sheet-footer {
-        flex: 0 0 auto;
-        margin-top: auto;
-        padding-top: 1.5mm;
+        box-sizing: border-box;
+        height: 0.28in;
+        max-height: 0.28in;
+        margin: 0.06in 0 0;
+        padding-top: 0.05in;
         border-top: 1px solid #999;
         color: #555;
-        font-size: 7.5pt;
+        font-size: 7pt;
+        line-height: 1.2;
+        overflow: hidden;
       }
 
+      /*
+        Trace budget on one letter page:
+        header 0.42 + meta 0.28 + footer 0.28 + margins ≈ 1.18in
+        → trace-page gets 8.55in max for character rows.
+      */
       .trace-page {
+        box-sizing: border-box;
         display: flex;
-        flex: 1 1 auto;
         flex-direction: column;
-        gap: 1.4mm;
+        justify-content: flex-start;
         width: 100%;
-        min-height: 0;
-        max-height: 100%;
+        height: 8.55in;
+        max-height: 8.55in;
+        margin: 0;
+        padding: 0;
         overflow: hidden;
       }
 
       .trace-char {
+        box-sizing: border-box;
         display: flex;
-        flex: 1 1 0;
         flex-direction: column;
-        gap: 0.6mm;
-        min-height: 0;
-        max-height: 100%;
+        flex: 0 0 auto;
+        gap: 0.04in;
+        width: 100%;
         overflow: hidden;
         break-inside: avoid;
         page-break-inside: avoid;
@@ -932,48 +947,36 @@
       .trace-quiz-label {
         flex: 0 0 auto;
         margin: 0;
+        height: 0.18in;
+        max-height: 0.18in;
         font-size: 8pt;
         font-weight: 700;
         letter-spacing: 0.01em;
-        line-height: 1.1;
+        line-height: 0.18in;
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
       }
 
       .trace-row {
+        box-sizing: border-box;
         display: grid;
         grid-template-columns: repeat(6, minmax(0, 1fr));
-        grid-template-rows: minmax(0, 1fr);
-        flex: 1 1 auto;
-        gap: 1.2mm;
+        gap: 0.06in;
         width: 100%;
-        min-height: 0;
-        max-height: 100%;
-        align-items: stretch;
-      }
-
-      .trace-page[data-chars="5"] .trace-row {
-        max-height: 30mm;
-      }
-
-      .trace-page[data-chars="6"] .trace-row {
-        max-height: 24mm;
-      }
-
-      .trace-page[data-chars="7"] .trace-row {
-        max-height: 20mm;
+        margin: 0;
+        padding: 0;
+        overflow: hidden;
       }
 
       .trace-cell {
         box-sizing: border-box;
         width: 100%;
-        height: 100%;
-        max-width: 100%;
-        max-height: 100%;
-        aspect-ratio: unset;
-        justify-self: stretch;
-        align-self: stretch;
+        min-width: 0;
+        min-height: 0;
+        margin: 0;
+        padding: 0;
+        aspect-ratio: unset !important;
         border: 1px solid #666;
         background:
           linear-gradient(#ddd, #ddd) center/100% 1px no-repeat,
@@ -983,13 +986,15 @@
 
       .trace-cell.is-example {
         border-color: #222;
-        border-width: 1.3px;
+        border-width: 1.25px;
       }
 
       .trace-char-svg {
         display: block;
-        width: 100%;
-        height: 100%;
+        width: 100% !important;
+        height: 100% !important;
+        max-width: 100%;
+        max-height: 100%;
       }
 
       .trace-fallback {
@@ -999,8 +1004,72 @@
         height: 100%;
         color: #777;
         font-family: "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", sans-serif;
-        font-size: 12pt;
+        font-size: 11pt;
         line-height: 1;
+      }
+
+      /* 4 chars: 4 × 2.0in + 3 × 0.1in = 8.3in */
+      .trace-page[data-chars="4"] {
+        gap: 0.1in;
+      }
+
+      .trace-page[data-chars="4"] .trace-char {
+        height: 2in;
+        max-height: 2in;
+      }
+
+      .trace-page[data-chars="4"] .trace-row,
+      .trace-page[data-chars="4"] .trace-cell {
+        height: 1.72in;
+        max-height: 1.72in;
+      }
+
+      /* 5 chars: 5 × 1.62in + 4 × 0.08in gap = 8.42in < 8.55in */
+      .trace-page[data-chars="5"] {
+        gap: 0.08in;
+      }
+
+      .trace-page[data-chars="5"] .trace-char {
+        height: 1.62in;
+        max-height: 1.62in;
+      }
+
+      .trace-page[data-chars="5"] .trace-row,
+      .trace-page[data-chars="5"] .trace-cell {
+        height: 1.36in;
+        max-height: 1.36in;
+      }
+
+      /* 6 chars: 6 × 1.34in + 5 × 0.07in = 8.39in */
+      .trace-page[data-chars="6"] {
+        gap: 0.07in;
+      }
+
+      .trace-page[data-chars="6"] .trace-char {
+        height: 1.34in;
+        max-height: 1.34in;
+      }
+
+      .trace-page[data-chars="6"] .trace-row,
+      .trace-page[data-chars="6"] .trace-cell {
+        height: 1.1in;
+        max-height: 1.1in;
+      }
+
+      /* 7 chars: 7 × 1.14in + 6 × 0.06in = 8.34in */
+      .trace-page[data-chars="7"] {
+        gap: 0.06in;
+      }
+
+      .trace-page[data-chars="7"] .trace-char {
+        height: 1.14in;
+        max-height: 1.14in;
+      }
+
+      .trace-page[data-chars="7"] .trace-row,
+      .trace-page[data-chars="7"] .trace-cell {
+        height: 0.9in;
+        max-height: 0.9in;
       }
 
       .practice-boxes {
@@ -1249,15 +1318,16 @@
         <div class="print-options">
           <div class="option-row" role="group" aria-label="Worksheet types">
             <label><input type="checkbox" name="sheet-type" value="trace" checked> Trace</label>
-            <label><input type="checkbox" name="sheet-type" value="zhuyin" checked> Write from 注音</label>
+            <label><input type="checkbox" name="sheet-type" value="zhuyin"> Write from 注音</label>
             <label><input type="checkbox" name="sheet-type" value="match"> Match</label>
-            <label><input type="checkbox" name="include-answers" id="include-answers" checked> Answer key</label>
+            <label><input type="checkbox" name="include-answers" id="include-answers"> Answer key</label>
           </div>
           <div class="field">
             <label for="sheet-count">Characters to print</label>
             <select id="sheet-count">
               <option value="4">4</option>
-              <option value="6" selected>6</option>
+              <option value="5" selected>5</option>
+              <option value="6">6</option>
               <option value="8">8</option>
               <option value="10">10</option>
               <option value="12">12</option>
@@ -1284,7 +1354,7 @@
         <div class="preview-frame" id="preview-frame"></div>
       </div>
 
-      <p class="disclaimer">Cipher Printie © 2026. For personal and educational use. Traditional characters with 注音. <span class="build-version">Chinese v1.1.0</span></p>
+      <p class="disclaimer">Cipher Printie © 2026. For personal and educational use. Traditional characters with 注音. <span class="build-version">Chinese v1.2.0</span></p>
     </section>
   </main>
 
@@ -1782,12 +1852,12 @@
       }
 
       function sheetCount() {
-        return Number(document.getElementById("sheet-count").value) || 6;
+        return Number(document.getElementById("sheet-count").value) || 5;
       }
 
       function charsPerPage() {
-        const value = Number(document.getElementById("chars-per-page").value) || 6;
-        return Math.min(7, Math.max(5, value));
+        const value = Number(document.getElementById("chars-per-page").value) || 5;
+        return Math.min(7, Math.max(4, value));
       }
 
       function pickPrintItems() {
@@ -1831,7 +1901,7 @@
           const paths = charData.strokes
             .map((strokePath) => `<path d="${escapeHtml(strokePath)}" fill="#222"/>`)
             .join("");
-          return `<svg class="trace-char-svg" viewBox="0 0 ${size} ${size}" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><g transform="${transform}">${paths}</g></svg>`;
+          return `<svg class="trace-char-svg" viewBox="0 0 ${size} ${size}" width="100%" height="100%" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><g transform="${transform}">${paths}</g></svg>`;
         }
 
         // Hollow glyph with dashed outline (same stroke paths as animation).
@@ -1840,7 +1910,7 @@
             `<path d="${escapeHtml(strokePath)}" fill="none" stroke="#6e6e6e" stroke-width="28" stroke-linejoin="round" stroke-linecap="round" stroke-dasharray="42 34"/>`
           )
           .join("");
-        return `<svg class="trace-char-svg" viewBox="0 0 ${size} ${size}" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><g transform="${transform}">${paths}</g></svg>`;
+        return `<svg class="trace-char-svg" viewBox="0 0 ${size} ${size}" width="100%" height="100%" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><g transform="${transform}">${paths}</g></svg>`;
       }
 
       function traceCellMarkup(char, mode) {
