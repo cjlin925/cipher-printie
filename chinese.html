@@ -308,17 +308,35 @@
     }
 
     .flashcard-char {
+      width: min(100%, 11.5rem);
+      height: min(48vw, 11.5rem);
+      margin: 0 auto;
+    }
+
+    .flashcard-char svg {
+      display: block;
+      width: 100%;
+      height: 100%;
+    }
+
+    .flashcard-char-fallback {
+      display: grid;
+      place-items: center;
+      width: 100%;
+      height: 100%;
       font-family: var(--han);
-      font-size: clamp(5rem, 18vw, 7.5rem);
+      font-size: clamp(4rem, 16vw, 6.5rem);
       font-weight: 500;
       line-height: 1;
+      color: var(--accent-dark);
     }
 
     .flashcard-back {
       display: none;
-      flex-direction: column;
+      flex-direction: row;
       align-items: center;
-      gap: 0.65rem;
+      justify-content: center;
+      gap: 1.25rem;
     }
 
     .flashcard.is-flipped .flashcard-front {
@@ -331,16 +349,20 @@
 
     .flashcard-zhuyin {
       font-family: var(--han);
-      font-size: clamp(2rem, 7vw, 2.75rem);
+      font-size: clamp(1.85rem, 6vw, 2.45rem);
       font-weight: 600;
-      letter-spacing: 0.06em;
+      line-height: 1.15;
+      letter-spacing: 0.12em;
       color: var(--accent-dark);
+      writing-mode: vertical-rl;
+      text-orientation: upright;
     }
 
     .flashcard-meaning {
       color: var(--muted);
       font-size: 1.2rem;
       font-weight: 650;
+      text-align: left;
     }
 
     .flashcard-hint {
@@ -548,6 +570,201 @@
       line-height: 1.5;
     }
 
+    .preview-section {
+      margin-top: 2rem;
+      padding-top: 1.5rem;
+      border-top: 1px solid var(--line);
+    }
+
+    .preview-section[hidden] {
+      display: none !important;
+    }
+
+    .preview-frame {
+      display: grid;
+      gap: 1.25rem;
+      margin-top: 0.85rem;
+    }
+
+    .preview-frame .print-sheet {
+      width: 100%;
+      max-width: 48rem;
+      margin: 0 auto;
+      padding: 1rem 1.1rem 1.15rem;
+      border: 1px solid rgba(23, 32, 27, 0.14);
+      border-radius: 0.85rem;
+      background: #fff;
+      box-shadow: 0 0.75rem 2rem rgba(23, 32, 27, 0.06);
+      color: #111;
+      font-family: Arial, Helvetica, sans-serif;
+    }
+
+    .preview-frame .sheet-header {
+      padding-bottom: 0.55rem;
+      border-bottom: 2px solid #111;
+      text-align: center;
+    }
+
+    .preview-frame .sheet-header p {
+      margin: 0 0 0.25rem;
+      font-size: 0.68rem;
+      font-weight: 700;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+    }
+
+    .preview-frame .sheet-header h2 {
+      margin: 0;
+      font-size: 1.15rem;
+    }
+
+    .preview-frame .sheet-meta {
+      margin: 0.55rem 0 0.75rem;
+      color: #444;
+      font-size: 0.82rem;
+    }
+
+    .preview-frame .sheet-page {
+      float: right;
+      color: #666;
+      font-size: 0.75rem;
+    }
+
+    .preview-frame .trace-page {
+      display: grid;
+      gap: 0.85rem;
+    }
+
+    .preview-frame .trace-quiz-label {
+      margin: 0 0 0.35rem;
+      font-size: 0.9rem;
+      font-weight: 700;
+    }
+
+    .preview-frame .trace-grid {
+      display: grid;
+      gap: 0.35rem;
+    }
+
+    .preview-frame .trace-row {
+      display: flex;
+      gap: 0.35rem;
+    }
+
+    .preview-frame .trace-cell {
+      flex: 1 1 0;
+      aspect-ratio: 1;
+      min-width: 0;
+      border: 1px solid #666;
+      background:
+        linear-gradient(#ddd, #ddd) center/100% 1px no-repeat,
+        linear-gradient(#ddd, #ddd) center/1px 100% no-repeat;
+      overflow: hidden;
+    }
+
+    .preview-frame .trace-cell.is-example {
+      border-color: #222;
+    }
+
+    .preview-frame .trace-char-svg {
+      display: block;
+      width: 100%;
+      height: 100%;
+    }
+
+    .preview-frame .zhuyin-grid,
+    .preview-frame .answer-grid,
+    .preview-frame .match-layout {
+      display: grid;
+      gap: 0.55rem;
+    }
+
+    .preview-frame .zhuyin-row {
+      display: grid;
+      grid-template-columns: 5.5rem 1fr;
+      gap: 0.45rem;
+      align-items: center;
+    }
+
+    .preview-frame .zhuyin-prompt {
+      display: grid;
+      place-items: center;
+      min-height: 2.6rem;
+      border: 1px solid #111;
+      font-family: var(--han);
+      font-weight: 650;
+    }
+
+    .preview-frame .practice-boxes {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 0.35rem;
+    }
+
+    .preview-frame .practice-box {
+      aspect-ratio: 1;
+      border: 1px solid #666;
+      background:
+        linear-gradient(#ddd, #ddd) center/100% 1px no-repeat,
+        linear-gradient(#ddd, #ddd) center/1px 100% no-repeat;
+    }
+
+    .preview-frame .match-layout {
+      grid-template-columns: 1fr 1fr;
+    }
+
+    .preview-frame .match-list {
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+
+    .preview-frame .match-list li {
+      display: flex;
+      gap: 0.4rem;
+      align-items: center;
+      margin: 0 0 0.45rem;
+    }
+
+    .preview-frame .match-num {
+      display: inline-grid;
+      place-items: center;
+      width: 1.15rem;
+      height: 1.15rem;
+      border: 1px solid #111;
+      font-size: 0.7rem;
+      font-weight: 700;
+    }
+
+    .preview-frame .match-char {
+      font-family: var(--han);
+      font-size: 1.25rem;
+    }
+
+    .preview-frame .match-blank {
+      flex: 1;
+      border-bottom: 1px solid #999;
+    }
+
+    .preview-frame .answer-grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+
+    .preview-frame .answer-char {
+      font-family: var(--han);
+      font-size: 1.1rem;
+      font-weight: 650;
+      margin-right: 0.35rem;
+    }
+
+    .preview-frame .sheet-footer {
+      margin-top: 0.85rem;
+      padding-top: 0.4rem;
+      border-top: 1px solid #bbb;
+      color: #666;
+      font-size: 0.72rem;
+    }
+
     .disclaimer {
       margin: 1.75rem 0 0;
       color: var(--muted);
@@ -572,7 +789,7 @@
 
       @page {
         size: letter;
-        margin: 12mm;
+        margin: 10mm;
       }
 
       html,
@@ -583,6 +800,10 @@
 
       .site-nav,
       .screen {
+        display: none !important;
+      }
+
+      .preview-section {
         display: none !important;
       }
 
@@ -640,23 +861,54 @@
 
       .trace-grid {
         display: grid;
-        gap: 3.2mm;
+        gap: 2.8mm;
+        width: 100%;
+      }
+
+      .trace-page {
+        display: grid;
+        gap: 6mm;
+        width: 100%;
+      }
+
+      .trace-page[data-quizzes="1"] {
+        min-height: 230mm;
+      }
+
+      .trace-page[data-quizzes="2"] {
+        min-height: 230mm;
+        grid-template-rows: 1fr 1fr;
+      }
+
+      .trace-quiz {
+        display: flex;
+        flex-direction: column;
+        gap: 2.5mm;
+        min-height: 0;
+      }
+
+      .trace-quiz-label {
+        margin: 0;
+        font-size: 11pt;
+        font-weight: 700;
+        letter-spacing: 0.02em;
       }
 
       .trace-row {
         display: flex;
         flex-wrap: nowrap;
-        align-items: center;
-        gap: 1.8mm;
+        align-items: stretch;
+        gap: 2.4mm;
+        width: 100%;
         break-inside: avoid;
         page-break-inside: avoid;
       }
 
       .trace-cell {
         box-sizing: border-box;
-        width: 12.5mm;
-        height: 12.5mm;
-        flex: 0 0 12.5mm;
+        flex: 1 1 0;
+        min-width: 0;
+        aspect-ratio: 1;
         border: 1px solid #666;
         background:
           linear-gradient(#ddd, #ddd) center/100% 1px no-repeat,
@@ -664,8 +916,18 @@
         overflow: hidden;
       }
 
+      .trace-page[data-quizzes="1"] .trace-cell {
+        /* Prefer large squares that still fit 6 across a letter page. */
+        max-height: 30mm;
+      }
+
+      .trace-page[data-quizzes="2"] .trace-cell {
+        max-height: 24mm;
+      }
+
       .trace-cell.is-example {
         border-color: #222;
+        border-width: 1.4px;
       }
 
       .trace-char-svg {
@@ -681,7 +943,7 @@
         height: 100%;
         color: #777;
         font-family: "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", sans-serif;
-        font-size: 9pt;
+        font-size: 14pt;
         line-height: 1;
       }
 
@@ -870,7 +1132,7 @@
         <div class="study-layout">
           <button type="button" class="flashcard" id="flashcard" aria-label="Flashcard. Click or press Space to flip.">
             <div class="flashcard-front">
-              <span class="flashcard-char" id="card-char">一</span>
+              <div class="flashcard-char" id="card-char" aria-hidden="true"></div>
             </div>
             <div class="flashcard-back">
               <span class="flashcard-zhuyin" id="card-zhuyin">ㄧ</span>
@@ -912,19 +1174,33 @@
             <label><input type="checkbox" name="include-answers" id="include-answers" checked> Answer key</label>
           </div>
           <div class="field">
-            <label for="sheet-count">Characters per sheet</label>
+            <label for="sheet-count">Quizzes to print</label>
             <select id="sheet-count">
+              <option value="4">4</option>
+              <option value="6" selected>6</option>
               <option value="8">8</option>
-              <option value="10" selected>10</option>
+              <option value="10">10</option>
               <option value="12">12</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="quizzes-per-page">Trace quizzes per page</label>
+            <select id="quizzes-per-page">
+              <option value="1" selected>1 quiz per page</option>
+              <option value="2">2 quizzes per page</option>
             </select>
           </div>
           <div class="print-actions">
             <button type="button" class="btn btn-secondary" id="btn-preview">Generate preview</button>
             <button type="button" class="btn" id="btn-print">Print</button>
           </div>
-          <p class="preview-note" id="preview-note">Choose worksheet types, then print. Preview updates the printable pages (visible when you print).</p>
+          <p class="preview-note" id="preview-note">Choose worksheet types, then generate a preview below or print.</p>
         </div>
+      </div>
+
+      <div class="preview-section" id="preview-section" hidden>
+        <h2 class="section-title">Print preview</h2>
+        <div class="preview-frame" id="preview-frame"></div>
       </div>
 
       <p class="disclaimer">Cipher Printie © 2026. For personal and educational use. Traditional characters with 注音.</p>
@@ -1040,8 +1316,7 @@
         numbersVisible: 0
       };
 
-      const TRACE_ROWS_PER_PAGE = 9;
-      const TRACE_PRACTICE_COUNT = 5;
+      const TRACE_COLS = 6;
       const ZHUYIN_ROWS_PER_PAGE = 8;
       const ANSWER_ITEMS_PER_PAGE = 24;
       const charDataCache = new Map();
@@ -1053,12 +1328,16 @@
       const progressEl = document.getElementById("study-progress");
       const printPack = document.getElementById("print-pack");
       const previewNote = document.getElementById("preview-note");
+      const previewSection = document.getElementById("preview-section");
+      const previewFrame = document.getElementById("preview-frame");
       const strokeTarget = document.getElementById("stroke-target");
       const strokeWriterEl = document.getElementById("stroke-writer");
       const strokeLabelsEl = document.getElementById("stroke-labels");
       const strokeStatus = document.getElementById("stroke-status");
       const btnAnimate = document.getElementById("btn-animate");
       const btnQuiz = document.getElementById("btn-quiz");
+      const btnPreview = document.getElementById("btn-preview");
+      const btnPrint = document.getElementById("btn-print");
 
       function setStrokeStatus(message, isError = false) {
         strokeStatus.textContent = message;
@@ -1223,6 +1502,36 @@
         setStrokeStatus("Animation complete. Tap Animate to replay.");
       }
 
+      function renderFlashcardGlyph(charData, fallbackChar = "—") {
+        cardChar.innerHTML = "";
+        if (!charData || !charData.strokes || typeof HanziWriter === "undefined") {
+          const fallback = document.createElement("span");
+          fallback.className = "flashcard-char-fallback";
+          fallback.textContent = fallbackChar;
+          cardChar.appendChild(fallback);
+          return;
+        }
+
+        const size = 220;
+        const transformData = HanziWriter.getScalingTransform(size, size, 14);
+        const svgNS = "http://www.w3.org/2000/svg";
+        const svg = document.createElementNS(svgNS, "svg");
+        svg.setAttribute("viewBox", `0 0 ${size} ${size}`);
+        svg.setAttribute("role", "img");
+        svg.setAttribute("aria-label", fallbackChar);
+
+        const group = document.createElementNS(svgNS, "g");
+        group.setAttribute("transform", transformData.transform);
+        charData.strokes.forEach((strokePath) => {
+          const path = document.createElementNS(svgNS, "path");
+          path.setAttribute("d", strokePath);
+          path.setAttribute("fill", "#17412f");
+          group.appendChild(path);
+        });
+        svg.appendChild(group);
+        cardChar.appendChild(svg);
+      }
+
       function syncStrokeWriter(char) {
         if (typeof HanziWriter === "undefined") {
           setStrokeControlsEnabled(false);
@@ -1239,6 +1548,7 @@
           state.writer = null;
           strokeWriterEl.innerHTML = "";
           clearStrokeNumbers();
+          renderFlashcardGlyph(null, "—");
           setStrokeControlsEnabled(false);
           setStrokeStatus("No character selected.");
           return;
@@ -1249,7 +1559,10 @@
             try { state.writer.cancelQuiz(); } catch (_) { /* ignore */ }
           }
           state.writer.showCharacter();
-          if (state.charData) renderStrokeNumbers(state.charData, 0);
+          if (state.charData) {
+            renderFlashcardGlyph(state.charData, char);
+            renderStrokeNumbers(state.charData, 0);
+          }
           setStrokeStatus("Tap Animate to watch stroke order, or Quiz to practice.");
           return;
         }
@@ -1262,6 +1575,7 @@
         state.charData = null;
         strokeWriterEl.innerHTML = "";
         clearStrokeNumbers();
+        renderFlashcardGlyph(null, char);
 
         const writer = HanziWriter.create(strokeWriterEl, char, {
           width: size,
@@ -1284,6 +1598,7 @@
             if (state.writerChar !== char) return;
             state.charData = charData;
             state.writerReady = true;
+            renderFlashcardGlyph(charData, char);
             renderStrokeNumbers(charData, 0);
             setStrokeControlsEnabled(true);
             setStrokeStatus("Tap Animate to watch stroke order, or Quiz to practice.");
@@ -1293,6 +1608,7 @@
             state.writerReady = false;
             state.charData = null;
             clearStrokeNumbers();
+            renderFlashcardGlyph(null, char);
             setStrokeControlsEnabled(false);
             setStrokeStatus("Stroke paths unavailable for this character.", true);
           }
@@ -1334,17 +1650,24 @@
         const card = currentCard();
         flashcard.classList.toggle("is-flipped", state.flipped);
         if (!card) {
-          cardChar.textContent = "—";
+          renderFlashcardGlyph(null, "—");
           cardZhuyin.textContent = "";
           cardMeaning.textContent = "No characters in this deck";
           progressEl.textContent = "0 / 0";
+          flashcard.setAttribute("aria-label", "Flashcard. Click or press Space to flip.");
           syncStrokeWriter(null);
           return;
         }
-        cardChar.textContent = card.char;
+        const cached = charDataCache.get(card.char);
+        const resolved = cached && typeof cached.then !== "function" ? cached : null;
+        renderFlashcardGlyph(resolved, card.char);
         cardZhuyin.textContent = card.zhuyin;
         cardMeaning.textContent = card.meaning;
         progressEl.textContent = `${state.index + 1} / ${state.queue.length} in this deck`;
+        flashcard.setAttribute(
+          "aria-label",
+          `Flashcard for ${card.char}. Click or press Space to flip.`
+        );
         syncStrokeWriter(card.char);
       }
 
@@ -1354,7 +1677,7 @@
           chip.setAttribute("aria-pressed", chip.dataset.deck === deck ? "true" : "false");
         });
         rebuildQueue();
-        refreshPrintPreview();
+        refreshPrintPreview(true, { showPreview: !previewSection.hidden });
       }
 
       function flipCard() {
@@ -1377,7 +1700,11 @@
       }
 
       function sheetCount() {
-        return Number(document.getElementById("sheet-count").value) || 10;
+        return Number(document.getElementById("sheet-count").value) || 6;
+      }
+
+      function quizzesPerPage() {
+        return Number(document.getElementById("quizzes-per-page").value) === 2 ? 2 : 1;
       }
 
       function pickPrintItems() {
@@ -1411,12 +1738,6 @@
         return `<span class="sheet-page">Page ${pageIndex + 1} / ${pageCount}</span>`;
       }
 
-      function medianPolyline(median) {
-        return median
-          .map((point, index) => `${index === 0 ? "M" : "L"} ${point[0]} ${point[1]}`)
-          .join(" ");
-      }
-
       function charSvgMarkup(charData, mode) {
         if (!charData || !charData.strokes) return "";
         const size = 100;
@@ -1430,17 +1751,13 @@
           return `<svg class="trace-char-svg" viewBox="0 0 ${size} ${size}" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><g transform="${transform}">${paths}</g></svg>`;
         }
 
-        // Practice guides: light stroke fills + dashed median paths (same geometry as animation).
-        const fills = charData.strokes
-          .map((strokePath) => `<path d="${escapeHtml(strokePath)}" fill="#d7d7d7"/>`)
+        // Hollow glyph with dashed outline (same stroke paths as animation).
+        const paths = charData.strokes
+          .map((strokePath) =>
+            `<path d="${escapeHtml(strokePath)}" fill="none" stroke="#6e6e6e" stroke-width="28" stroke-linejoin="round" stroke-linecap="round" stroke-dasharray="42 34"/>`
+          )
           .join("");
-        const dashes = (charData.medians || [])
-          .map((median) => {
-            if (!median || median.length < 2) return "";
-            return `<path d="${escapeHtml(medianPolyline(median))}" fill="none" stroke="#8a8a8a" stroke-width="150" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="18 55"/>`;
-          })
-          .join("");
-        return `<svg class="trace-char-svg" viewBox="0 0 ${size} ${size}" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><g transform="${transform}">${fills}${dashes}</g></svg>`;
+        return `<svg class="trace-char-svg" viewBox="0 0 ${size} ${size}" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><g transform="${transform}">${paths}</g></svg>`;
       }
 
       function traceCellMarkup(char, mode) {
@@ -1451,33 +1768,43 @@
         return `<div class="${className}">${svg}</div>`;
       }
 
-      function renderTraceSheets(items, deckLabel) {
-        const pages = chunkItems(items, TRACE_ROWS_PER_PAGE);
-        return pages.map((pageItems, pageIndex) => {
-          const rows = pageItems.map((item) => {
-            const practice = Array.from({ length: TRACE_PRACTICE_COUNT }, () =>
-              traceCellMarkup(item.char, "practice")
-            ).join("");
-            return `
-              <div class="trace-row">
-                ${traceCellMarkup(item.char, "example")}
-                ${practice}
-              </div>
-            `;
-          }).join("");
+      function renderTraceQuiz(item, rowCount) {
+        const rows = [];
+        for (let row = 0; row < rowCount; row += 1) {
+          const cells = [];
+          for (let col = 0; col < TRACE_COLS; col += 1) {
+            const isExample = row === 0 && col === 0;
+            cells.push(traceCellMarkup(item.char, isExample ? "example" : "practice"));
+          }
+          rows.push(`<div class="trace-row">${cells.join("")}</div>`);
+        }
 
-          return `
-            <article class="print-sheet">
-              <header class="sheet-header">
-                <p>Cipher Printie · Chinese</p>
-                <h2>Trace the characters</h2>
-              </header>
-              <p class="sheet-meta">${pageLabel(pageIndex, pages.length)}Deck: ${escapeHtml(deckLabel)} · Trace over the dashed SVG guides</p>
-              <div class="trace-grid">${rows}</div>
-              <footer class="sheet-footer">Traditional Chinese practice · 注音 study companion</footer>
-            </article>
-          `;
-        }).join("");
+        return `
+          <section class="trace-quiz">
+            <p class="trace-quiz-label">${escapeHtml(item.char)} · ${escapeHtml(item.zhuyin)} · ${escapeHtml(item.meaning)}</p>
+            <div class="trace-grid">${rows.join("")}</div>
+          </section>
+        `;
+      }
+
+      function renderTraceSheets(items, deckLabel) {
+        const perPage = quizzesPerPage();
+        const rowCount = perPage === 1 ? 7 : 3;
+        const pages = chunkItems(items, perPage);
+
+        return pages.map((pageItems, pageIndex) => `
+          <article class="print-sheet">
+            <header class="sheet-header">
+              <p>Cipher Printie · Chinese</p>
+              <h2>Trace quiz</h2>
+            </header>
+            <p class="sheet-meta">${pageLabel(pageIndex, pages.length)}Deck: ${escapeHtml(deckLabel)} · Trace inside the dashed hollow outlines</p>
+            <div class="trace-page" data-quizzes="${perPage}">
+              ${pageItems.map((item) => renderTraceQuiz(item, rowCount)).join("")}
+            </div>
+            <footer class="sheet-footer">Traditional Chinese practice · 注音 study companion</footer>
+          </article>
+        `).join("");
       }
 
       function renderZhuyinSheets(items, deckLabel) {
@@ -1568,38 +1895,60 @@
         }).join("");
       }
 
-      async function refreshPrintPreview(forceNewPick = true) {
-        if (forceNewPick || !state.printItems.length) {
-          state.printItems = pickPrintItems();
+      async function refreshPrintPreview(forceNewPick = true, options = {}) {
+        const { showPreview = false } = options;
+        if (btnPreview) btnPreview.disabled = true;
+        if (btnPrint) btnPrint.disabled = true;
+
+        try {
+          if (forceNewPick || !state.printItems.length) {
+            state.printItems = pickPrintItems();
+          }
+
+          const types = selectedSheetTypes();
+          const includeAnswers = document.getElementById("include-answers").checked;
+          const deckLabel = DECK_LABELS[state.deck] || "All characters";
+          const items = state.printItems;
+
+          if (!items.length || !types.length) {
+            printPack.innerHTML = "";
+            previewFrame.innerHTML = "";
+            previewSection.hidden = true;
+            previewNote.textContent = types.length
+              ? "No characters available for this deck."
+              : "Select at least one worksheet type, then generate or print.";
+            return;
+          }
+
+          if (types.includes("trace")) {
+            previewNote.textContent = "Loading stroke SVGs for print…";
+            await ensureCharData(items.map((item) => item.char));
+          }
+
+          const sheets = [];
+          if (types.includes("trace")) sheets.push(renderTraceSheets(items, deckLabel));
+          if (types.includes("zhuyin")) sheets.push(renderZhuyinSheets(items, deckLabel));
+          if (types.includes("match")) sheets.push(renderMatchSheet(items, deckLabel));
+          if (includeAnswers) sheets.push(renderAnswerSheets(items, deckLabel));
+
+          const html = sheets.join("");
+          printPack.innerHTML = html;
+          previewFrame.innerHTML = html;
+          if (showPreview) {
+            previewSection.hidden = false;
+            previewSection.scrollIntoView({ behavior: "smooth", block: "start" });
+          }
+
+          const pageCount = printPack.querySelectorAll(".print-sheet").length;
+          const perPage = quizzesPerPage();
+          previewNote.textContent = `Ready: ${items.length} quiz${items.length === 1 ? "" : "zes"} · ${pageCount} page${pageCount === 1 ? "" : "s"} · Trace ${perPage}/page (${deckLabel}).`;
+        } catch (error) {
+          console.error(error);
+          previewNote.textContent = "Could not generate preview. Check your connection and try again.";
+        } finally {
+          if (btnPreview) btnPreview.disabled = false;
+          if (btnPrint) btnPrint.disabled = false;
         }
-
-        const types = selectedSheetTypes();
-        const includeAnswers = document.getElementById("include-answers").checked;
-        const deckLabel = DECK_LABELS[state.deck] || "All characters";
-        const items = state.printItems;
-
-        if (!items.length || !types.length) {
-          printPack.innerHTML = "";
-          previewNote.textContent = types.length
-            ? "No characters available for this deck."
-            : "Select at least one worksheet type, then generate or print.";
-          return;
-        }
-
-        if (types.includes("trace")) {
-          previewNote.textContent = "Loading stroke SVGs for print…";
-          await ensureCharData(items.map((item) => item.char));
-        }
-
-        const sheets = [];
-        if (types.includes("trace")) sheets.push(renderTraceSheets(items, deckLabel));
-        if (types.includes("zhuyin")) sheets.push(renderZhuyinSheets(items, deckLabel));
-        if (types.includes("match")) sheets.push(renderMatchSheet(items, deckLabel));
-        if (includeAnswers) sheets.push(renderAnswerSheets(items, deckLabel));
-
-        printPack.innerHTML = sheets.join("");
-        const pageCount = printPack.querySelectorAll(".print-sheet").length;
-        previewNote.textContent = `Ready: ${items.length} characters · ${pageCount} print page${pageCount === 1 ? "" : "s"} (${deckLabel}). Use Print to open the dialog.`;
       }
 
       document.querySelectorAll(".deck-chip").forEach((chip) => {
@@ -1633,19 +1982,24 @@
         });
       });
 
-      document.getElementById("btn-preview").addEventListener("click", () => {
-        refreshPrintPreview(true);
+      btnPreview.addEventListener("click", () => {
+        refreshPrintPreview(true, { showPreview: true });
       });
-      document.getElementById("btn-print").addEventListener("click", async () => {
-        await refreshPrintPreview(state.printItems.length === 0);
+      btnPrint.addEventListener("click", async () => {
+        await refreshPrintPreview(state.printItems.length === 0, { showPreview: false });
         window.print();
       });
 
       document.getElementById("sheet-count").addEventListener("change", () => {
-        refreshPrintPreview(true);
+        refreshPrintPreview(true, { showPreview: !previewSection.hidden });
+      });
+      document.getElementById("quizzes-per-page").addEventListener("change", () => {
+        refreshPrintPreview(false, { showPreview: !previewSection.hidden });
       });
       document.querySelectorAll('input[name="sheet-type"], #include-answers').forEach((input) => {
-        input.addEventListener("change", () => refreshPrintPreview(false));
+        input.addEventListener("change", () => {
+          refreshPrintPreview(false, { showPreview: !previewSection.hidden });
+        });
       });
 
       document.addEventListener("keydown", (event) => {
@@ -1671,7 +2025,7 @@
 
       setStrokeControlsEnabled(false);
       rebuildQueue();
-      refreshPrintPreview(true);
+      refreshPrintPreview(true, { showPreview: false });
     })();
   </script>
 </body>
