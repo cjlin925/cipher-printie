@@ -790,14 +790,20 @@
       }
 
       @page {
-        size: letter;
-        margin: 10mm;
+        size: letter portrait;
+        margin: 0.4in;
       }
 
       html,
       body {
         min-height: auto;
+        width: auto;
+        height: auto;
+        margin: 0;
+        padding: 0;
         background: #fff;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
       }
 
       .site-nav,
@@ -811,17 +817,22 @@
 
       .print-pack {
         display: block;
+        width: 100%;
+        margin: 0;
+        padding: 0;
       }
 
+      /* Letter content box: 11in - 0.8in margins = 10.2in usable height */
       .print-sheet {
         box-sizing: border-box;
         display: flex;
         flex-direction: column;
         width: 100%;
-        max-width: 186mm;
-        height: 259mm;
-        max-height: 259mm;
+        max-width: 7.7in;
+        height: 10.2in;
+        max-height: 10.2in;
         margin: 0 auto;
+        padding: 0;
         overflow: hidden;
         color: #000;
         font-family: Arial, Helvetica, sans-serif;
@@ -838,54 +849,57 @@
 
       .sheet-header {
         flex: 0 0 auto;
-        padding-bottom: 2mm;
-        border-bottom: 2px solid #000;
+        padding-bottom: 1.5mm;
+        border-bottom: 1.5px solid #000;
         text-align: center;
       }
 
       .sheet-header p {
-        margin: 0 0 1mm;
-        font-size: 8pt;
+        margin: 0 0 0.6mm;
+        font-size: 7.5pt;
         font-weight: 700;
-        letter-spacing: 0.2em;
+        letter-spacing: 0.16em;
         text-transform: uppercase;
       }
 
       .sheet-header h2 {
         margin: 0;
-        font-size: 14pt;
-        letter-spacing: 0.04em;
+        font-size: 12pt;
+        letter-spacing: 0.03em;
+        line-height: 1.15;
       }
 
       .sheet-meta {
         flex: 0 0 auto;
-        margin: 2mm 0 3mm;
+        margin: 1.5mm 0 2mm;
         color: #333;
-        font-size: 9pt;
+        font-size: 8pt;
+        line-height: 1.25;
       }
 
       .sheet-page {
         float: right;
         color: #555;
-        font-size: 8pt;
+        font-size: 7.5pt;
       }
 
       .sheet-footer {
         flex: 0 0 auto;
         margin-top: auto;
-        padding-top: 2mm;
+        padding-top: 1.5mm;
         border-top: 1px solid #999;
         color: #555;
-        font-size: 8pt;
+        font-size: 7.5pt;
       }
 
       .trace-page {
         display: flex;
         flex: 1 1 auto;
         flex-direction: column;
-        gap: 2.2mm;
+        gap: 1.4mm;
         width: 100%;
         min-height: 0;
+        max-height: 100%;
         overflow: hidden;
       }
 
@@ -893,7 +907,7 @@
         display: flex;
         flex: 1 1 0;
         flex-direction: column;
-        gap: 1mm;
+        gap: 0.6mm;
         min-height: 0;
         max-height: 100%;
         overflow: hidden;
@@ -904,32 +918,37 @@
       .trace-quiz-label {
         flex: 0 0 auto;
         margin: 0;
-        font-size: 9pt;
+        font-size: 8pt;
         font-weight: 700;
-        letter-spacing: 0.02em;
+        letter-spacing: 0.01em;
         line-height: 1.1;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
       }
 
       .trace-row {
         display: grid;
         grid-template-columns: repeat(6, minmax(0, 1fr));
+        grid-template-rows: minmax(0, 1fr);
         flex: 1 1 auto;
-        gap: 1.8mm;
+        gap: 1.2mm;
         width: 100%;
         min-height: 0;
         max-height: 100%;
+        align-items: stretch;
       }
 
       .trace-page[data-chars="5"] .trace-row {
-        max-height: 34mm;
+        max-height: 30mm;
       }
 
       .trace-page[data-chars="6"] .trace-row {
-        max-height: 28mm;
+        max-height: 24mm;
       }
 
       .trace-page[data-chars="7"] .trace-row {
-        max-height: 23mm;
+        max-height: 20mm;
       }
 
       .trace-cell {
@@ -938,8 +957,9 @@
         height: 100%;
         max-width: 100%;
         max-height: 100%;
-        aspect-ratio: 1;
-        justify-self: center;
+        aspect-ratio: unset;
+        justify-self: stretch;
+        align-self: stretch;
         border: 1px solid #666;
         background:
           linear-gradient(#ddd, #ddd) center/100% 1px no-repeat,
@@ -949,7 +969,7 @@
 
       .trace-cell.is-example {
         border-color: #222;
-        border-width: 1.4px;
+        border-width: 1.3px;
       }
 
       .trace-char-svg {
@@ -965,21 +985,25 @@
         height: 100%;
         color: #777;
         font-family: "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", sans-serif;
-        font-size: 14pt;
+        font-size: 12pt;
         line-height: 1;
       }
 
       .practice-boxes {
         display: grid;
         grid-template-columns: repeat(5, 1fr);
-        gap: 2mm;
+        gap: 1.5mm;
+        min-height: 0;
       }
 
       .practice-box {
         position: relative;
         display: grid;
         place-items: center;
-        aspect-ratio: 1;
+        aspect-ratio: unset;
+        width: 100%;
+        height: 14mm;
+        max-height: 14mm;
         border: 1px solid #666;
         background:
           linear-gradient(#ddd, #ddd) center/100% 1px no-repeat,
@@ -990,15 +1014,19 @@
       .zhuyin-grid {
         display: grid;
         flex: 1 1 auto;
-        gap: 4mm;
+        align-content: start;
+        gap: 2mm;
         min-height: 0;
+        overflow: hidden;
       }
 
       .zhuyin-row {
         display: grid;
-        grid-template-columns: 34mm 1fr;
-        gap: 2.5mm;
+        grid-template-columns: 28mm 1fr;
+        gap: 2mm;
         align-items: center;
+        height: 14mm;
+        max-height: 14mm;
         break-inside: avoid;
         page-break-inside: avoid;
       }
@@ -1006,34 +1034,49 @@
       .zhuyin-prompt {
         display: grid;
         place-items: center;
-        min-height: 17mm;
-        padding: 2mm;
+        height: 14mm;
+        min-height: 0;
+        max-height: 14mm;
+        padding: 1mm;
         border: 1px solid #000;
         font-family: "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", sans-serif;
-        font-size: 13pt;
+        font-size: 11pt;
         font-weight: 600;
-        letter-spacing: 0.08em;
+        letter-spacing: 0.06em;
+        overflow: hidden;
       }
 
       .zhuyin-grid .practice-boxes {
         grid-template-columns: repeat(4, 1fr);
+        height: 14mm;
+      }
+
+      .zhuyin-grid .practice-box {
+        height: 14mm;
+        max-height: 14mm;
       }
 
       .match-layout {
         display: grid;
         flex: 1 1 auto;
         grid-template-columns: 1fr 1fr;
-        gap: 8mm;
-        margin-top: 4mm;
+        gap: 5mm;
+        margin-top: 2mm;
         min-height: 0;
+        overflow: hidden;
         break-inside: avoid;
         page-break-inside: avoid;
       }
 
+      .match-col {
+        min-height: 0;
+        overflow: hidden;
+      }
+
       .match-col h3 {
-        margin: 0 0 3mm;
-        font-size: 10pt;
-        letter-spacing: 0.08em;
+        margin: 0 0 2mm;
+        font-size: 9pt;
+        letter-spacing: 0.06em;
         text-transform: uppercase;
       }
 
@@ -1046,9 +1089,10 @@
       .match-list li {
         display: flex;
         align-items: center;
-        gap: 3mm;
-        margin: 0 0 3.5mm;
-        font-size: 11pt;
+        gap: 2mm;
+        margin: 0 0 2.2mm;
+        font-size: 9.5pt;
+        line-height: 1.2;
         break-inside: avoid;
         page-break-inside: avoid;
       }
@@ -1056,16 +1100,17 @@
       .match-num {
         display: inline-grid;
         place-items: center;
-        width: 6mm;
-        height: 6mm;
+        flex: 0 0 auto;
+        width: 5mm;
+        height: 5mm;
         border: 1px solid #000;
-        font-size: 8pt;
+        font-size: 7pt;
         font-weight: 700;
       }
 
       .match-char {
         font-family: "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", sans-serif;
-        font-size: 16pt;
+        font-size: 13pt;
         line-height: 1;
       }
 
@@ -1076,26 +1121,28 @@
       }
 
       .answer-key {
-        margin-top: 4mm;
+        margin-top: 2mm;
+        min-height: 0;
+        overflow: hidden;
       }
 
       .answer-key h3 {
-        margin: 0 0 3mm;
-        font-size: 11pt;
-        letter-spacing: 0.06em;
+        margin: 0 0 2mm;
+        font-size: 10pt;
+        letter-spacing: 0.05em;
         text-transform: uppercase;
       }
 
       .answer-grid {
         display: grid;
         grid-template-columns: repeat(3, 1fr);
-        gap: 2.5mm 4mm;
-        font-size: 9.5pt;
+        gap: 1.6mm 3mm;
+        font-size: 8.5pt;
       }
 
       .answer-item {
         display: flex;
-        gap: 2mm;
+        gap: 1.5mm;
         align-items: baseline;
         break-inside: avoid;
         page-break-inside: avoid;
@@ -1103,7 +1150,7 @@
 
       .answer-char {
         font-family: "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", sans-serif;
-        font-size: 13pt;
+        font-size: 11pt;
         font-weight: 600;
       }
     }
@@ -1205,8 +1252,8 @@
           <div class="field">
             <label for="chars-per-page">Trace characters per page</label>
             <select id="chars-per-page">
-              <option value="5">5 per page</option>
-              <option value="6" selected>6 per page</option>
+              <option value="5" selected>5 per page</option>
+              <option value="6">6 per page</option>
               <option value="7">7 per page</option>
             </select>
           </div>
@@ -1337,7 +1384,8 @@
       };
 
       const TRACE_COLS = 6;
-      const ZHUYIN_ROWS_PER_PAGE = 8;
+      const ZHUYIN_ROWS_PER_PAGE = 10;
+      const MATCH_ITEMS_PER_PAGE = 10;
       const ANSWER_ITEMS_PER_PAGE = 24;
       const charDataCache = new Map();
 
@@ -1847,41 +1895,44 @@
       }
 
       function renderMatchSheet(items, deckLabel) {
-        const meanings = items.map((item, index) => `
-          <li>
-            <span class="match-num">${index + 1}</span>
-            <span>${escapeHtml(item.meaning)}</span>
-            <span class="match-blank" aria-hidden="true"></span>
-          </li>
-        `).join("");
+        const pages = chunkItems(items, MATCH_ITEMS_PER_PAGE);
+        return pages.map((pageItems, pageIndex) => {
+          const meanings = pageItems.map((item, index) => `
+            <li>
+              <span class="match-num">${index + 1}</span>
+              <span>${escapeHtml(item.meaning)}</span>
+              <span class="match-blank" aria-hidden="true"></span>
+            </li>
+          `).join("");
 
-        const chars = shuffle(items).map((item) => `
-          <li>
-            <span class="match-char">${escapeHtml(item.char)}</span>
-            <span class="match-blank" aria-hidden="true"></span>
-          </li>
-        `).join("");
+          const chars = shuffle(pageItems).map((item) => `
+            <li>
+              <span class="match-char">${escapeHtml(item.char)}</span>
+              <span class="match-blank" aria-hidden="true"></span>
+            </li>
+          `).join("");
 
-        return `
-          <article class="print-sheet">
-            <header class="sheet-header">
-              <p>Cipher Printie · Chinese</p>
-              <h2>Match meanings</h2>
-            </header>
-            <p class="sheet-meta">Deck: ${escapeHtml(deckLabel)} · Draw a line from each meaning to the matching character</p>
-            <div class="match-layout">
-              <div class="match-col">
-                <h3>Meanings</h3>
-                <ul class="match-list">${meanings}</ul>
+          return `
+            <article class="print-sheet">
+              <header class="sheet-header">
+                <p>Cipher Printie · Chinese</p>
+                <h2>Match meanings</h2>
+              </header>
+              <p class="sheet-meta">${pageLabel(pageIndex, pages.length)}Deck: ${escapeHtml(deckLabel)} · Draw a line from each meaning to the matching character</p>
+              <div class="match-layout">
+                <div class="match-col">
+                  <h3>Meanings</h3>
+                  <ul class="match-list">${meanings}</ul>
+                </div>
+                <div class="match-col">
+                  <h3>Characters</h3>
+                  <ul class="match-list">${chars}</ul>
+                </div>
               </div>
-              <div class="match-col">
-                <h3>Characters</h3>
-                <ul class="match-list">${chars}</ul>
-              </div>
-            </div>
-            <footer class="sheet-footer">Traditional Chinese practice · 注音 study companion</footer>
-          </article>
-        `;
+              <footer class="sheet-footer">Traditional Chinese practice · 注音 study companion</footer>
+            </article>
+          `;
+        }).join("");
       }
 
       function renderAnswerSheets(items, deckLabel) {
