@@ -853,6 +853,45 @@ class Screen:
     def done(self):
         return None
 
+    def textinput(self, title, prompt):
+        from js import window
+        label = f"{title}\n{prompt}" if title else str(prompt)
+        value = window.prompt(label, "")
+        if value is None:
+            return None
+        return str(value)
+
+    def numinput(self, title, prompt, default=None, minval=None, maxval=None):
+        from js import window
+        parts = [str(prompt)]
+        if default is not None:
+            parts.append(f"(default: {default})")
+        if minval is not None or maxval is not None:
+            lo = "" if minval is None else str(minval)
+            hi = "" if maxval is None else str(maxval)
+            parts.append(f"[{lo}..{hi}]")
+        label = f"{title}\n{' '.join(parts)}" if title else " ".join(parts)
+        seed = "" if default is None else str(default)
+        while True:
+            value = window.prompt(label, seed)
+            if value is None:
+                return None
+            text = str(value).strip()
+            if text == "" and default is not None:
+                return float(default)
+            try:
+                number = float(text)
+            except ValueError:
+                window.alert("Please enter a number.")
+                continue
+            if minval is not None and number < float(minval):
+                window.alert(f"Please enter a number no smaller than {minval}.")
+                continue
+            if maxval is not None and number > float(maxval):
+                window.alert(f"Please enter a number no larger than {maxval}.")
+                continue
+            return number
+
 
 class Turtle:
     def __init__(self, visible=True):
@@ -1158,6 +1197,14 @@ def exitonclick():
 
 def bgcolor(*args):
     return _screen.bgcolor(*args)
+
+
+def textinput(title, prompt):
+    return _screen.textinput(title, prompt)
+
+
+def numinput(title, prompt, default=None, minval=None, maxval=None):
+    return _screen.numinput(title, prompt, default=default, minval=minval, maxval=maxval)
 
 
 def title(*args, **kwargs):
