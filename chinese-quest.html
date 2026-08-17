@@ -428,6 +428,80 @@
       font-size: clamp(1.6rem, 6vw, 2.2rem);
     }
 
+    .prompt-card:has(.is-zhuyin) {
+      min-height: 11rem;
+    }
+
+    .prompt-main.is-zhuyin {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .zhuyin-stack {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      font-family: var(--han);
+      font-size: clamp(2.4rem, 10vw, 3.6rem);
+      font-weight: 650;
+      line-height: 1.02;
+      color: var(--accent-dark);
+    }
+
+    .zhuyin-letter,
+    .zhuyin-final {
+      display: block;
+    }
+
+    .zhuyin-final {
+      position: relative;
+    }
+
+    .zhuyin-tone {
+      position: absolute;
+      font-size: 0.92em;
+      font-weight: 800;
+      line-height: 1;
+      pointer-events: none;
+    }
+
+    .zhuyin-tone.is-2,
+    .zhuyin-tone.is-3,
+    .zhuyin-tone.is-4 {
+      top: -0.14em;
+      left: 0.42em;
+      transform: none;
+    }
+
+    .zhuyin-stack.is-neutral {
+      padding-top: 0.62em;
+    }
+
+    .zhuyin-tone.is-neutral {
+      top: 0;
+      left: 50%;
+      transform: translate(-50%, -18%);
+      font-size: 1.05em;
+    }
+
+    .char-zhuyin {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.12em;
+      margin: 0 0.15rem;
+      font-family: var(--han);
+      font-size: 1.35rem;
+      font-weight: 650;
+      vertical-align: middle;
+      color: inherit;
+    }
+
+    .char-zhuyin .zhuyin-stack {
+      font-size: 0.62em;
+    }
+
     .choices {
       display: grid;
       grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -733,7 +807,7 @@
         <div class="collection" id="collection"></div>
       </div>
 
-      <p class="disclaimer">Cipher Printie © 2026. For personal and educational use. Traditional characters with 注音. <span class="build-version">Chinese Quest v1.0.0</span></p>
+      <p class="disclaimer">Cipher Printie © 2026. For personal and educational use. Traditional characters with 注音. <span class="build-version">Chinese Quest v1.0.2</span></p>
     </section>
   </main>
 
@@ -880,6 +954,56 @@
         try {
           localStorage.setItem(SAVE_KEY, JSON.stringify(state.progress));
         } catch (_) { /* private mode */ }
+      }
+
+      function escapeHtml(value) {
+        return String(value)
+          .replace(/&/g, "&amp;")
+          .replace(/</g, "&lt;")
+          .replace(/>/g, "&gt;")
+          .replace(/"/g, "&quot;");
+      }
+
+      function zhuyinParts(zhuyin) {
+        const raw = String(zhuyin || "");
+        if (raw.startsWith("˙")) {
+          return { body: raw.slice(1), tone: "˙", light: true };
+        }
+        const tone = (raw.match(/[ˊˇˋ˙]$/) || [])[0] || "";
+        return { body: tone ? raw.slice(0, -tone.length) : raw, tone, light: tone === "˙" };
+      }
+
+      function toneClass(tone) {
+        if (tone === "ˊ") return "2";
+        if (tone === "ˇ") return "3";
+        if (tone === "ˋ") return "4";
+        return "neutral";
+      }
+
+      function zhuyinPromptMarkup(zhuyin) {
+        const { body, tone, light } = zhuyinParts(zhuyin);
+        const letters = Array.from(body);
+        if (!letters.length) return escapeHtml(zhuyin);
+
+        if (light) {
+          const glyphs = letters
+            .map((ch) => `<span class="zhuyin-letter">${escapeHtml(ch)}</span>`)
+            .join("");
+          return `<span class="zhuyin-stack is-neutral"><span class="zhuyin-tone is-neutral" aria-hidden="true">˙</span>${glyphs}</span>`;
+        }
+
+        const last = letters.pop();
+        const head = letters
+          .map((ch) => `<span class="zhuyin-letter">${escapeHtml(ch)}</span>`)
+          .join("");
+        const toneMark = tone
+          ? `<span class="zhuyin-tone is-${toneClass(tone)}" aria-hidden="true">${escapeHtml(tone)}</span>`
+          : "";
+        return `<span class="zhuyin-stack">${head}<span class="zhuyin-final">${escapeHtml(last)}${toneMark}</span></span>`;
+      }
+
+      function charZhuyinMarkup(char, zhuyin) {
+        return `<span class="char-zhuyin"><span class="char-zhuyin-han">${escapeHtml(char)}</span>${zhuyinPromptMarkup(zhuyin)}</span>`;
       }
 
       function shuffle(list) {
@@ -1032,8 +1156,13 @@
         traceBoard.hidden = true;
         const isZhuyin = state.mode === "zhuyin";
         promptKicker.textContent = isZhuyin ? "Pick the character for this 注音" : "Pick the character for this meaning";
-        promptMain.className = isZhuyin ? "prompt-main" : "prompt-main is-english";
-        promptMain.textContent = isZhuyin ? item.zhuyin : item.meaning;
+        if (isZhuyin) {
+          promptMain.className = "prompt-main is-zhuyin";
+          promptMain.innerHTML = zhuyinPromptMarkup(item.zhuyin);
+        } else {
+          promptMain.className = "prompt-main is-english";
+          promptMain.textContent = item.meaning;
+        }
 
         const options = optionSet(item, deckCharacters(state.deck));
         choicesEl.innerHTML = options.map((option, index) => (
@@ -1092,7 +1221,7 @@
           saveProgress();
           renderHud();
           feedbackEl.className = "feedback is-bad";
-          feedbackEl.textContent = `It was ${item.char} · ${item.zhuyin} · ${item.meaning}`;
+          feedbackEl.innerHTML = `It was ${charZhuyinMarkup(item.char, item.zhuyin)} · ${escapeHtml(item.meaning)}`;
         }
 
         renderCollection();
