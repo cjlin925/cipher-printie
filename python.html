@@ -579,6 +579,79 @@
     #output .stderr { color: #f0a8a0; }
     #output .hint { color: #8ea396; }
 
+    .turtle-ask {
+      position: fixed;
+      inset: 0;
+      z-index: 40;
+      display: grid;
+      place-items: center;
+      padding: 1rem;
+      background: rgba(23, 32, 27, 0.42);
+    }
+
+    .turtle-ask[hidden] {
+      display: none;
+    }
+
+    .turtle-ask-card {
+      width: min(100%, 24rem);
+      padding: 1.1rem 1.15rem 1rem;
+      border: 1px solid rgba(23, 32, 27, 0.12);
+      border-radius: 1rem;
+      background: #fff;
+      box-shadow: 0 1.2rem 2.4rem rgba(23, 32, 27, 0.18);
+    }
+
+    .turtle-ask-title {
+      margin: 0 0 0.35rem;
+      color: var(--accent-dark);
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: 1.2rem;
+      font-weight: 500;
+    }
+
+    .turtle-ask-prompt {
+      margin: 0 0 0.75rem;
+      color: var(--ink);
+      font-size: 0.95rem;
+      line-height: 1.4;
+    }
+
+    .turtle-ask-input {
+      width: 100%;
+      margin: 0 0 0.55rem;
+      padding: 0.7rem 0.8rem;
+      border: 1px solid rgba(23, 32, 27, 0.18);
+      border-radius: 0.7rem;
+      background: #f7f9f8;
+      color: var(--ink);
+      font: inherit;
+      font-size: 1rem;
+    }
+
+    .turtle-ask-input:focus {
+      outline: 2px solid var(--accent);
+      outline-offset: 1px;
+      background: #fff;
+    }
+
+    .turtle-ask-error {
+      margin: 0 0 0.65rem;
+      color: var(--danger);
+      font-size: 0.82rem;
+      font-weight: 650;
+    }
+
+    .turtle-ask-error[hidden] {
+      display: none;
+    }
+
+    .turtle-ask-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 0.45rem;
+    }
+
     .disclaimer {
       flex: 0 0 auto;
       margin: 0;
@@ -710,8 +783,21 @@
 
   <p class="disclaimer">
     Cipher Printie © 2026. For personal and educational use.
-    <span class="build-version" id="build-version">Python v1.2.0</span>
+    <span class="build-version" id="build-version">Python v1.2.1</span>
   </p>
+
+  <div class="turtle-ask" id="turtle-ask" hidden>
+    <form class="turtle-ask-card" id="turtle-ask-form" autocomplete="off">
+      <h2 class="turtle-ask-title" id="turtle-ask-title">Turtle</h2>
+      <p class="turtle-ask-prompt" id="turtle-ask-prompt">Type a value</p>
+      <input class="turtle-ask-input" id="turtle-ask-input" type="text" name="turtle-answer" aria-describedby="turtle-ask-error">
+      <p class="turtle-ask-error" id="turtle-ask-error" hidden></p>
+      <div class="turtle-ask-actions">
+        <button type="button" class="btn btn-secondary" id="turtle-ask-cancel">Cancel</button>
+        <button type="submit" class="btn" id="turtle-ask-ok">OK</button>
+      </div>
+    </form>
+  </div>
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/python/python.min.js"></script>
@@ -792,6 +878,7 @@ print("Star drawn!")
       const TURTLE_MODULE = String.raw`"""Browser canvas turtle for Cipher Printie (Pyodide)."""
 from __future__ import annotations
 
+import ast
 import math
 from typing import Optional
 
@@ -825,6 +912,34 @@ def _clear_canvas():
     ctx.clearRect(0, 0, canvas.width, canvas.height)
     ctx.fillStyle = color
     ctx.fillRect(0, 0, canvas.width, canvas.height)
+
+
+def _from_js(value):
+    if value is None:
+        return None
+    try:
+        from pyodide.ffi import JsProxy
+        if isinstance(value, JsProxy):
+            value = value.to_py()
+    except Exception:
+        pass
+    if value is None:
+        return None
+    return value
+
+
+async def _ask_user(title, prompt, default="", error=""):
+    from js import window
+    value = await window.__cipherTurtleAsk(
+        str(title or ""),
+        str(prompt or ""),
+        str(default or ""),
+        str(error or ""),
+    )
+    converted = _from_js(value)
+    if converted is None:
+        return None
+    return str(converted)
 
 
 class Screen:
@@ -880,42 +995,40 @@ class Screen:
     def done(self):
         return None
 
-    def textinput(self, title, prompt):
-        from js import window
-        label = f"{title}\n{prompt}" if title else str(prompt)
-        value = window.prompt(label, "")
-        if value is None:
-            return None
-        return str(value)
+    async def textinput(self, title, prompt):
+        return await _ask_user(title, prompt, "")
 
-    def numinput(self, title, prompt, default=None, minval=None, maxval=None):
-        from js import window
+    async def numinput(self, title, prompt, default=None, minval=None, maxval=None):
         parts = [str(prompt)]
         if default is not None:
-            parts.append(f"(default: {default})")
+            parts.append("(default: " + str(default) + ")")
         if minval is not None or maxval is not None:
             lo = "" if minval is None else str(minval)
             hi = "" if maxval is None else str(maxval)
-            parts.append(f"[{lo}..{hi}]")
-        label = f"{title}\n{' '.join(parts)}" if title else " ".join(parts)
+            parts.append("[" + lo + ".." + hi + "]")
+        message = " ".join(parts)
         seed = "" if default is None else str(default)
+        error = ""
         while True:
-            value = window.prompt(label, seed)
+            value = await _ask_user(title, message, seed, error)
             if value is None:
                 return None
-            text = str(value).strip()
+            text = value.strip()
             if text == "" and default is not None:
                 return float(default)
             try:
                 number = float(text)
             except ValueError:
-                window.alert("Please enter a number.")
+                error = "Please enter a number."
+                seed = text
                 continue
             if minval is not None and number < float(minval):
-                window.alert(f"Please enter a number no smaller than {minval}.")
+                error = "Please enter a number no smaller than " + str(minval) + "."
+                seed = text
                 continue
             if maxval is not None and number > float(maxval):
-                window.alert(f"Please enter a number no larger than {maxval}.")
+                error = "Please enter a number no larger than " + str(maxval) + "."
+                seed = text
                 continue
             return number
 
@@ -1226,12 +1339,12 @@ def bgcolor(*args):
     return _screen.bgcolor(*args)
 
 
-def textinput(title, prompt):
-    return _screen.textinput(title, prompt)
+async def textinput(title, prompt):
+    return await _screen.textinput(title, prompt)
 
 
-def numinput(title, prompt, default=None, minval=None, maxval=None):
-    return _screen.numinput(title, prompt, default=default, minval=minval, maxval=maxval)
+async def numinput(title, prompt, default=None, minval=None, maxval=None):
+    return await _screen.numinput(title, prompt, default=default, minval=minval, maxval=maxval)
 
 
 def title(*args, **kwargs):
@@ -1406,6 +1519,59 @@ def heading():
     return _ensure_default().heading()
 
 
+class _AwaitTurtleInput(ast.NodeTransformer):
+    _NAMES = {"textinput", "numinput"}
+
+    def visit_Await(self, node):
+        if isinstance(node.value, ast.Call):
+            node.value.args = [self.visit(arg) for arg in node.value.args]
+            node.value.keywords = [self.visit(kw) for kw in node.value.keywords]
+            node.value.func = self.visit(node.value.func)
+            return node
+        node.value = self.visit(node.value)
+        return node
+
+    def visit_Call(self, node):
+        node = self.generic_visit(node)
+        func = node.func
+        is_input = (
+            (isinstance(func, ast.Name) and func.id in self._NAMES)
+            or (isinstance(func, ast.Attribute) and func.attr in self._NAMES)
+        )
+        if is_input:
+            return ast.Await(value=node)
+        return node
+
+
+async def _run_user_async(src):
+    tree = ast.parse(src, filename="<python-playground>")
+    tree = _AwaitTurtleInput().visit(tree)
+    ast.fix_missing_locations(tree)
+    body = list(tree.body) if tree.body else [ast.Pass()]
+    fn = ast.AsyncFunctionDef(
+        name="__cipher_main",
+        args=ast.arguments(
+            posonlyargs=[],
+            args=[],
+            vararg=None,
+            kwonlyargs=[],
+            kw_defaults=[],
+            kwarg=None,
+            defaults=[],
+        ),
+        body=body,
+        decorator_list=[],
+        returns=None,
+        type_comment=None,
+        type_params=[],
+    )
+    mod = ast.Module(body=[fn], type_ignores=[])
+    ast.fix_missing_locations(mod)
+    ns = {"__name__": "__main__"}
+    exec(compile(mod, "<python-playground>", "exec"), ns, ns)
+    await ns["__cipher_main"]()
+
+
 # Make class names available as turtle.Turtle / turtle.Screen
 Screen = Screen
 # Turtle already defined
@@ -1422,6 +1588,58 @@ Screen = Screen
       const turtleStage = document.getElementById("turtle-stage");
       const studio = document.getElementById("studio");
       const canvasBgInput = document.getElementById("canvas-bg-input");
+      const askOverlay = document.getElementById("turtle-ask");
+      const askForm = document.getElementById("turtle-ask-form");
+      const askTitle = document.getElementById("turtle-ask-title");
+      const askPrompt = document.getElementById("turtle-ask-prompt");
+      const askInput = document.getElementById("turtle-ask-input");
+      const askError = document.getElementById("turtle-ask-error");
+      const askCancel = document.getElementById("turtle-ask-cancel");
+
+      let askResolver = null;
+
+      function closeTurtleAsk(value) {
+        askOverlay.hidden = true;
+        window.__cipherTurtleDialogOpen = false;
+        const resolve = askResolver;
+        askResolver = null;
+        if (resolve) resolve(value);
+      }
+
+      window.__cipherTurtleAsk = (title, prompt, defaultValue = "", errorMessage = "") => {
+        return new Promise((resolve) => {
+          if (askResolver) closeTurtleAsk(null);
+          askResolver = resolve;
+          window.__cipherTurtleDialogOpen = true;
+          askTitle.textContent = title || "Turtle";
+          askPrompt.textContent = prompt || "Type a value";
+          askInput.value = defaultValue || "";
+          if (errorMessage) {
+            askError.hidden = false;
+            askError.textContent = errorMessage;
+          } else {
+            askError.hidden = true;
+            askError.textContent = "";
+          }
+          askOverlay.hidden = false;
+          requestAnimationFrame(() => {
+            askInput.focus();
+            askInput.select();
+          });
+        });
+      };
+
+      askForm.addEventListener("submit", (event) => {
+        event.preventDefault();
+        closeTurtleAsk(askInput.value);
+      });
+      askCancel.addEventListener("click", () => closeTurtleAsk(null));
+      askOverlay.addEventListener("keydown", (event) => {
+        if (event.key === "Escape") {
+          event.preventDefault();
+          closeTurtleAsk(null);
+        }
+      });
 
       const codeMirror = CodeMirror.fromTextArea(textarea, {
         mode: {
@@ -1680,7 +1898,11 @@ if "turtle" in sys.modules:
     import turtle
     turtle.resetscreen()
 `);
-          await pyodide.runPythonAsync(getCode());
+          pyodide.globals.set("__cipher_user_src", getCode());
+          await pyodide.runPythonAsync(`
+import turtle
+await turtle._run_user_async(__cipher_user_src)
+`);
           // Keep the color picker in sync if the program called bgcolor().
           if (window.__turtleCanvasBg) {
             setCanvasBackground(window.__turtleCanvasBg, { refill: false });
@@ -1748,6 +1970,7 @@ if "turtle" in sys.modules:
       }
 
       document.addEventListener("keydown", (event) => {
+        if (window.__cipherTurtleDialogOpen) return;
         if (isRunHotkey(event)) {
           event.preventDefault();
           if (!btnRun.disabled) runCode();
