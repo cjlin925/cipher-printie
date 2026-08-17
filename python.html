@@ -580,7 +580,29 @@
     #output .hint { color: #8ea396; }
 
     .disclaimer {
-      display: none;
+      flex: 0 0 auto;
+      margin: 0;
+      padding: 0.65rem clamp(0.85rem, 2.5vw, 1.35rem) 0.85rem;
+      color: var(--muted);
+      font-size: 0.72rem;
+      line-height: 1.45;
+      text-align: center;
+      border-top: 1px solid rgba(23, 32, 27, 0.08);
+      background: rgba(255, 255, 255, 0.55);
+    }
+
+    .build-version {
+      display: inline-block;
+      margin-left: 0.35rem;
+      padding: 0.1rem 0.45rem;
+      border-radius: 999px;
+      border: 1px solid var(--line);
+      background: #f3f6f4;
+      color: var(--accent-dark);
+      font-family: "Courier New", monospace;
+      font-size: 0.68rem;
+      font-weight: 700;
+      letter-spacing: 0.04em;
     }
 
     @media (max-width: 900px) {
@@ -685,6 +707,11 @@
       </div>
     </section>
   </main>
+
+  <p class="disclaimer">
+    Cipher Printie © 2026. For personal and educational use.
+    <span class="build-version" id="build-version">Python v1.2.0</span>
+  </p>
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/python/python.min.js"></script>
