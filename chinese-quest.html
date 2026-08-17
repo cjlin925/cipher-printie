@@ -1,0 +1,1168 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <!-- Google tag (gtag.js) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-70VSYRX0L2"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-70VSYRX0L2');
+  </script>
+  <title>Chinese Quest · Cipher Printie</title>
+  <meta name="description" content="A game version of Traditional Chinese practice: quizzes, 注音, and stroke tracing with stars, streaks, and levels. Progress stays in this browser.">
+  <meta name="robots" content="index, follow">
+  <meta name="theme-color" content="#215c42">
+  <link rel="canonical" href="https://cjlin925.github.io/cipher-printie/chinese-quest.html">
+  <link rel="icon" href="/cipher-printie/favicon.ico" sizes="any">
+  <link rel="icon" href="/cipher-printie/favicon.svg" type="image/svg+xml">
+  <link rel="icon" href="/cipher-printie/favicon-32.png" type="image/png" sizes="32x32">
+  <link rel="apple-touch-icon" href="/cipher-printie/apple-touch-icon.png" sizes="180x180">
+  <link rel="manifest" href="/cipher-printie/site.webmanifest">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Cipher Printie">
+  <meta property="og:title" content="Chinese Quest · Cipher Printie">
+  <meta property="og:description" content="Earn stars and levels while practicing Traditional Chinese characters, 注音, and stroke order.">
+  <meta property="og:url" content="https://cjlin925.github.io/cipher-printie/chinese-quest.html">
+  <meta property="og:locale" content="en_US">
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="Chinese Quest · Cipher Printie">
+  <meta name="twitter:description" content="A game version of Traditional Chinese practice with quizzes, stars, and streaks.">
+  <script src="https://cdn.jsdelivr.net/npm/hanzi-writer@3.7.2/dist/hanzi-writer.min.js"></script>
+  <style>
+    :root {
+      color-scheme: light;
+      --ink: #17201b;
+      --muted: #69736d;
+      --paper: #ffffff;
+      --accent: #215c42;
+      --accent-dark: #17412f;
+      --line: #dfe5e1;
+      --gold: #c4922a;
+      --han: "Noto Sans TC", "PingFang TC", "Hiragino Sans CNS", "Microsoft JhengHei", "Heiti TC", sans-serif;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at 12% 8%, rgba(33, 92, 66, 0.08), transparent 28rem),
+        radial-gradient(circle at 88% 12%, rgba(196, 146, 42, 0.08), transparent 22rem),
+        #f4f6f4;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    .site-nav {
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.75rem 1rem;
+      padding: 0.85rem clamp(1rem, 4vw, 2rem);
+      border-bottom: 1px solid rgba(23, 32, 27, 0.08);
+      background: rgba(244, 246, 244, 0.88);
+      backdrop-filter: blur(10px);
+    }
+
+    .site-nav-brand {
+      color: var(--ink);
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: 1.15rem;
+      font-weight: 500;
+      letter-spacing: -0.03em;
+      text-decoration: none;
+    }
+
+    .nav-toggle {
+      display: none;
+      align-items: center;
+      justify-content: center;
+      width: 2.6rem;
+      height: 2.6rem;
+      padding: 0;
+      border: 1px solid rgba(23, 32, 27, 0.12);
+      border-radius: 0.65rem;
+      background: rgba(255, 255, 255, 0.9);
+      color: var(--ink);
+      cursor: pointer;
+    }
+
+    .nav-toggle-bars,
+    .nav-toggle-bars::before,
+    .nav-toggle-bars::after {
+      display: block;
+      width: 1.1rem;
+      height: 2px;
+      border-radius: 999px;
+      background: currentColor;
+      transition: transform 160ms ease, opacity 160ms ease;
+    }
+
+    .nav-toggle-bars { position: relative; }
+    .nav-toggle-bars::before,
+    .nav-toggle-bars::after {
+      content: "";
+      position: absolute;
+      left: 0;
+    }
+    .nav-toggle-bars::before { top: -6px; }
+    .nav-toggle-bars::after { top: 6px; }
+    .nav-toggle[aria-expanded="true"] .nav-toggle-bars { background: transparent; }
+    .nav-toggle[aria-expanded="true"] .nav-toggle-bars::before { top: 0; transform: rotate(45deg); }
+    .nav-toggle[aria-expanded="true"] .nav-toggle-bars::after { top: 0; transform: rotate(-45deg); }
+
+    .site-nav-menu { margin-left: auto; }
+    .site-nav-links {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 0.35rem;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+    .site-nav-links a {
+      display: inline-block;
+      padding: 0.45rem 0.8rem;
+      border-radius: 0.55rem;
+      color: var(--muted);
+      font-size: 0.92rem;
+      font-weight: 650;
+      text-decoration: none;
+      transition: color 150ms ease, background-color 150ms ease;
+    }
+    .site-nav-links a:hover { color: var(--ink); background: rgba(33, 92, 66, 0.08); }
+    .site-nav-links a[aria-current="page"] {
+      color: var(--accent-dark);
+      background: rgba(33, 92, 66, 0.12);
+    }
+
+    @media (max-width: 720px) {
+      .nav-toggle { display: inline-flex; }
+      .site-nav-menu {
+        display: none;
+        width: 100%;
+        margin-left: 0;
+        padding-top: 0.35rem;
+      }
+      .site-nav-menu.is-open { display: block; }
+      .site-nav-links {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 0.25rem;
+      }
+      .site-nav-links a { width: 100%; padding: 0.75rem 0.85rem; }
+    }
+
+    .screen {
+      display: grid;
+      min-height: calc(100vh - 3.6rem);
+      place-items: start center;
+      padding: 2rem;
+    }
+
+    .studio {
+      width: min(100%, 52rem);
+      padding: clamp(1.75rem, 5vw, 3rem);
+      border: 1px solid rgba(23, 32, 27, 0.08);
+      border-radius: 1.25rem;
+      background: rgba(255, 255, 255, 0.94);
+      box-shadow: 0 1.5rem 4rem rgba(23, 32, 27, 0.09);
+    }
+
+    .eyebrow {
+      margin: 0 0 0.75rem;
+      color: var(--accent);
+      font-size: 0.72rem;
+      font-weight: 800;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+    }
+
+    h1 {
+      margin: 0;
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: clamp(2.1rem, 6vw, 3.1rem);
+      font-weight: 500;
+      letter-spacing: -0.045em;
+      line-height: 1;
+    }
+
+    .intro {
+      margin: 1rem 0 0;
+      color: var(--muted);
+      font-size: 1.02rem;
+      line-height: 1.6;
+    }
+
+    .intro a {
+      color: var(--accent-dark);
+      font-weight: 700;
+    }
+
+    .hud {
+      display: grid;
+      grid-template-columns: auto 1fr auto auto;
+      gap: 0.85rem 1rem;
+      align-items: center;
+      margin-top: 1.5rem;
+      padding: 0.9rem 1rem;
+      border: 1px solid rgba(23, 32, 27, 0.1);
+      border-radius: 1rem;
+      background:
+        linear-gradient(180deg, rgba(33, 92, 66, 0.05), transparent 70%),
+        #fff;
+    }
+
+    .hud-level {
+      display: grid;
+      place-items: center;
+      min-width: 3.4rem;
+      height: 3.4rem;
+      padding: 0.2rem;
+      border-radius: 0.85rem;
+      background: var(--accent);
+      color: #fff;
+      text-align: center;
+    }
+
+    .hud-level strong {
+      display: block;
+      font-size: 1.35rem;
+      line-height: 1;
+    }
+
+    .hud-level span {
+      font-size: 0.62rem;
+      font-weight: 800;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      opacity: 0.85;
+    }
+
+    .xp-wrap { min-width: 0; }
+    .xp-meta {
+      display: flex;
+      justify-content: space-between;
+      gap: 0.5rem;
+      margin-bottom: 0.35rem;
+      font-size: 0.78rem;
+      font-weight: 700;
+      color: var(--muted);
+    }
+    .xp-bar {
+      height: 0.55rem;
+      overflow: hidden;
+      border-radius: 999px;
+      background: #e6ebe8;
+    }
+    .xp-bar span {
+      display: block;
+      height: 100%;
+      width: 0%;
+      border-radius: inherit;
+      background: linear-gradient(90deg, var(--accent), #3d8a62);
+      transition: width 280ms ease;
+    }
+
+    .hud-stat {
+      text-align: center;
+      min-width: 3.4rem;
+    }
+    .hud-stat strong {
+      display: block;
+      font-size: 1.15rem;
+      line-height: 1.1;
+    }
+    .hud-stat span {
+      color: var(--muted);
+      font-size: 0.68rem;
+      font-weight: 800;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    @media (max-width: 620px) {
+      .hud {
+        grid-template-columns: auto 1fr auto;
+      }
+      .hud-stat:last-child { grid-column: 3; }
+    }
+
+    .section {
+      margin-top: 1.75rem;
+      padding-top: 1.4rem;
+      border-top: 1px solid var(--line);
+    }
+
+    .section-title {
+      margin: 0 0 0.85rem;
+      font-size: 0.78rem;
+      font-weight: 800;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+
+    .deck-chips,
+    .mode-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.45rem;
+    }
+
+    .deck-chip,
+    .mode-card {
+      padding: 0.45rem 0.85rem;
+      border: 1px solid rgba(23, 32, 27, 0.12);
+      border-radius: 0.65rem;
+      background: #fff;
+      color: var(--ink);
+      font: inherit;
+      font-size: 0.9rem;
+      font-weight: 650;
+      cursor: pointer;
+    }
+
+    .deck-chip:hover,
+    .mode-card:hover {
+      border-color: rgba(33, 92, 66, 0.35);
+      background: rgba(33, 92, 66, 0.06);
+    }
+
+    .deck-chip[aria-pressed="true"] {
+      border-color: transparent;
+      color: #fff;
+      background: var(--accent);
+    }
+
+    .mode-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 0.75rem;
+    }
+
+    .mode-card {
+      display: grid;
+      gap: 0.35rem;
+      padding: 1rem 0.95rem 1.05rem;
+      text-align: left;
+      border-radius: 1rem;
+    }
+
+    .mode-card strong {
+      font-size: 1.02rem;
+    }
+
+    .mode-card span {
+      color: var(--muted);
+      font-size: 0.82rem;
+      font-weight: 550;
+      line-height: 1.4;
+    }
+
+    @media (max-width: 640px) {
+      .mode-grid { grid-template-columns: 1fr; }
+    }
+
+    .play {
+      display: none;
+    }
+
+    .play.is-active { display: block; }
+    .lobby.is-hidden { display: none; }
+
+    .round-meta {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      gap: 0.5rem;
+      margin-bottom: 1rem;
+      color: var(--muted);
+      font-size: 0.88rem;
+      font-weight: 700;
+    }
+
+    .prompt-card {
+      display: grid;
+      place-items: center;
+      min-height: 8.5rem;
+      padding: 1.25rem;
+      border: 1px solid rgba(23, 32, 27, 0.1);
+      border-radius: 1rem;
+      background:
+        linear-gradient(180deg, rgba(33, 92, 66, 0.04), transparent 45%),
+        #fff;
+      text-align: center;
+    }
+
+    .prompt-kicker {
+      margin: 0 0 0.45rem;
+      color: var(--muted);
+      font-size: 0.75rem;
+      font-weight: 800;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+    }
+
+    .prompt-main {
+      margin: 0;
+      font-family: var(--han);
+      font-size: clamp(2rem, 8vw, 3rem);
+      font-weight: 650;
+      line-height: 1.15;
+      color: var(--accent-dark);
+    }
+
+    .prompt-main.is-english {
+      font-family: inherit;
+      font-size: clamp(1.6rem, 6vw, 2.2rem);
+    }
+
+    .choices {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 0.7rem;
+      margin-top: 1rem;
+    }
+
+    .choice {
+      min-height: 4.6rem;
+      border: 1px solid rgba(23, 32, 27, 0.12);
+      border-radius: 0.9rem;
+      background: #fff;
+      color: var(--ink);
+      font-family: var(--han);
+      font-size: 2rem;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    .choice:hover:not(:disabled) {
+      border-color: rgba(33, 92, 66, 0.4);
+      background: rgba(33, 92, 66, 0.06);
+    }
+
+    .choice.is-right {
+      border-color: transparent;
+      background: var(--accent);
+      color: #fff;
+    }
+
+    .choice.is-wrong {
+      border-color: #c45b52;
+      background: #f8e8e6;
+      color: #8a2f28;
+    }
+
+    .choice:disabled { cursor: default; }
+
+    .trace-board {
+      display: grid;
+      justify-items: center;
+      gap: 0.75rem;
+      margin-top: 1rem;
+    }
+
+    .trace-target {
+      width: 220px;
+      height: 220px;
+      border: 1px solid rgba(23, 32, 27, 0.12);
+      border-radius: 1rem;
+      background:
+        linear-gradient(#edf1ee, #edf1ee) center/100% 1px no-repeat,
+        linear-gradient(#edf1ee, #edf1ee) center/1px 100% no-repeat,
+        #fff;
+      overflow: hidden;
+    }
+
+    .feedback {
+      min-height: 1.4em;
+      margin: 0.9rem 0 0;
+      font-size: 0.95rem;
+      font-weight: 700;
+      text-align: center;
+    }
+
+    .feedback.is-good { color: var(--accent-dark); }
+    .feedback.is-bad { color: #9b3b32; }
+
+    .play-actions {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 0.5rem;
+      margin-top: 1rem;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0.7rem 1.05rem;
+      border: 0;
+      border-radius: 0.75rem;
+      background: var(--accent);
+      color: #fff;
+      font: inherit;
+      font-weight: 700;
+      cursor: pointer;
+      transition: background-color 150ms ease, transform 150ms ease;
+    }
+    .btn:hover { background: var(--accent-dark); transform: translateY(-1px); }
+    .btn-secondary {
+      border: 1px solid rgba(23, 32, 27, 0.14);
+      background: #fff;
+      color: var(--ink);
+    }
+    .btn-secondary:hover { background: rgba(33, 92, 66, 0.06); color: var(--ink); }
+
+    .results {
+      display: none;
+      text-align: center;
+    }
+    .results.is-active { display: block; }
+
+    .results-score {
+      margin: 0.35rem 0 0;
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: clamp(2.2rem, 8vw, 3.2rem);
+    }
+
+    .results p {
+      color: var(--muted);
+      line-height: 1.5;
+    }
+
+    .collection {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(3.2rem, 1fr));
+      gap: 0.4rem;
+    }
+
+    .badge {
+      display: grid;
+      gap: 0.15rem;
+      justify-items: center;
+      padding: 0.4rem 0.2rem 0.45rem;
+      border: 1px solid rgba(23, 32, 27, 0.1);
+      border-radius: 0.65rem;
+      background: #fff;
+    }
+
+    .badge.is-new { border-color: rgba(33, 92, 66, 0.45); background: rgba(33, 92, 66, 0.06); }
+    .badge.is-mastered {
+      border-color: transparent;
+      background: var(--accent);
+      color: #fff;
+    }
+
+    .badge-char {
+      font-family: var(--han);
+      font-size: 1.35rem;
+      line-height: 1;
+    }
+
+    .badge-stars {
+      color: var(--gold);
+      font-size: 0.62rem;
+      letter-spacing: 0.04em;
+    }
+
+    .badge.is-mastered .badge-stars { color: #f3d48a; }
+
+    .disclaimer {
+      margin: 1.75rem 0 0;
+      color: var(--muted);
+      font-size: 0.78rem;
+      line-height: 1.5;
+    }
+
+    .build-version {
+      display: inline-block;
+      margin-left: 0.35rem;
+      padding: 0.1rem 0.45rem;
+      border-radius: 999px;
+      border: 1px solid var(--line);
+      background: #f3f6f4;
+      color: var(--accent-dark);
+      font-family: "Courier New", monospace;
+      font-size: 0.68rem;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+    }
+
+    .xp-float {
+      position: fixed;
+      z-index: 30;
+      pointer-events: none;
+      color: var(--accent-dark);
+      font-weight: 800;
+      animation: float-up 700ms ease forwards;
+    }
+
+    @keyframes float-up {
+      from { opacity: 1; transform: translate(-50%, 0); }
+      to { opacity: 0; transform: translate(-50%, -28px); }
+    }
+  </style>
+</head>
+<body>
+  <header class="site-nav">
+    <a class="site-nav-brand" href="/cipher-printie/">Cipher Printie</a>
+    <button class="nav-toggle" type="button" aria-expanded="false" aria-controls="site-menu" aria-label="Open menu">
+      <span class="nav-toggle-bars" aria-hidden="true"></span>
+    </button>
+    <nav id="site-menu" class="site-nav-menu" aria-label="Primary">
+      <ul class="site-nav-links">
+        <li><a href="/cipher-printie/">Cipher Printie</a></li>
+        <li><a href="/cipher-printie/flag-map.html">Flag Map</a></li>
+        <li><a href="/cipher-printie/origami.html">Origami</a></li>
+        <li><a href="/cipher-printie/food-merge.html">Food Merge</a></li>
+        <li><a href="/cipher-printie/chinese.html">Chinese</a></li>
+        <li><a href="/cipher-printie/chinese-quest.html" aria-current="page">Chinese Quest</a></li>
+        <li><a href="/cipher-printie/python.html">Python</a></li>
+        <li><a href="/cipher-printie/story.html">Story</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <main class="screen">
+    <section class="studio" aria-labelledby="app-title">
+      <p class="eyebrow">Practice mission</p>
+      <h1 id="app-title">Chinese Quest</h1>
+      <p class="intro">Same Traditional characters as the study page, now with stars, combos, and a streak. Progress stays in this browser. Need worksheets? Open <a href="/cipher-printie/chinese.html">Chinese</a>.</p>
+
+      <div class="hud" aria-label="Quest progress">
+        <div class="hud-level">
+          <strong id="hud-level">1</strong>
+          <span>Level</span>
+        </div>
+        <div class="xp-wrap">
+          <div class="xp-meta">
+            <span id="xp-label">0 / 50 XP</span>
+            <span id="combo-label">Combo ×1</span>
+          </div>
+          <div class="xp-bar" aria-hidden="true"><span id="xp-fill"></span></div>
+        </div>
+        <div class="hud-stat">
+          <strong id="hud-stars">0</strong>
+          <span>Stars</span>
+        </div>
+        <div class="hud-stat">
+          <strong id="hud-streak">0</strong>
+          <span>Streak</span>
+        </div>
+      </div>
+
+      <div id="lobby" class="lobby">
+        <div class="section" aria-labelledby="deck-heading">
+          <h2 id="deck-heading" class="section-title">Choose a deck</h2>
+          <div class="deck-chips" role="group" aria-label="Character decks">
+            <button type="button" class="deck-chip" data-deck="all" aria-pressed="true">All</button>
+            <button type="button" class="deck-chip" data-deck="numbers" aria-pressed="false">Numbers</button>
+            <button type="button" class="deck-chip" data-deck="family" aria-pressed="false">Family</button>
+            <button type="button" class="deck-chip" data-deck="colors" aria-pressed="false">Colors</button>
+            <button type="button" class="deck-chip" data-deck="daily" aria-pressed="false">Daily</button>
+          </div>
+        </div>
+
+        <div class="section" aria-labelledby="mission-heading">
+          <h2 id="mission-heading" class="section-title">Start a mission</h2>
+          <div class="mode-grid">
+            <button type="button" class="mode-card" data-mode="meaning">
+              <strong>Meaning quiz</strong>
+              <span>See English, pick the matching 漢字. 8 questions.</span>
+            </button>
+            <button type="button" class="mode-card" data-mode="zhuyin">
+              <strong>注音 quiz</strong>
+              <span>See 注音, pick the character. Great for listening in your head.</span>
+            </button>
+            <button type="button" class="mode-card" data-mode="trace">
+              <strong>Stroke trace</strong>
+              <span>Draw each character in stroke order. Perfect traces earn extra XP.</span>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div id="play" class="play" aria-live="polite">
+        <div class="section">
+          <div class="round-meta">
+            <span id="round-label">Question 1 / 8</span>
+            <span id="round-mode">Meaning quiz</span>
+          </div>
+          <div class="prompt-card">
+            <p class="prompt-kicker" id="prompt-kicker">Meaning</p>
+            <p class="prompt-main" id="prompt-main">one</p>
+          </div>
+          <div class="choices" id="choices"></div>
+          <div class="trace-board" id="trace-board" hidden>
+            <div class="trace-target" id="trace-target"></div>
+          </div>
+          <p class="feedback" id="feedback"></p>
+          <div class="play-actions">
+            <button type="button" class="btn btn-secondary" id="btn-quit">Back to missions</button>
+          </div>
+        </div>
+      </div>
+
+      <div id="results" class="results">
+        <div class="section">
+          <p class="eyebrow">Mission complete</p>
+          <p class="results-score" id="results-score">8 / 8</p>
+          <p id="results-copy">Nice work. You earned 80 XP.</p>
+          <div class="play-actions">
+            <button type="button" class="btn" id="btn-again">Play again</button>
+            <button type="button" class="btn btn-secondary" id="btn-lobby">Choose another mission</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="section" aria-labelledby="collection-heading">
+        <h2 id="collection-heading" class="section-title">Character collection</h2>
+        <div class="collection" id="collection"></div>
+      </div>
+
+      <p class="disclaimer">Cipher Printie © 2026. For personal and educational use. Traditional characters with 注音. <span class="build-version">Chinese Quest v1.0.0</span></p>
+    </section>
+  </main>
+
+  <script>
+    (function initMobileNav() {
+      const toggle = document.querySelector(".nav-toggle");
+      const menu = document.getElementById("site-menu");
+      if (!toggle || !menu) return;
+
+      const setOpen = (open) => {
+        menu.classList.toggle("is-open", open);
+        toggle.setAttribute("aria-expanded", open ? "true" : "false");
+        toggle.setAttribute("aria-label", open ? "Close menu" : "Open menu");
+      };
+
+      toggle.addEventListener("click", (event) => {
+        event.stopPropagation();
+        setOpen(toggle.getAttribute("aria-expanded") !== "true");
+      });
+
+      document.addEventListener("click", (event) => {
+        if (!event.target.closest(".site-nav")) setOpen(false);
+      });
+
+      document.addEventListener("keydown", (event) => {
+        if (event.key === "Escape") setOpen(false);
+      });
+
+      window.matchMedia("(max-width: 720px)").addEventListener("change", (event) => {
+        if (!event.matches) setOpen(false);
+      });
+    })();
+
+    (function initChineseQuest() {
+      const CHARACTERS = [
+        { char: "一", zhuyin: "ㄧ", meaning: "one", deck: "numbers" },
+        { char: "二", zhuyin: "ㄦˋ", meaning: "two", deck: "numbers" },
+        { char: "三", zhuyin: "ㄙㄢ", meaning: "three", deck: "numbers" },
+        { char: "四", zhuyin: "ㄙˋ", meaning: "four", deck: "numbers" },
+        { char: "五", zhuyin: "ㄨˇ", meaning: "five", deck: "numbers" },
+        { char: "六", zhuyin: "ㄌㄧㄡˋ", meaning: "six", deck: "numbers" },
+        { char: "七", zhuyin: "ㄑㄧ", meaning: "seven", deck: "numbers" },
+        { char: "八", zhuyin: "ㄅㄚ", meaning: "eight", deck: "numbers" },
+        { char: "九", zhuyin: "ㄐㄧㄡˇ", meaning: "nine", deck: "numbers" },
+        { char: "十", zhuyin: "ㄕˊ", meaning: "ten", deck: "numbers" },
+        { char: "零", zhuyin: "ㄌㄧㄥˊ", meaning: "zero", deck: "numbers" },
+        { char: "百", zhuyin: "ㄅㄞˇ", meaning: "hundred", deck: "numbers" },
+        { char: "我", zhuyin: "ㄨㄛˇ", meaning: "I / me", deck: "family" },
+        { char: "你", zhuyin: "ㄋㄧˇ", meaning: "you", deck: "family" },
+        { char: "他", zhuyin: "ㄊㄚ", meaning: "he / him", deck: "family" },
+        { char: "她", zhuyin: "ㄊㄚ", meaning: "she / her", deck: "family" },
+        { char: "爸", zhuyin: "ㄅㄚˋ", meaning: "dad", deck: "family" },
+        { char: "媽", zhuyin: "ㄇㄚ", meaning: "mom", deck: "family" },
+        { char: "哥", zhuyin: "ㄍㄜ", meaning: "older brother", deck: "family" },
+        { char: "姊", zhuyin: "ㄐㄧㄝˇ", meaning: "older sister", deck: "family" },
+        { char: "弟", zhuyin: "ㄉㄧˋ", meaning: "younger brother", deck: "family" },
+        { char: "妹", zhuyin: "ㄇㄟˋ", meaning: "younger sister", deck: "family" },
+        { char: "家", zhuyin: "ㄐㄧㄚ", meaning: "home / family", deck: "family" },
+        { char: "人", zhuyin: "ㄖㄣˊ", meaning: "person", deck: "family" },
+        { char: "紅", zhuyin: "ㄏㄨㄥˊ", meaning: "red", deck: "colors" },
+        { char: "橙", zhuyin: "ㄔㄥˊ", meaning: "orange", deck: "colors" },
+        { char: "黃", zhuyin: "ㄏㄨㄤˊ", meaning: "yellow", deck: "colors" },
+        { char: "綠", zhuyin: "ㄌㄩˋ", meaning: "green", deck: "colors" },
+        { char: "藍", zhuyin: "ㄌㄢˊ", meaning: "blue", deck: "colors" },
+        { char: "紫", zhuyin: "ㄗˇ", meaning: "purple", deck: "colors" },
+        { char: "黑", zhuyin: "ㄏㄟ", meaning: "black", deck: "colors" },
+        { char: "白", zhuyin: "ㄅㄞˊ", meaning: "white", deck: "colors" },
+        { char: "灰", zhuyin: "ㄏㄨㄟ", meaning: "gray", deck: "colors" },
+        { char: "粉", zhuyin: "ㄈㄣˇ", meaning: "pink", deck: "colors" },
+        { char: "棕", zhuyin: "ㄗㄨㄥ", meaning: "brown", deck: "colors" },
+        { char: "色", zhuyin: "ㄙㄜˋ", meaning: "color", deck: "colors" },
+        { char: "吃", zhuyin: "ㄔ", meaning: "eat", deck: "daily" },
+        { char: "喝", zhuyin: "ㄏㄜ", meaning: "drink", deck: "daily" },
+        { char: "看", zhuyin: "ㄎㄢˋ", meaning: "look / watch", deck: "daily" },
+        { char: "聽", zhuyin: "ㄊㄧㄥ", meaning: "listen", deck: "daily" },
+        { char: "說", zhuyin: "ㄕㄨㄛ", meaning: "speak", deck: "daily" },
+        { char: "走", zhuyin: "ㄗㄡˇ", meaning: "walk", deck: "daily" },
+        { char: "跑", zhuyin: "ㄆㄠˇ", meaning: "run", deck: "daily" },
+        { char: "來", zhuyin: "ㄌㄞˊ", meaning: "come", deck: "daily" },
+        { char: "去", zhuyin: "ㄑㄩˋ", meaning: "go", deck: "daily" },
+        { char: "大", zhuyin: "ㄉㄚˋ", meaning: "big", deck: "daily" },
+        { char: "小", zhuyin: "ㄒㄧㄠˇ", meaning: "small", deck: "daily" },
+        { char: "好", zhuyin: "ㄏㄠˇ", meaning: "good", deck: "daily" }
+      ];
+
+      const SAVE_KEY = "cipherprint-chinese-quest";
+      const XP_PER_LEVEL = 50;
+      const ROUND_LENGTH = 8;
+      const MODE_LABELS = {
+        meaning: "Meaning quiz",
+        zhuyin: "注音 quiz",
+        trace: "Stroke trace"
+      };
+
+      const lobbyEl = document.getElementById("lobby");
+      const playEl = document.getElementById("play");
+      const resultsEl = document.getElementById("results");
+      const choicesEl = document.getElementById("choices");
+      const traceBoard = document.getElementById("trace-board");
+      const traceTarget = document.getElementById("trace-target");
+      const feedbackEl = document.getElementById("feedback");
+      const promptMain = document.getElementById("prompt-main");
+      const promptKicker = document.getElementById("prompt-kicker");
+
+      const state = {
+        deck: "all",
+        mode: "meaning",
+        combo: 0,
+        round: [],
+        index: 0,
+        correct: 0,
+        gainedXp: 0,
+        locked: false,
+        writer: null,
+        mistakes: 0,
+        progress: loadProgress()
+      };
+
+      function dateKey(offset = 0) {
+        const date = new Date();
+        date.setDate(date.getDate() + offset);
+        return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
+      }
+
+      function loadProgress() {
+        const fallback = { xp: 0, stars: 0, streak: 0, lastPlay: "", mastery: {} };
+        try {
+          const raw = localStorage.getItem(SAVE_KEY);
+          if (!raw) return fallback;
+          const parsed = JSON.parse(raw);
+          return {
+            xp: Number(parsed.xp) || 0,
+            stars: Number(parsed.stars) || 0,
+            streak: Number(parsed.streak) || 0,
+            lastPlay: parsed.lastPlay || "",
+            mastery: parsed.mastery && typeof parsed.mastery === "object" ? parsed.mastery : {}
+          };
+        } catch (_) {
+          return fallback;
+        }
+      }
+
+      function saveProgress() {
+        try {
+          localStorage.setItem(SAVE_KEY, JSON.stringify(state.progress));
+        } catch (_) { /* private mode */ }
+      }
+
+      function shuffle(list) {
+        const copy = list.slice();
+        for (let i = copy.length - 1; i > 0; i -= 1) {
+          const j = Math.floor(Math.random() * (i + 1));
+          const tmp = copy[i];
+          copy[i] = copy[j];
+          copy[j] = tmp;
+        }
+        return copy;
+      }
+
+      function deckCharacters(deck) {
+        if (deck === "all") return CHARACTERS.slice();
+        return CHARACTERS.filter((item) => item.deck === deck);
+      }
+
+      function levelFromXp(xp) {
+        return Math.floor(xp / XP_PER_LEVEL) + 1;
+      }
+
+      function touchStreak() {
+        const today = dateKey();
+        const yesterday = dateKey(-1);
+        if (state.progress.lastPlay === today) return;
+        if (state.progress.lastPlay === yesterday) state.progress.streak += 1;
+        else state.progress.streak = 1;
+        state.progress.lastPlay = today;
+      }
+
+      function masteryOf(char) {
+        const entry = state.progress.mastery[char] || { correct: 0, seen: 0 };
+        return Math.min(3, entry.correct);
+      }
+
+      function markAnswer(char, correct) {
+        const entry = state.progress.mastery[char] || { correct: 0, seen: 0 };
+        entry.seen += 1;
+        if (correct) entry.correct += 1;
+        state.progress.mastery[char] = entry;
+      }
+
+      function renderHud() {
+        const xp = state.progress.xp;
+        const into = xp % XP_PER_LEVEL;
+        document.getElementById("hud-level").textContent = String(levelFromXp(xp));
+        document.getElementById("xp-label").textContent = `${into} / ${XP_PER_LEVEL} XP`;
+        document.getElementById("xp-fill").style.width = `${(into / XP_PER_LEVEL) * 100}%`;
+        document.getElementById("combo-label").textContent = `Combo ×${Math.max(1, state.combo)}`;
+        document.getElementById("hud-stars").textContent = String(state.progress.stars);
+        document.getElementById("hud-streak").textContent = String(state.progress.streak);
+      }
+
+      function renderCollection() {
+        const html = CHARACTERS.map((item) => {
+          const stars = masteryOf(item.char);
+          const className = stars >= 3 ? "badge is-mastered" : stars > 0 ? "badge is-new" : "badge";
+          const marks = "★".repeat(stars) + "☆".repeat(3 - stars);
+          return `<div class="${className}" title="${item.char} · ${item.zhuyin} · ${item.meaning}"><span class="badge-char">${item.char}</span><span class="badge-stars">${marks}</span></div>`;
+        }).join("");
+        document.getElementById("collection").innerHTML = html;
+      }
+
+      function floatXp(amount, anchor) {
+        const node = document.createElement("div");
+        node.className = "xp-float";
+        node.textContent = `+${amount} XP`;
+        const box = (anchor || playEl).getBoundingClientRect();
+        node.style.left = `${box.left + box.width / 2}px`;
+        node.style.top = `${box.top + 24}px`;
+        document.body.appendChild(node);
+        window.setTimeout(() => node.remove(), 720);
+      }
+
+      function award(xp, star) {
+        const before = levelFromXp(state.progress.xp);
+        state.progress.xp += xp;
+        if (star) state.progress.stars += 1;
+        saveProgress();
+        renderHud();
+        if (levelFromXp(state.progress.xp) > before) {
+          feedbackEl.textContent = `Level up! You reached level ${levelFromXp(state.progress.xp)}.`;
+        }
+        floatXp(xp);
+      }
+
+      function setView(name) {
+        lobbyEl.classList.toggle("is-hidden", name !== "lobby");
+        playEl.classList.toggle("is-active", name === "play");
+        resultsEl.classList.toggle("is-active", name === "results");
+      }
+
+      function clearWriter() {
+        if (state.writer && typeof state.writer.cancelQuiz === "function") {
+          try { state.writer.cancelQuiz(); } catch (_) { /* ignore */ }
+        }
+        state.writer = null;
+        traceTarget.innerHTML = "";
+      }
+
+      function optionSet(answer, pool) {
+        const others = shuffle(pool.filter((item) => item.char !== answer.char)).slice(0, 3);
+        return shuffle([answer, ...others]);
+      }
+
+      function startRound(mode) {
+        const pool = deckCharacters(state.deck);
+        const count = Math.min(ROUND_LENGTH, pool.length);
+        state.mode = mode;
+        state.round = shuffle(pool).slice(0, count);
+        state.index = 0;
+        state.correct = 0;
+        state.gainedXp = 0;
+        state.combo = 0;
+        state.locked = false;
+        touchStreak();
+        saveProgress();
+        renderHud();
+        setView("play");
+        showQuestion();
+      }
+
+      function showQuestion() {
+        const item = state.round[state.index];
+        if (!item) {
+          finishRound();
+          return;
+        }
+
+        state.locked = false;
+        state.mistakes = 0;
+        feedbackEl.textContent = "";
+        feedbackEl.className = "feedback";
+        document.getElementById("round-label").textContent = `Question ${state.index + 1} / ${state.round.length}`;
+        document.getElementById("round-mode").textContent = MODE_LABELS[state.mode];
+        renderHud();
+
+        if (state.mode === "trace") {
+          choicesEl.innerHTML = "";
+          traceBoard.hidden = false;
+          promptKicker.textContent = "Trace this character";
+          promptMain.className = "prompt-main is-english";
+          promptMain.textContent = `${item.meaning} · ${item.zhuyin}`;
+          startTrace(item);
+          return;
+        }
+
+        clearWriter();
+        traceBoard.hidden = true;
+        const isZhuyin = state.mode === "zhuyin";
+        promptKicker.textContent = isZhuyin ? "Pick the character for this 注音" : "Pick the character for this meaning";
+        promptMain.className = isZhuyin ? "prompt-main" : "prompt-main is-english";
+        promptMain.textContent = isZhuyin ? item.zhuyin : item.meaning;
+
+        const options = optionSet(item, deckCharacters(state.deck));
+        choicesEl.innerHTML = options.map((option, index) => (
+          `<button type="button" class="choice" data-char="${option.char}" data-index="${index + 1}">${option.char}</button>`
+        )).join("");
+      }
+
+      function startTrace(item) {
+        clearWriter();
+        if (typeof HanziWriter === "undefined") {
+          feedbackEl.className = "feedback is-bad";
+          feedbackEl.textContent = "Stroke library failed to load. Try the meaning quiz instead.";
+          return;
+        }
+
+        const writer = HanziWriter.create(traceTarget, item.char, {
+          width: 220,
+          height: 220,
+          padding: 12,
+          showOutline: true,
+          showCharacter: false,
+          strokeColor: "#17412f",
+          outlineColor: "#d5ddd8",
+          drawingColor: "#215c42",
+          highlightColor: "#c4922a",
+          strokeAnimationSpeed: 1.1,
+          quizStartStrokeNum: 0
+        });
+        state.writer = writer;
+        writer.quiz({
+          onMistake: () => { state.mistakes += 1; },
+          onComplete: () => {
+            if (state.locked) return;
+            resolveAnswer(true, item, state.mistakes === 0 ? 15 : 8);
+          }
+        });
+      }
+
+      function resolveAnswer(correct, item, xpAmount) {
+        if (state.locked) return;
+        state.locked = true;
+        markAnswer(item.char, correct);
+
+        if (correct) {
+          state.correct += 1;
+          state.combo += 1;
+          const xp = xpAmount || (10 + Math.min(8, state.combo) * 2);
+          state.gainedXp += xp;
+          award(xp, true);
+          feedbackEl.className = "feedback is-good";
+          feedbackEl.textContent = state.mode === "trace" && state.mistakes === 0
+            ? "Perfect stroke order!"
+            : `Nice! Combo ×${state.combo}`;
+        } else {
+          state.combo = 0;
+          saveProgress();
+          renderHud();
+          feedbackEl.className = "feedback is-bad";
+          feedbackEl.textContent = `It was ${item.char} · ${item.zhuyin} · ${item.meaning}`;
+        }
+
+        renderCollection();
+        window.setTimeout(() => {
+          state.index += 1;
+          showQuestion();
+        }, correct ? 850 : 1200);
+      }
+
+      function finishRound() {
+        clearWriter();
+        setView("results");
+        document.getElementById("results-score").textContent = `${state.correct} / ${state.round.length}`;
+        const perfect = state.correct === state.round.length;
+        document.getElementById("results-copy").textContent = perfect
+          ? `Perfect run. You earned ${state.gainedXp} XP and kept your streak at ${state.progress.streak}.`
+          : `You scored ${state.correct} of ${state.round.length} and earned ${state.gainedXp} XP. Streak: ${state.progress.streak} day${state.progress.streak === 1 ? "" : "s"}.`;
+      }
+
+      document.querySelectorAll(".deck-chip").forEach((chip) => {
+        chip.addEventListener("click", () => {
+          state.deck = chip.dataset.deck;
+          document.querySelectorAll(".deck-chip").forEach((other) => {
+            other.setAttribute("aria-pressed", other === chip ? "true" : "false");
+          });
+        });
+      });
+
+      document.querySelectorAll(".mode-card").forEach((card) => {
+        card.addEventListener("click", () => startRound(card.dataset.mode));
+      });
+
+      choicesEl.addEventListener("click", (event) => {
+        const button = event.target.closest(".choice");
+        if (!button || state.locked) return;
+        const item = state.round[state.index];
+        const correct = button.dataset.char === item.char;
+        Array.from(choicesEl.querySelectorAll(".choice")).forEach((choice) => {
+          choice.disabled = true;
+          if (choice.dataset.char === item.char) choice.classList.add("is-right");
+          else if (choice === button) choice.classList.add("is-wrong");
+        });
+        resolveAnswer(correct, item);
+      });
+
+      document.getElementById("btn-quit").addEventListener("click", () => {
+        clearWriter();
+        state.combo = 0;
+        renderHud();
+        setView("lobby");
+      });
+      document.getElementById("btn-again").addEventListener("click", () => startRound(state.mode));
+      document.getElementById("btn-lobby").addEventListener("click", () => {
+        state.combo = 0;
+        renderHud();
+        setView("lobby");
+      });
+
+      document.addEventListener("keydown", (event) => {
+        if (!playEl.classList.contains("is-active") || state.locked || state.mode === "trace") return;
+        const index = Number(event.key);
+        if (index >= 1 && index <= 4) {
+          const button = choicesEl.querySelector(`.choice[data-index="${index}"]`);
+          if (button) button.click();
+        }
+      });
+
+      renderHud();
+      renderCollection();
+    })();
+  </script>
+</body>
+</html>
