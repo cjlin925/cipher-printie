@@ -631,28 +631,30 @@
     }
 
     .preview-frame .trace-page {
-      display: grid;
-      gap: 0.85rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.7rem;
+    }
+
+    .preview-frame .trace-char {
+      display: flex;
+      flex-direction: column;
+      gap: 0.3rem;
     }
 
     .preview-frame .trace-quiz-label {
-      margin: 0 0 0.35rem;
-      font-size: 0.9rem;
+      margin: 0;
+      font-size: 0.85rem;
       font-weight: 700;
     }
 
-    .preview-frame .trace-grid {
-      display: grid;
-      gap: 0.35rem;
-    }
-
     .preview-frame .trace-row {
-      display: flex;
-      gap: 0.35rem;
+      display: grid;
+      grid-template-columns: repeat(6, minmax(0, 1fr));
+      gap: 0.3rem;
     }
 
     .preview-frame .trace-cell {
-      flex: 1 1 0;
       aspect-ratio: 1;
       min-width: 0;
       border: 1px solid #666;
@@ -812,14 +814,21 @@
       }
 
       .print-sheet {
-        display: block;
+        box-sizing: border-box;
+        display: flex;
+        flex-direction: column;
         width: 100%;
         max-width: 186mm;
+        height: 259mm;
+        max-height: 259mm;
         margin: 0 auto;
+        overflow: hidden;
         color: #000;
         font-family: Arial, Helvetica, sans-serif;
         break-after: page;
         page-break-after: always;
+        break-inside: avoid;
+        page-break-inside: avoid;
       }
 
       .print-sheet:last-child {
@@ -828,13 +837,14 @@
       }
 
       .sheet-header {
-        padding-bottom: 2.5mm;
+        flex: 0 0 auto;
+        padding-bottom: 2mm;
         border-bottom: 2px solid #000;
         text-align: center;
       }
 
       .sheet-header p {
-        margin: 0 0 1.5mm;
+        margin: 0 0 1mm;
         font-size: 8pt;
         font-weight: 700;
         letter-spacing: 0.2em;
@@ -843,12 +853,13 @@
 
       .sheet-header h2 {
         margin: 0;
-        font-size: 15pt;
+        font-size: 14pt;
         letter-spacing: 0.04em;
       }
 
       .sheet-meta {
-        margin: 2.5mm 0 4mm;
+        flex: 0 0 auto;
+        margin: 2mm 0 3mm;
         color: #333;
         font-size: 9pt;
       }
@@ -859,70 +870,81 @@
         font-size: 8pt;
       }
 
-      .trace-grid {
-        display: grid;
-        gap: 2.8mm;
-        width: 100%;
+      .sheet-footer {
+        flex: 0 0 auto;
+        margin-top: auto;
+        padding-top: 2mm;
+        border-top: 1px solid #999;
+        color: #555;
+        font-size: 8pt;
       }
 
       .trace-page {
-        display: grid;
-        gap: 6mm;
-        width: 100%;
-      }
-
-      .trace-page[data-quizzes="1"] {
-        min-height: 230mm;
-      }
-
-      .trace-page[data-quizzes="2"] {
-        min-height: 230mm;
-        grid-template-rows: 1fr 1fr;
-      }
-
-      .trace-quiz {
         display: flex;
+        flex: 1 1 auto;
         flex-direction: column;
-        gap: 2.5mm;
-        min-height: 0;
-      }
-
-      .trace-quiz-label {
-        margin: 0;
-        font-size: 11pt;
-        font-weight: 700;
-        letter-spacing: 0.02em;
-      }
-
-      .trace-row {
-        display: flex;
-        flex-wrap: nowrap;
-        align-items: stretch;
-        gap: 2.4mm;
+        gap: 2.2mm;
         width: 100%;
+        min-height: 0;
+        overflow: hidden;
+      }
+
+      .trace-char {
+        display: flex;
+        flex: 1 1 0;
+        flex-direction: column;
+        gap: 1mm;
+        min-height: 0;
+        max-height: 100%;
+        overflow: hidden;
         break-inside: avoid;
         page-break-inside: avoid;
       }
 
+      .trace-quiz-label {
+        flex: 0 0 auto;
+        margin: 0;
+        font-size: 9pt;
+        font-weight: 700;
+        letter-spacing: 0.02em;
+        line-height: 1.1;
+      }
+
+      .trace-row {
+        display: grid;
+        grid-template-columns: repeat(6, minmax(0, 1fr));
+        flex: 1 1 auto;
+        gap: 1.8mm;
+        width: 100%;
+        min-height: 0;
+        max-height: 100%;
+      }
+
+      .trace-page[data-chars="5"] .trace-row {
+        max-height: 34mm;
+      }
+
+      .trace-page[data-chars="6"] .trace-row {
+        max-height: 28mm;
+      }
+
+      .trace-page[data-chars="7"] .trace-row {
+        max-height: 23mm;
+      }
+
       .trace-cell {
         box-sizing: border-box;
-        flex: 1 1 0;
-        min-width: 0;
+        width: 100%;
+        height: 100%;
+        max-width: 100%;
+        max-height: 100%;
         aspect-ratio: 1;
+        justify-self: center;
         border: 1px solid #666;
         background:
           linear-gradient(#ddd, #ddd) center/100% 1px no-repeat,
           linear-gradient(#ddd, #ddd) center/1px 100% no-repeat;
         overflow: hidden;
-      }
-
-      .trace-page[data-quizzes="1"] .trace-cell {
-        /* Prefer large squares that still fit 6 across a letter page. */
-        max-height: 30mm;
-      }
-
-      .trace-page[data-quizzes="2"] .trace-cell {
-        max-height: 24mm;
       }
 
       .trace-cell.is-example {
@@ -967,7 +989,9 @@
 
       .zhuyin-grid {
         display: grid;
+        flex: 1 1 auto;
         gap: 4mm;
+        min-height: 0;
       }
 
       .zhuyin-row {
@@ -997,9 +1021,11 @@
 
       .match-layout {
         display: grid;
+        flex: 1 1 auto;
         grid-template-columns: 1fr 1fr;
         gap: 8mm;
         margin-top: 4mm;
+        min-height: 0;
         break-inside: avoid;
         page-break-inside: avoid;
       }
@@ -1080,14 +1106,6 @@
         font-size: 13pt;
         font-weight: 600;
       }
-
-      .sheet-footer {
-        margin-top: 6mm;
-        padding-top: 2mm;
-        border-top: 1px solid #999;
-        color: #555;
-        font-size: 8pt;
-      }
     }
   </style>
 </head>
@@ -1105,6 +1123,7 @@
         <li><a href="/cipher-printie/merge.html">Agent Merge</a></li>
         <li><a href="/cipher-printie/food-merge.html">Food Merge</a></li>
         <li><a href="/cipher-printie/chinese.html" aria-current="page">Chinese</a></li>
+        <li><a href="/cipher-printie/python.html">Python</a></li>
         <li><a href="/cipher-printie/story.html">Story</a></li>
       </ul>
     </nav>
@@ -1174,7 +1193,7 @@
             <label><input type="checkbox" name="include-answers" id="include-answers" checked> Answer key</label>
           </div>
           <div class="field">
-            <label for="sheet-count">Quizzes to print</label>
+            <label for="sheet-count">Characters to print</label>
             <select id="sheet-count">
               <option value="4">4</option>
               <option value="6" selected>6</option>
@@ -1184,10 +1203,11 @@
             </select>
           </div>
           <div class="field">
-            <label for="quizzes-per-page">Trace quizzes per page</label>
-            <select id="quizzes-per-page">
-              <option value="1" selected>1 quiz per page</option>
-              <option value="2">2 quizzes per page</option>
+            <label for="chars-per-page">Trace characters per page</label>
+            <select id="chars-per-page">
+              <option value="5">5 per page</option>
+              <option value="6" selected>6 per page</option>
+              <option value="7">7 per page</option>
             </select>
           </div>
           <div class="print-actions">
@@ -1703,8 +1723,9 @@
         return Number(document.getElementById("sheet-count").value) || 6;
       }
 
-      function quizzesPerPage() {
-        return Number(document.getElementById("quizzes-per-page").value) === 2 ? 2 : 1;
+      function charsPerPage() {
+        const value = Number(document.getElementById("chars-per-page").value) || 6;
+        return Math.min(7, Math.max(5, value));
       }
 
       function pickPrintItems() {
@@ -1768,39 +1789,33 @@
         return `<div class="${className}">${svg}</div>`;
       }
 
-      function renderTraceQuiz(item, rowCount) {
-        const rows = [];
-        for (let row = 0; row < rowCount; row += 1) {
-          const cells = [];
-          for (let col = 0; col < TRACE_COLS; col += 1) {
-            const isExample = row === 0 && col === 0;
-            cells.push(traceCellMarkup(item.char, isExample ? "example" : "practice"));
-          }
-          rows.push(`<div class="trace-row">${cells.join("")}</div>`);
+      function renderTraceCharRow(item) {
+        const cells = [];
+        for (let col = 0; col < TRACE_COLS; col += 1) {
+          cells.push(traceCellMarkup(item.char, col === 0 ? "example" : "practice"));
         }
 
         return `
-          <section class="trace-quiz">
+          <section class="trace-char">
             <p class="trace-quiz-label">${escapeHtml(item.char)} · ${escapeHtml(item.zhuyin)} · ${escapeHtml(item.meaning)}</p>
-            <div class="trace-grid">${rows.join("")}</div>
+            <div class="trace-row">${cells.join("")}</div>
           </section>
         `;
       }
 
       function renderTraceSheets(items, deckLabel) {
-        const perPage = quizzesPerPage();
-        const rowCount = perPage === 1 ? 7 : 3;
+        const perPage = charsPerPage();
         const pages = chunkItems(items, perPage);
 
         return pages.map((pageItems, pageIndex) => `
           <article class="print-sheet">
             <header class="sheet-header">
               <p>Cipher Printie · Chinese</p>
-              <h2>Trace quiz</h2>
+              <h2>Trace practice</h2>
             </header>
-            <p class="sheet-meta">${pageLabel(pageIndex, pages.length)}Deck: ${escapeHtml(deckLabel)} · Trace inside the dashed hollow outlines</p>
-            <div class="trace-page" data-quizzes="${perPage}">
-              ${pageItems.map((item) => renderTraceQuiz(item, rowCount)).join("")}
+            <p class="sheet-meta">${pageLabel(pageIndex, pages.length)}Deck: ${escapeHtml(deckLabel)} · One character per row · Trace inside the dashed hollow outlines</p>
+            <div class="trace-page" data-chars="${pageItems.length}">
+              ${pageItems.map((item) => renderTraceCharRow(item)).join("")}
             </div>
             <footer class="sheet-footer">Traditional Chinese practice · 注音 study companion</footer>
           </article>
@@ -1940,8 +1955,8 @@
           }
 
           const pageCount = printPack.querySelectorAll(".print-sheet").length;
-          const perPage = quizzesPerPage();
-          previewNote.textContent = `Ready: ${items.length} quiz${items.length === 1 ? "" : "zes"} · ${pageCount} page${pageCount === 1 ? "" : "s"} · Trace ${perPage}/page (${deckLabel}).`;
+          const perPage = charsPerPage();
+          previewNote.textContent = `Ready: ${items.length} character${items.length === 1 ? "" : "s"} · ${pageCount} page${pageCount === 1 ? "" : "s"} · Trace ${perPage}/page (${deckLabel}).`;
         } catch (error) {
           console.error(error);
           previewNote.textContent = "Could not generate preview. Check your connection and try again.";
@@ -1993,7 +2008,7 @@
       document.getElementById("sheet-count").addEventListener("change", () => {
         refreshPrintPreview(true, { showPreview: !previewSection.hidden });
       });
-      document.getElementById("quizzes-per-page").addEventListener("change", () => {
+      document.getElementById("chars-per-page").addEventListener("change", () => {
         refreshPrintPreview(false, { showPreview: !previewSection.hidden });
       });
       document.querySelectorAll('input[name="sheet-type"], #include-answers').forEach((input) => {

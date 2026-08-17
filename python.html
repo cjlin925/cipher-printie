@@ -1,0 +1,1608 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <!-- Google tag (gtag.js) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-70VSYRX0L2"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+
+    gtag('config', 'G-70VSYRX0L2');
+  </script>
+  <title>Python Playground · Cipher Printie</title>
+  <meta name="description" content="Write and run Python in your browser. A kid-friendly playground powered by Pyodide — no install, no accounts.">
+  <meta name="robots" content="index, follow">
+  <meta name="theme-color" content="#215c42">
+  <link rel="canonical" href="https://cjlin925.github.io/cipher-printie/python.html">
+  <link rel="icon" href="/cipher-printie/favicon.ico" sizes="any">
+  <link rel="icon" href="/cipher-printie/favicon.svg" type="image/svg+xml">
+  <link rel="icon" href="/cipher-printie/favicon-32.png" type="image/png" sizes="32x32">
+  <link rel="apple-touch-icon" href="/cipher-printie/apple-touch-icon.png" sizes="180x180">
+  <link rel="manifest" href="/cipher-printie/site.webmanifest">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Cipher Printie">
+  <meta property="og:title" content="Python Playground · Cipher Printie">
+  <meta property="og:description" content="Write and run Python in your browser. A kid-friendly playground powered by Pyodide.">
+  <meta property="og:url" content="https://cjlin925.github.io/cipher-printie/python.html">
+  <meta property="og:locale" content="en_US">
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="Python Playground · Cipher Printie">
+  <meta name="twitter:description" content="Write and run Python in your browser. A kid-friendly playground powered by Pyodide.">
+  <style>
+    :root {
+      color-scheme: light;
+      --ink: #17201b;
+      --muted: #69736d;
+      --paper: #ffffff;
+      --accent: #215c42;
+      --accent-dark: #17412f;
+      --line: #dfe5e1;
+      --code-bg: #132019;
+      --code-ink: #e8f0eb;
+      --out-bg: #0f1612;
+      --danger: #9b3b32;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      color: var(--ink);
+      background: #eef2ef;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .site-nav {
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      flex: 0 0 auto;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.75rem 1rem;
+      padding: 0.7rem clamp(0.85rem, 2.5vw, 1.5rem);
+      border-bottom: 1px solid rgba(23, 32, 27, 0.08);
+      background: rgba(244, 246, 244, 0.94);
+      backdrop-filter: blur(10px);
+    }
+
+    .site-nav-brand {
+      color: var(--ink);
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: 1.15rem;
+      font-weight: 500;
+      letter-spacing: -0.03em;
+      text-decoration: none;
+    }
+
+    .nav-toggle {
+      display: none;
+      align-items: center;
+      justify-content: center;
+      width: 2.6rem;
+      height: 2.6rem;
+      padding: 0;
+      border: 1px solid rgba(23, 32, 27, 0.12);
+      border-radius: 0.65rem;
+      background: rgba(255, 255, 255, 0.9);
+      color: var(--ink);
+      cursor: pointer;
+    }
+
+    .nav-toggle-bars,
+    .nav-toggle-bars::before,
+    .nav-toggle-bars::after {
+      display: block;
+      width: 1.1rem;
+      height: 2px;
+      border-radius: 999px;
+      background: currentColor;
+      transition: transform 160ms ease, opacity 160ms ease;
+    }
+
+    .nav-toggle-bars { position: relative; }
+
+    .nav-toggle-bars::before,
+    .nav-toggle-bars::after {
+      content: "";
+      position: absolute;
+      left: 0;
+    }
+
+    .nav-toggle-bars::before { top: -6px; }
+    .nav-toggle-bars::after { top: 6px; }
+
+    .nav-toggle[aria-expanded="true"] .nav-toggle-bars { background: transparent; }
+    .nav-toggle[aria-expanded="true"] .nav-toggle-bars::before {
+      top: 0;
+      transform: rotate(45deg);
+    }
+    .nav-toggle[aria-expanded="true"] .nav-toggle-bars::after {
+      top: 0;
+      transform: rotate(-45deg);
+    }
+
+    .site-nav-menu { margin-left: auto; }
+
+    .site-nav-links {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 0.35rem;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+
+    .site-nav-links a {
+      display: inline-block;
+      padding: 0.45rem 0.8rem;
+      border-radius: 0.55rem;
+      color: var(--muted);
+      font-size: 0.92rem;
+      font-weight: 650;
+      text-decoration: none;
+      transition: color 150ms ease, background-color 150ms ease;
+    }
+
+    .site-nav-links a:hover {
+      color: var(--ink);
+      background: rgba(33, 92, 66, 0.08);
+    }
+
+    .site-nav-links a[aria-current="page"] {
+      color: var(--accent-dark);
+      background: rgba(33, 92, 66, 0.12);
+    }
+
+    @media (max-width: 720px) {
+      .nav-toggle { display: inline-flex; }
+
+      .site-nav-menu {
+        display: none;
+        width: 100%;
+        margin-left: 0;
+        padding-top: 0.35rem;
+      }
+
+      .site-nav-menu.is-open { display: block; }
+
+      .site-nav-links {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 0.25rem;
+      }
+
+      .site-nav-links a {
+        width: 100%;
+        padding: 0.75rem 0.85rem;
+      }
+    }
+
+    .screen {
+      flex: 1 1 auto;
+      width: 100%;
+      padding: 0;
+      display: flex;
+    }
+
+    .studio {
+      flex: 1 1 auto;
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      padding: 0;
+      border: 0;
+      border-radius: 0;
+      background: #eef2ef;
+      box-shadow: none;
+    }
+
+    .studio-top {
+      flex: 0 0 auto;
+      padding: 0.85rem clamp(0.85rem, 2.5vw, 1.35rem) 0.75rem;
+      border-bottom: 1px solid rgba(23, 32, 27, 0.08);
+      background: rgba(255, 255, 255, 0.72);
+    }
+
+    .eyebrow {
+      margin: 0 0 0.35rem;
+      color: var(--accent);
+      font-size: 0.68rem;
+      font-weight: 800;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+    }
+
+    h1 {
+      margin: 0;
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: clamp(1.55rem, 3.5vw, 2.1rem);
+      font-weight: 500;
+      letter-spacing: -0.045em;
+      line-height: 1;
+    }
+
+    .intro {
+      margin: 0.45rem 0 0;
+      color: var(--muted);
+      font-size: 0.92rem;
+      line-height: 1.45;
+      max-width: 52rem;
+    }
+
+    .toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 0.5rem;
+      margin-top: 0.85rem;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.35rem;
+      padding: 0.65rem 0.95rem;
+      border: 0;
+      border-radius: 0.7rem;
+      background: var(--accent);
+      color: #fff;
+      font: inherit;
+      font-weight: 700;
+      cursor: pointer;
+      transition: background-color 150ms ease, transform 150ms ease;
+    }
+
+    .btn:hover:not(:disabled) {
+      background: var(--accent-dark);
+      transform: translateY(-1px);
+    }
+
+    .btn:disabled {
+      opacity: 0.55;
+      cursor: not-allowed;
+    }
+
+    .hotkey {
+      display: inline-block;
+      margin-left: 0.15rem;
+      padding: 0.05rem 0.35rem;
+      border: 1px solid rgba(255, 255, 255, 0.35);
+      border-radius: 0.35rem;
+      background: rgba(255, 255, 255, 0.12);
+      font-family: inherit;
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.02em;
+      line-height: 1.3;
+    }
+
+    .btn-secondary {
+      border: 1px solid rgba(23, 32, 27, 0.14);
+      background: #fff;
+      color: var(--ink);
+    }
+
+    .btn-secondary:hover:not(:disabled) {
+      background: rgba(33, 92, 66, 0.06);
+      color: var(--ink);
+    }
+
+    .status {
+      margin-left: auto;
+      color: var(--muted);
+      font-size: 0.85rem;
+      font-weight: 650;
+    }
+
+    .status.is-ready { color: var(--accent-dark); }
+    .status.is-error { color: var(--danger); }
+
+    .examples {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.4rem;
+      margin-top: 0.75rem;
+    }
+
+    .example-chip {
+      padding: 0.38rem 0.7rem;
+      border: 1px solid rgba(23, 32, 27, 0.12);
+      border-radius: 0.6rem;
+      background: #fff;
+      color: var(--ink);
+      font: inherit;
+      font-size: 0.86rem;
+      font-weight: 650;
+      cursor: pointer;
+    }
+
+    .example-chip:hover {
+      border-color: rgba(33, 92, 66, 0.35);
+      background: rgba(33, 92, 66, 0.06);
+    }
+
+    .example-chip[aria-pressed="true"] {
+      border-color: transparent;
+      color: #fff;
+      background: var(--accent);
+    }
+
+    .workspace {
+      flex: 1 1 auto;
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+      align-items: start;
+      gap: 0;
+    }
+
+    .studio:not(.mode-turtle) .workspace {
+      grid-template-columns: minmax(0, 1.2fr) minmax(0, 0.8fr);
+    }
+
+    .pane-code,
+    .pane-side {
+      min-width: 0;
+      display: flex;
+      flex-direction: column;
+      padding: 0.75rem;
+      gap: 0.45rem;
+    }
+
+    .pane-code {
+      border-right: 1px solid rgba(23, 32, 27, 0.1);
+      background: #e8ece9;
+      min-height: min(78vh, 44rem);
+      align-self: stretch;
+    }
+
+    .pane-side {
+      background: #eef2ef;
+    }
+
+    .studio:not(.mode-turtle) .turtle-block {
+      display: none;
+    }
+
+    .studio:not(.mode-turtle) .pane-side {
+      align-self: stretch;
+      min-height: min(78vh, 44rem);
+    }
+
+    .studio.mode-turtle .pane-side {
+      display: flex;
+      flex-direction: column;
+      gap: 0.65rem;
+    }
+
+    .turtle-block,
+    .output-block {
+      display: flex;
+      flex-direction: column;
+      gap: 0.4rem;
+    }
+
+    .panel-label {
+      margin: 0;
+      color: var(--muted);
+      font-size: 0.68rem;
+      font-weight: 800;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+    }
+
+    .canvas-toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 0.45rem 0.65rem;
+    }
+
+    .canvas-toolbar label {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      color: var(--muted);
+      font-size: 0.8rem;
+      font-weight: 650;
+    }
+
+    #canvas-bg-input {
+      width: 2rem;
+      height: 2rem;
+      padding: 0;
+      border: 1px solid rgba(23, 32, 27, 0.18);
+      border-radius: 0.45rem;
+      background: #fff;
+      cursor: pointer;
+    }
+
+    .bg-chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.35rem;
+    }
+
+    .bg-chip {
+      width: 1.55rem;
+      height: 1.55rem;
+      padding: 0;
+      border: 2px solid rgba(23, 32, 27, 0.16);
+      border-radius: 999px;
+      cursor: pointer;
+      box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.35);
+    }
+
+    .bg-chip[aria-pressed="true"] {
+      border-color: var(--accent-dark);
+      box-shadow: 0 0 0 2px rgba(33, 92, 66, 0.25);
+    }
+
+    .turtle-stage {
+      width: 100%;
+      aspect-ratio: 1 / 1;
+      display: grid;
+      place-items: center;
+      padding: 0.55rem;
+      border: 1px solid rgba(23, 32, 27, 0.12);
+      border-radius: 0.75rem;
+      background: rgba(255, 255, 255, 0.55);
+      overflow: hidden;
+    }
+
+    #turtle-canvas {
+      display: block;
+      width: 100%;
+      height: 100%;
+      border-radius: 0.35rem;
+      background: #fff;
+      box-shadow: 0 0.35rem 1rem rgba(23, 32, 27, 0.06);
+    }
+
+    #code-editor {
+      flex: 1 1 auto;
+      width: 100%;
+      min-height: min(70vh, 40rem);
+      height: 100%;
+      padding: 0.9rem 1rem;
+      border: 1px solid rgba(23, 32, 27, 0.14);
+      border-radius: 0.75rem;
+      background: var(--code-bg);
+      color: var(--code-ink);
+      font-family: "SF Mono", ui-monospace, Menlo, Consolas, monospace;
+      font-size: 0.92rem;
+      line-height: 1.5;
+      resize: vertical;
+      tab-size: 4;
+    }
+
+    #code-editor:focus {
+      outline: 2px solid var(--accent);
+      outline-offset: 1px;
+    }
+
+    #output {
+      flex: 1 1 auto;
+      width: 100%;
+      min-height: 10rem;
+      margin: 0;
+      padding: 0.85rem 0.95rem;
+      border: 1px solid rgba(23, 32, 27, 0.14);
+      border-radius: 0.75rem;
+      background: var(--out-bg);
+      color: #d7e4db;
+      font-family: "SF Mono", ui-monospace, Menlo, Consolas, monospace;
+      font-size: 0.86rem;
+      line-height: 1.5;
+      white-space: pre-wrap;
+      overflow: auto;
+    }
+
+    #output .stderr { color: #f0a8a0; }
+    #output .hint { color: #8ea396; }
+
+    .disclaimer {
+      display: none;
+    }
+
+    @media (max-width: 900px) {
+      .workspace,
+      .studio.mode-turtle .workspace,
+      .studio:not(.mode-turtle) .workspace {
+        grid-template-columns: 1fr;
+      }
+
+      .pane-code {
+        border-right: 0;
+        border-bottom: 1px solid rgba(23, 32, 27, 0.1);
+        min-height: 0;
+      }
+
+      #code-editor {
+        min-height: 55vh;
+      }
+
+      .turtle-stage {
+        width: 100%;
+      }
+
+      .status { margin-left: 0; width: 100%; }
+    }
+  </style>
+</head>
+<body>
+  <header class="site-nav">
+    <a class="site-nav-brand" href="/cipher-printie/">Cipher Printie</a>
+    <button class="nav-toggle" type="button" aria-expanded="false" aria-controls="site-menu" aria-label="Open menu">
+      <span class="nav-toggle-bars" aria-hidden="true"></span>
+    </button>
+    <nav id="site-menu" class="site-nav-menu" aria-label="Primary">
+      <ul class="site-nav-links">
+        <li><a href="/cipher-printie/">Cipher Printie</a></li>
+        <li><a href="/cipher-printie/flag-map.html">Flag Map</a></li>
+        <li><a href="/cipher-printie/origami.html">Origami</a></li>
+        <li><a href="/cipher-printie/merge.html">Agent Merge</a></li>
+        <li><a href="/cipher-printie/food-merge.html">Food Merge</a></li>
+        <li><a href="/cipher-printie/chinese.html">Chinese</a></li>
+        <li><a href="/cipher-printie/python.html" aria-current="page">Python</a></li>
+        <li><a href="/cipher-printie/story.html">Story</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <main class="screen">
+    <section class="studio mode-turtle" id="studio" aria-labelledby="app-title">
+      <div class="studio-top">
+        <p class="eyebrow">Code mission</p>
+        <h1 id="app-title">Python Playground</h1>
+        <p class="intro">Write Python, hit Run, and see the result instantly. Turtle mode puts code beside the canvas.</p>
+
+        <div class="toolbar">
+          <button type="button" class="btn" id="btn-run" disabled title="Run (⌘ Enter)">Run <kbd class="hotkey">⌘↵</kbd></button>
+          <button type="button" class="btn btn-secondary" id="btn-clear-out">Clear output</button>
+          <button type="button" class="btn btn-secondary" id="btn-clear-turtle" title="Erase turtle (⌘ E)">Clear turtle <kbd class="hotkey">⌘E</kbd></button>
+          <button type="button" class="btn btn-secondary" id="btn-reset">Reset code</button>
+          <p class="status" id="runtime-status" aria-live="polite">Loading Python…</p>
+        </div>
+
+        <div class="examples" role="group" aria-label="Example programs">
+          <button type="button" class="example-chip" data-example="hello" aria-pressed="false">Hello</button>
+          <button type="button" class="example-chip" data-example="loop" aria-pressed="false">Loop</button>
+          <button type="button" class="example-chip" data-example="math" aria-pressed="false">Math</button>
+          <button type="button" class="example-chip" data-example="list" aria-pressed="false">Lists</button>
+          <button type="button" class="example-chip" data-example="turtle" aria-pressed="true">Turtle</button>
+        </div>
+      </div>
+
+      <div class="workspace">
+        <div class="pane-code">
+          <p class="panel-label" id="editor-label">Code</p>
+          <textarea id="code-editor" spellcheck="false" aria-labelledby="editor-label"></textarea>
+        </div>
+
+        <div class="pane-side">
+          <div class="turtle-block">
+            <div class="canvas-toolbar">
+              <p class="panel-label" id="turtle-label">Turtle canvas</p>
+              <label for="canvas-bg-input">Background
+                <input type="color" id="canvas-bg-input" value="#ffffff" title="Canvas background color">
+              </label>
+              <div class="bg-chips" role="group" aria-label="Background color presets">
+                <button type="button" class="bg-chip" data-bg="#ffffff" aria-label="White" aria-pressed="true" style="background:#ffffff"></button>
+                <button type="button" class="bg-chip" data-bg="#f4f1ea" aria-label="Cream" aria-pressed="false" style="background:#f4f1ea"></button>
+                <button type="button" class="bg-chip" data-bg="#e8f2ff" aria-label="Sky" aria-pressed="false" style="background:#e8f2ff"></button>
+                <button type="button" class="bg-chip" data-bg="#e7f6ed" aria-label="Mint" aria-pressed="false" style="background:#e7f6ed"></button>
+                <button type="button" class="bg-chip" data-bg="#fff1e6" aria-label="Peach" aria-pressed="false" style="background:#fff1e6"></button>
+                <button type="button" class="bg-chip" data-bg="#1b1f24" aria-label="Night" aria-pressed="false" style="background:#1b1f24"></button>
+              </div>
+            </div>
+            <div class="turtle-stage" id="turtle-stage">
+              <canvas id="turtle-canvas" width="640" height="440" aria-labelledby="turtle-label" role="img"></canvas>
+            </div>
+          </div>
+
+          <div class="output-block">
+            <p class="panel-label" id="output-label">Output</p>
+            <pre id="output" aria-labelledby="output-label"><span class="hint">Output will appear here.</span></pre>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    (function initMobileNav() {
+      const toggle = document.querySelector(".nav-toggle");
+      const menu = document.getElementById("site-menu");
+      if (!toggle || !menu) return;
+
+      const setOpen = (open) => {
+        menu.classList.toggle("is-open", open);
+        toggle.setAttribute("aria-expanded", open ? "true" : "false");
+        toggle.setAttribute("aria-label", open ? "Close menu" : "Open menu");
+      };
+
+      toggle.addEventListener("click", (event) => {
+        event.stopPropagation();
+        setOpen(toggle.getAttribute("aria-expanded") !== "true");
+      });
+
+      document.addEventListener("click", (event) => {
+        if (!event.target.closest(".site-nav")) setOpen(false);
+      });
+
+      document.addEventListener("keydown", (event) => {
+        if (event.key === "Escape") setOpen(false);
+      });
+
+      window.matchMedia("(max-width: 720px)").addEventListener("change", (event) => {
+        if (!event.matches) setOpen(false);
+      });
+    })();
+
+    (function initPythonPlayground() {
+      const EXAMPLES = {
+        hello: `# Say hello
+name = "Cipher Printie"
+print("Hello,", name)
+print("Ready to code!")
+`,
+        loop: `# Count with a loop
+for n in range(1, 6):
+    print(n, "→", n * n)
+`,
+        math: `# Quick math
+import math
+
+radius = 5
+area = math.pi * radius ** 2
+print(f"Circle area ≈ {area:.2f}")
+`,
+        list: `# Lists and loops
+fruits = ["apple", "banana", "mango"]
+for i, fruit in enumerate(fruits, start=1):
+    print(f"{i}. {fruit.upper()}")
+`,
+        turtle: `# Turtle graphics on the canvas
+import turtle
+
+t = turtle.Turtle()
+t.speed(0)
+t.pensize(2)
+
+colors = ["#215c42", "#1d6f9a", "#c45c26", "#6d4cff"]
+for i in range(36):
+    t.color(colors[i % len(colors)])
+    t.forward(100)
+    t.right(170)
+
+turtle.done()
+print("Star drawn!")
+`
+      };
+
+      const TURTLE_MODULE = String.raw`"""Browser canvas turtle for Cipher Printie (Pyodide)."""
+from __future__ import annotations
+
+import math
+from typing import Optional
+
+from js import document
+
+
+class TurtleGraphicsError(RuntimeError):
+    pass
+
+
+def _canvas():
+    el = document.getElementById("turtle-canvas")
+    if el is None:
+        raise TurtleGraphicsError("Turtle canvas not found")
+    return el
+
+
+def _ctx():
+    canvas = _canvas()
+    ctx = canvas.getContext("2d")
+    if ctx is None:
+        raise TurtleGraphicsError("2D canvas context unavailable")
+    return canvas, ctx
+
+
+def _clear_canvas():
+    canvas, ctx = _ctx()
+    from js import window
+    color = getattr(window, "__turtleCanvasBg", None) or "#ffffff"
+    ctx.setTransform(1, 0, 0, 1, 0, 0)
+    ctx.clearRect(0, 0, canvas.width, canvas.height)
+    ctx.fillStyle = color
+    ctx.fillRect(0, 0, canvas.width, canvas.height)
+
+
+class Screen:
+    def __init__(self):
+        from js import window
+        self._bg = getattr(window, "__turtleCanvasBg", None) or "#ffffff"
+
+    def bgcolor(self, *args):
+        from js import window
+        if not args:
+            return self._bg
+        self._bg = args[0] if len(args) == 1 else args
+        color = self._bg if isinstance(self._bg, str) else "#ffffff"
+        self._bg = color
+        window.__turtleCanvasBg = color
+        canvas, ctx = _ctx()
+        ctx.setTransform(1, 0, 0, 1, 0, 0)
+        ctx.fillStyle = color
+        ctx.fillRect(0, 0, canvas.width, canvas.height)
+        return self._bg
+
+    def clear(self):
+        _clear_canvas()
+        for turtle in list(_turtles):
+            turtle._redraw_turtle()
+
+    def reset(self):
+        self.clear()
+        for turtle in list(_turtles):
+            turtle.reset()
+
+    def title(self, *_args, **_kwargs):
+        return None
+
+    def setup(self, *_args, **_kwargs):
+        return None
+
+    def tracer(self, *_args, **_kwargs):
+        return None
+
+    def update(self):
+        return None
+
+    def bye(self):
+        return None
+
+    def exitonclick(self):
+        return None
+
+    def mainloop(self):
+        return None
+
+    def done(self):
+        return None
+
+
+class Turtle:
+    def __init__(self, visible=True):
+        canvas, _ = _ctx()
+        self._x = 0.0
+        self._y = 0.0
+        self._heading = 0.0  # degrees, 0 = east, counter-clockwise positive like standard turtle
+        self._pendown = True
+        self._pencolor = "#215c42"
+        self._fillcolor = "#215c42"
+        self._pensize = 2.0
+        self._speed = 3
+        self._visible = bool(visible)
+        self._filling = False
+        self._fill_path = []
+        self._screen = _screen
+        _turtles.append(self)
+        self._redraw_turtle()
+
+    def _to_canvas(self, x, y):
+        canvas, _ = _ctx()
+        return canvas.width / 2 + x, canvas.height / 2 - y
+
+    def _draw_line(self, x0, y0, x1, y1):
+        if not self._pendown:
+            return
+        _, ctx = _ctx()
+        cx0, cy0 = self._to_canvas(x0, y0)
+        cx1, cy1 = self._to_canvas(x1, y1)
+        ctx.beginPath()
+        ctx.strokeStyle = self._pencolor
+        ctx.lineWidth = self._pensize
+        ctx.lineCap = "round"
+        ctx.lineJoin = "round"
+        ctx.moveTo(cx0, cy0)
+        ctx.lineTo(cx1, cy1)
+        ctx.stroke()
+
+    def _redraw_turtle(self):
+        # Marker is optional; keep drawings persistent so we do not erase the path.
+        return None
+
+    def position(self):
+        return (self._x, self._y)
+
+    pos = position
+
+    def xcor(self):
+        return self._x
+
+    def ycor(self):
+        return self._y
+
+    def heading(self):
+        return self._heading
+
+    def setheading(self, to_angle):
+        self._heading = float(to_angle) % 360.0
+        return self._heading
+
+    seth = setheading
+
+    def pendown(self):
+        self._pendown = True
+
+    pd = down = pendown
+
+    def penup(self):
+        self._pendown = False
+
+    pu = up = penup
+
+    def isdown(self):
+        return self._pendown
+
+    def pensize(self, width=None):
+        if width is None:
+            return self._pensize
+        self._pensize = float(width)
+        return self._pensize
+
+    width = pensize
+
+    def pencolor(self, *args):
+        if not args:
+            return self._pencolor
+        self._pencolor = args[0] if len(args) == 1 else args
+        if not isinstance(self._pencolor, str):
+            self._pencolor = "#215c42"
+        return self._pencolor
+
+    def fillcolor(self, *args):
+        if not args:
+            return self._fillcolor
+        self._fillcolor = args[0] if len(args) == 1 else args
+        if not isinstance(self._fillcolor, str):
+            self._fillcolor = "#215c42"
+        return self._fillcolor
+
+    def color(self, *args):
+        if not args:
+            return (self._pencolor, self._fillcolor)
+        if len(args) == 1:
+            self.pencolor(args[0])
+            self.fillcolor(args[0])
+        else:
+            self.pencolor(args[0])
+            self.fillcolor(args[1])
+        return (self._pencolor, self._fillcolor)
+
+    def speed(self, speed=None):
+        if speed is None:
+            return self._speed
+        self._speed = speed
+        return self._speed
+
+    def hideturtle(self):
+        self._visible = False
+
+    ht = hideturtle
+
+    def showturtle(self):
+        self._visible = True
+
+    st = showturtle
+
+    def isvisible(self):
+        return self._visible
+
+    def goto(self, x, y=None):
+        if y is None:
+            x, y = x
+        x, y = float(x), float(y)
+        self._draw_line(self._x, self._y, x, y)
+        if self._filling:
+            self._fill_path.append((x, y))
+        self._x, self._y = x, y
+
+    setpos = setposition = goto
+
+    def setx(self, x):
+        self.goto(float(x), self._y)
+
+    def sety(self, y):
+        self.goto(self._x, float(y))
+
+    def home(self):
+        self.goto(0, 0)
+        self.setheading(0)
+
+    def forward(self, distance):
+        distance = float(distance)
+        rad = math.radians(self._heading)
+        x = self._x + distance * math.cos(rad)
+        y = self._y + distance * math.sin(rad)
+        self.goto(x, y)
+
+    fd = forward
+
+    def backward(self, distance):
+        self.forward(-float(distance))
+
+    bk = back = backward
+
+    def left(self, angle):
+        self._heading = (self._heading + float(angle)) % 360.0
+
+    lt = left
+
+    def right(self, angle):
+        self._heading = (self._heading - float(angle)) % 360.0
+
+    rt = right
+
+    def circle(self, radius, extent=None, steps=None):
+        radius = float(radius)
+        extent = 360.0 if extent is None else float(extent)
+        steps = max(12, int(abs(extent) / 6)) if steps is None else max(3, int(steps))
+        angle_step = extent / steps
+        # Approximate with short chords; move sideways for circle center like classic turtle.
+        for _ in range(steps):
+            self.forward(2 * math.pi * abs(radius) * (abs(angle_step) / 360.0))
+            if radius >= 0:
+                self.left(angle_step)
+            else:
+                self.right(angle_step)
+
+    def dot(self, size=None, color=None):
+        size = self._pensize * 2 if size is None else float(size)
+        color = self._pencolor if color is None else color
+        _, ctx = _ctx()
+        cx, cy = self._to_canvas(self._x, self._y)
+        ctx.beginPath()
+        ctx.fillStyle = color if isinstance(color, str) else self._pencolor
+        ctx.arc(cx, cy, max(1.0, size / 2), 0, math.pi * 2)
+        ctx.fill()
+
+    def begin_fill(self):
+        self._filling = True
+        self._fill_path = [(self._x, self._y)]
+
+    def end_fill(self):
+        if not self._filling or len(self._fill_path) < 3:
+            self._filling = False
+            self._fill_path = []
+            return
+        _, ctx = _ctx()
+        ctx.beginPath()
+        cx0, cy0 = self._to_canvas(*self._fill_path[0])
+        ctx.moveTo(cx0, cy0)
+        for point in self._fill_path[1:]:
+            cx, cy = self._to_canvas(*point)
+            ctx.lineTo(cx, cy)
+        ctx.closePath()
+        ctx.fillStyle = self._fillcolor if isinstance(self._fillcolor, str) else "#215c42"
+        ctx.fill()
+        self._filling = False
+        self._fill_path = []
+
+    def clear(self):
+        _clear_canvas()
+
+    def reset(self):
+        self._x = 0.0
+        self._y = 0.0
+        self._heading = 0.0
+        self._pendown = True
+        self._pencolor = "#215c42"
+        self._fillcolor = "#215c42"
+        self._pensize = 2.0
+        self._filling = False
+        self._fill_path = []
+
+    def write(self, arg, move=False, align="left", font=("Arial", 12, "normal")):
+        text = str(arg)
+        _, ctx = _ctx()
+        cx, cy = self._to_canvas(self._x, self._y)
+        family, size, style = font if len(font) >= 3 else ("Arial", 12, "normal")
+        ctx.font = f"{style} {size}px {family}"
+        ctx.fillStyle = self._pencolor if isinstance(self._pencolor, str) else "#215c42"
+        ctx.textAlign = align
+        ctx.textBaseline = "middle"
+        ctx.fillText(text, cx, cy)
+        if move:
+            width = float(ctx.measureText(text).width)
+            rad = math.radians(self._heading)
+            self._x += width * math.cos(rad)
+            self._y += width * math.sin(rad)
+
+    def done(self):
+        return None
+
+    def exitonclick(self):
+        return None
+
+
+_screen = Screen()
+_turtles = []
+_default_turtle: Optional[Turtle] = None
+
+
+def _ensure_default():
+    global _default_turtle
+    if _default_turtle is None:
+        _default_turtle = Turtle()
+    return _default_turtle
+
+
+def resetscreen():
+    global _default_turtle
+    _clear_canvas()
+    _turtles.clear()
+    _default_turtle = None
+
+
+def clearscreen():
+    resetscreen()
+
+
+def getscreen():
+    return _screen
+
+
+def Screen_():  # alias used below
+    return _screen
+
+
+def Turtle_(*args, **kwargs):
+    return Turtle(*args, **kwargs)
+
+
+def done():
+    return None
+
+
+def mainloop():
+    return None
+
+
+def exitonclick():
+    return None
+
+
+def bgcolor(*args):
+    return _screen.bgcolor(*args)
+
+
+def title(*args, **kwargs):
+    return _screen.title(*args, **kwargs)
+
+
+def setup(*args, **kwargs):
+    return _screen.setup(*args, **kwargs)
+
+
+def tracer(*args, **kwargs):
+    return _screen.tracer(*args, **kwargs)
+
+
+def update():
+    return _screen.update()
+
+
+def bye():
+    return _screen.bye()
+
+
+def forward(distance):
+    return _ensure_default().forward(distance)
+
+
+fd = forward
+
+
+def backward(distance):
+    return _ensure_default().backward(distance)
+
+
+bk = back = backward
+
+
+def left(angle):
+    return _ensure_default().left(angle)
+
+
+lt = left
+
+
+def right(angle):
+    return _ensure_default().right(angle)
+
+
+rt = right
+
+
+def goto(x, y=None):
+    return _ensure_default().goto(x, y)
+
+
+setpos = setposition = goto
+
+
+def setx(x):
+    return _ensure_default().setx(x)
+
+
+def sety(y):
+    return _ensure_default().sety(y)
+
+
+def setheading(to_angle):
+    return _ensure_default().setheading(to_angle)
+
+
+seth = setheading
+
+
+def home():
+    return _ensure_default().home()
+
+
+def circle(radius, extent=None, steps=None):
+    return _ensure_default().circle(radius, extent, steps)
+
+
+def dot(size=None, color=None):
+    return _ensure_default().dot(size, color)
+
+
+def penup():
+    return _ensure_default().penup()
+
+
+pu = up = penup
+
+
+def pendown():
+    return _ensure_default().pendown()
+
+
+pd = down = pendown
+
+
+def pensize(width=None):
+    return _ensure_default().pensize(width)
+
+
+width = pensize
+
+
+def pencolor(*args):
+    return _ensure_default().pencolor(*args)
+
+
+def fillcolor(*args):
+    return _ensure_default().fillcolor(*args)
+
+
+def color(*args):
+    return _ensure_default().color(*args)
+
+
+def begin_fill():
+    return _ensure_default().begin_fill()
+
+
+def end_fill():
+    return _ensure_default().end_fill()
+
+
+def speed(speed=None):
+    return _ensure_default().speed(speed)
+
+
+def hideturtle():
+    return _ensure_default().hideturtle()
+
+
+ht = hideturtle
+
+
+def showturtle():
+    return _ensure_default().showturtle()
+
+
+st = showturtle
+
+
+def write(arg, move=False, align="left", font=("Arial", 12, "normal")):
+    return _ensure_default().write(arg, move=move, align=align, font=font)
+
+
+def clear():
+    return _ensure_default().clear()
+
+
+def reset():
+    return _ensure_default().reset()
+
+
+def position():
+    return _ensure_default().position()
+
+
+pos = position
+
+
+def xcor():
+    return _ensure_default().xcor()
+
+
+def ycor():
+    return _ensure_default().ycor()
+
+
+def heading():
+    return _ensure_default().heading()
+
+
+# Make class names available as turtle.Turtle / turtle.Screen
+Screen = Screen
+# Turtle already defined
+`;
+
+      const editor = document.getElementById("code-editor");
+      const output = document.getElementById("output");
+      const statusEl = document.getElementById("runtime-status");
+      const btnRun = document.getElementById("btn-run");
+      const btnClear = document.getElementById("btn-clear-out");
+      const btnClearTurtle = document.getElementById("btn-clear-turtle");
+      const btnReset = document.getElementById("btn-reset");
+      const turtleCanvas = document.getElementById("turtle-canvas");
+      const turtleStage = document.getElementById("turtle-stage");
+      const studio = document.getElementById("studio");
+      const canvasBgInput = document.getElementById("canvas-bg-input");
+
+      let pyodide = null;
+      let currentExample = "turtle";
+      let running = false;
+      let saveTimer = null;
+      window.__turtleCanvasBg = "#ffffff";
+
+      const CACHE_KEY = "cipher-printie-python-playground";
+
+      function readCache() {
+        try {
+          const raw = localStorage.getItem(CACHE_KEY);
+          if (!raw) return null;
+          const data = JSON.parse(raw);
+          if (!data || typeof data !== "object") return null;
+          return data;
+        } catch (_) {
+          return null;
+        }
+      }
+
+      function writeCache() {
+        try {
+          localStorage.setItem(CACHE_KEY, JSON.stringify({
+            code: editor.value,
+            example: currentExample,
+            canvasBg: window.__turtleCanvasBg || "#ffffff"
+          }));
+        } catch (_) { /* ignore quota / private mode */ }
+      }
+
+      function scheduleSave() {
+        clearTimeout(saveTimer);
+        saveTimer = setTimeout(writeCache, 200);
+      }
+
+      function setStatus(message, kind = "") {
+        statusEl.textContent = message;
+        statusEl.classList.toggle("is-ready", kind === "ready");
+        statusEl.classList.toggle("is-error", kind === "error");
+      }
+
+      function setTurtleMode(enabled) {
+        const wasEnabled = studio.classList.contains("mode-turtle");
+        studio.classList.toggle("mode-turtle", enabled);
+        if (enabled && !wasEnabled) {
+          requestAnimationFrame(() => {
+            fitTurtleCanvas();
+            clearTurtleCanvas();
+          });
+        }
+      }
+
+      function syncBgChips(color) {
+        const normalized = String(color || "#ffffff").toLowerCase();
+        document.querySelectorAll(".bg-chip").forEach((chip) => {
+          chip.setAttribute(
+            "aria-pressed",
+            chip.dataset.bg.toLowerCase() === normalized ? "true" : "false"
+          );
+        });
+      }
+
+      function setCanvasBackground(color, { refill = true, persist = true } = {}) {
+        const next = color || "#ffffff";
+        window.__turtleCanvasBg = next;
+        canvasBgInput.value = /^#[0-9a-fA-F]{6}$/.test(next) ? next : "#ffffff";
+        turtleCanvas.style.background = canvasBgInput.value;
+        syncBgChips(canvasBgInput.value);
+        if (refill) clearTurtleCanvas();
+        if (persist) scheduleSave();
+      }
+
+      function setExample(name, { persist = true } = {}) {
+        currentExample = name;
+        editor.value = EXAMPLES[name] || EXAMPLES.hello;
+        document.querySelectorAll(".example-chip").forEach((chip) => {
+          chip.setAttribute("aria-pressed", chip.dataset.example === name ? "true" : "false");
+        });
+        setTurtleMode(name === "turtle");
+        if (persist) writeCache();
+      }
+
+      function restoreFromCache() {
+        const cached = readCache();
+        const example = cached && EXAMPLES[cached.example] ? cached.example : "turtle";
+        const code = cached && typeof cached.code === "string" ? cached.code : null;
+        const canvasBg = cached && typeof cached.canvasBg === "string" ? cached.canvasBg : "#ffffff";
+
+        currentExample = example;
+        document.querySelectorAll(".example-chip").forEach((chip) => {
+          chip.setAttribute("aria-pressed", chip.dataset.example === example ? "true" : "false");
+        });
+        editor.value = code != null ? code : (EXAMPLES[example] || EXAMPLES.turtle);
+        const usesTurtle = example === "turtle"
+          || /\b(import\s+turtle|from\s+turtle\s+import)\b/.test(editor.value);
+        setTurtleMode(usesTurtle);
+        setCanvasBackground(canvasBg, { refill: false, persist: false });
+      }
+
+      function appendOutput(text, className = "") {
+        if (output.querySelector(".hint")) output.textContent = "";
+        if (!className) {
+          output.appendChild(document.createTextNode(text));
+          return;
+        }
+        const span = document.createElement("span");
+        span.className = className;
+        span.textContent = text;
+        output.appendChild(span);
+      }
+
+      function clearOutput() {
+        output.innerHTML = '<span class="hint">Output will appear here.</span>';
+      }
+
+      function clearTurtleCanvas() {
+        const ctx = turtleCanvas.getContext("2d");
+        if (!ctx) return;
+        const bg = window.__turtleCanvasBg || "#ffffff";
+        ctx.setTransform(1, 0, 0, 1, 0, 0);
+        ctx.clearRect(0, 0, turtleCanvas.width, turtleCanvas.height);
+        ctx.fillStyle = bg;
+        ctx.fillRect(0, 0, turtleCanvas.width, turtleCanvas.height);
+      }
+
+      function fitTurtleCanvas() {
+        if (!turtleStage || !studio.classList.contains("mode-turtle")) return;
+        // Square canvas sized to the full stage width.
+        const size = Math.max(240, Math.floor(turtleStage.clientWidth - 12));
+        if (turtleCanvas.width === size && turtleCanvas.height === size) return;
+        turtleCanvas.width = size;
+        turtleCanvas.height = size;
+        turtleCanvas.style.width = "";
+        turtleCanvas.style.height = "";
+        clearTurtleCanvas();
+      }
+
+      async function installTurtleModule() {
+        // Prefer our canvas turtle over any stdlib turtle that needs tkinter.
+        pyodide.FS.writeFile("/home/pyodide/turtle.py", TURTLE_MODULE);
+        await pyodide.runPythonAsync(`
+import sys
+sys.path.insert(0, "/home/pyodide")
+if "turtle" in sys.modules:
+    del sys.modules["turtle"]
+import turtle
+turtle.resetscreen()
+`);
+      }
+
+      async function loadPyodideRuntime() {
+        setStatus("Loading Python…");
+        btnRun.disabled = true;
+        clearTurtleCanvas();
+
+        try {
+          if (!window.loadPyodide) {
+            await new Promise((resolve, reject) => {
+              const script = document.createElement("script");
+              script.src = "https://cdn.jsdelivr.net/pyodide/v0.27.5/full/pyodide.js";
+              script.onload = resolve;
+              script.onerror = () => reject(new Error("Could not load Pyodide script"));
+              document.head.appendChild(script);
+            });
+          }
+
+          pyodide = await window.loadPyodide({
+            indexURL: "https://cdn.jsdelivr.net/pyodide/v0.27.5/full/"
+          });
+
+          pyodide.setStdout({
+            batched: (text) => appendOutput(`${text}\n`)
+          });
+          pyodide.setStderr({
+            batched: (text) => appendOutput(`${text}\n`, "stderr")
+          });
+
+          await installTurtleModule();
+
+          btnRun.disabled = false;
+          setStatus("Python ready · Turtle enabled", "ready");
+        } catch (error) {
+          console.error(error);
+          setStatus("Failed to load Python", "error");
+          clearOutput();
+          appendOutput("Could not start the Python runtime. Check your network and reload.\n", "stderr");
+        }
+      }
+
+      async function runCode() {
+        if (!pyodide || running) return;
+        running = true;
+        btnRun.disabled = true;
+        setStatus("Running…");
+        clearOutput();
+
+        const usesTurtle = /\b(import\s+turtle|from\s+turtle\s+import)\b/.test(editor.value);
+        if (usesTurtle || currentExample === "turtle") {
+          setTurtleMode(true);
+          fitTurtleCanvas();
+        }
+        clearTurtleCanvas();
+
+        try {
+          // Reset turtle state between runs so drawings start clean.
+          await pyodide.runPythonAsync(`
+import sys
+if "turtle" in sys.modules:
+    import turtle
+    turtle.resetscreen()
+`);
+          await pyodide.runPythonAsync(editor.value);
+          // Keep the color picker in sync if the program called bgcolor().
+          if (window.__turtleCanvasBg) {
+            setCanvasBackground(window.__turtleCanvasBg, { refill: false });
+          }
+          if (!output.textContent.trim() || output.querySelector(".hint")) {
+            clearOutput();
+            appendOutput("(no text output — check the turtle canvas)\n", "hint");
+          }
+          setStatus("Python ready · Turtle enabled", "ready");
+        } catch (error) {
+          const message = error && error.message ? error.message : String(error);
+          appendOutput(`${message}\n`, "stderr");
+          setStatus("Error — fix and try again", "error");
+        } finally {
+          running = false;
+          btnRun.disabled = false;
+          editor.focus();
+        }
+      }
+
+      document.querySelectorAll(".example-chip").forEach((chip) => {
+        chip.addEventListener("click", () => setExample(chip.dataset.example));
+      });
+
+      canvasBgInput.addEventListener("input", () => {
+        setCanvasBackground(canvasBgInput.value, { refill: true });
+      });
+
+      document.querySelectorAll(".bg-chip").forEach((chip) => {
+        chip.addEventListener("click", () => {
+          setCanvasBackground(chip.dataset.bg, { refill: true });
+        });
+      });
+
+      btnRun.addEventListener("click", runCode);
+      btnClear.addEventListener("click", clearOutput);
+
+      async function eraseTurtle() {
+        clearTurtleCanvas();
+        if (!pyodide) return;
+        try {
+          await pyodide.runPythonAsync(`
+import sys
+if "turtle" in sys.modules:
+    import turtle
+    turtle.resetscreen()
+`);
+        } catch (_) { /* ignore */ }
+      }
+
+      btnClearTurtle.addEventListener("click", eraseTurtle);
+      btnReset.addEventListener("click", () => {
+        setExample(currentExample);
+        clearOutput();
+        clearTurtleCanvas();
+      });
+
+      function isRunHotkey(event) {
+        return (event.metaKey || event.ctrlKey) && (event.key === "Enter" || event.code === "Enter");
+      }
+
+      function isEraseHotkey(event) {
+        return (event.metaKey || event.ctrlKey) && !event.shiftKey && !event.altKey
+          && (event.key === "e" || event.key === "E" || event.code === "KeyE");
+      }
+
+      document.addEventListener("keydown", (event) => {
+        if (isRunHotkey(event)) {
+          event.preventDefault();
+          if (!btnRun.disabled) runCode();
+          return;
+        }
+        if (isEraseHotkey(event)) {
+          event.preventDefault();
+          eraseTurtle();
+        }
+      });
+
+      editor.addEventListener("keydown", (event) => {
+        if (event.key === "Tab") {
+          event.preventDefault();
+          const start = editor.selectionStart;
+          const end = editor.selectionEnd;
+          const value = editor.value;
+          editor.value = `${value.slice(0, start)}\t${value.slice(end)}`;
+          editor.selectionStart = editor.selectionEnd = start + 1;
+          scheduleSave();
+        }
+      });
+
+      // Auto-enter turtle layout if the user types turtle imports.
+      editor.addEventListener("input", () => {
+        scheduleSave();
+        const usesTurtle = /\b(import\s+turtle|from\s+turtle\s+import)\b/.test(editor.value);
+        if (usesTurtle !== studio.classList.contains("mode-turtle")) {
+          setTurtleMode(usesTurtle || currentExample === "turtle");
+        }
+      });
+
+      window.addEventListener("resize", () => {
+        fitTurtleCanvas();
+      });
+
+      if (window.ResizeObserver) {
+        new ResizeObserver(() => fitTurtleCanvas()).observe(turtleStage);
+      }
+
+      window.addEventListener("beforeunload", writeCache);
+
+      restoreFromCache();
+      loadPyodideRuntime();
+    })();
+  </script>
+</body>
+</html>
