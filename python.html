@@ -986,20 +986,13 @@ _SPEED_NAMES = {
     "slowest": 1,
 }
 
-# Turtle speed: 1 is slowest, 10 is fastest, 0 skips waits (instant).
-# Values are extra milliseconds to wait between screen updates.
-_SPEED_FRAME_MS = {
-    1: 72,
-    2: 48,
-    3: 32,
-    4: 20,
-    5: 12,
-    6: 6,
-    7: 3,
-    8: 0,
-    9: 0,
-    10: 0,
-}
+def _speed_timing(speed):
+    # Speed 1 is slowest, 10 is fastest, 0 skips waits.
+    # 1 matches the old "3" feel; 10 matches the old "5" feel.
+    t = (int(speed) - 1) / 9.0
+    batch_ms = 24.0 + t * 24.0
+    frame_ms = 32.0 + t * -20.0
+    return batch_ms, frame_ms
 
 
 def _normalize_speed(speed):
@@ -1173,12 +1166,11 @@ class Turtle:
             return
         from js import window
         now = float(window.performance.now())
-        # Higher speed batches more drawing between paints, so 10 finishes quickly.
-        batch = 16.0 + float((speed - 1) * (speed - 1) * 2)
-        if now - self._last_pause < batch:
+        batch_ms, frame_ms = _speed_timing(speed)
+        if now - self._last_pause < batch_ms:
             return
         self._last_pause = now
-        await _pause(_SPEED_FRAME_MS.get(speed, 0))
+        await _pause(frame_ms)
 
     def _redraw_turtle(self):
         # Marker is optional; keep drawings persistent so we do not erase the path.
