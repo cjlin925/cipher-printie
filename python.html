@@ -783,7 +783,7 @@
 
   <p class="disclaimer">
     Cipher Printie © 2026. For personal and educational use.
-    <span class="build-version" id="build-version">Python v1.2.1</span>
+    <span class="build-version" id="build-version">Python v1.3.0</span>
   </p>
 
   <div class="turtle-ask" id="turtle-ask" hidden>
@@ -879,6 +879,7 @@ print("Star drawn!")
 from __future__ import annotations
 
 import ast
+import asyncio
 import math
 from typing import Optional
 
@@ -928,6 +929,99 @@ def _from_js(value):
     return value
 
 
+_colormode = 1.0
+
+
+def colormode(cmode=None):
+    global _colormode
+    if cmode is None:
+        return _colormode
+    mode = float(cmode)
+    if mode not in (1.0, 255.0):
+        raise TurtleGraphicsError("colormode must be 1.0 or 255")
+    _colormode = 1.0 if mode == 1.0 else 255.0
+    return _colormode
+
+
+def _channel_to_255(value):
+    number = float(value)
+    if _colormode == 1.0:
+        if number < 0.0 or number > 1.0:
+            raise TurtleGraphicsError("RGB values must be in 0..1 (colormode 1.0)")
+        return max(0, min(255, int(round(number * 255.0))))
+    if number < 0.0 or number > 255.0:
+        raise TurtleGraphicsError("RGB values must be in 0..255 (colormode 255)")
+    return max(0, min(255, int(round(number))))
+
+
+def _css_color(spec):
+    if isinstance(spec, str):
+        text = spec.strip()
+        if not text:
+            raise TurtleGraphicsError("empty color string")
+        return text
+    if isinstance(spec, (tuple, list)) and len(spec) == 3:
+        red, green, blue = spec
+        return "#%02x%02x%02x" % (
+            _channel_to_255(red),
+            _channel_to_255(green),
+            _channel_to_255(blue),
+        )
+    raise TurtleGraphicsError("color must be a name, hex string, or RGB tuple")
+
+
+def _parse_color_args(args):
+    if len(args) == 1:
+        return _css_color(args[0])
+    if len(args) == 3:
+        return _css_color(args)
+    raise TurtleGraphicsError("bad color arguments")
+
+
+_SPEED_NAMES = {
+    "fastest": 0,
+    "fast": 10,
+    "normal": 6,
+    "slow": 3,
+    "slowest": 1,
+}
+
+# Turtle speed: 1 is slowest, 10 is fastest, 0 skips waits (instant).
+# Values are extra milliseconds to wait between screen updates.
+_SPEED_FRAME_MS = {
+    1: 72,
+    2: 48,
+    3: 32,
+    4: 20,
+    5: 12,
+    6: 6,
+    7: 3,
+    8: 0,
+    9: 0,
+    10: 0,
+}
+
+
+def _normalize_speed(speed):
+    if isinstance(speed, str):
+        mapped = _SPEED_NAMES.get(speed.strip().lower())
+        if mapped is None:
+            raise TurtleGraphicsError("speed must be 0..10 or fastest/fast/normal/slow/slowest")
+        return mapped
+    value = int(speed)
+    if value < 0:
+        value = 0
+    if value > 10:
+        value = 10
+    return value
+
+
+async def _pause(ms):
+    from js import window
+    delay = max(0.0, float(ms))
+    await window.__cipherTurtlePause(delay)
+
+
 async def _ask_user(title, prompt, default="", error=""):
     from js import window
     value = await window.__cipherTurtleAsk(
@@ -951,8 +1045,7 @@ class Screen:
         from js import window
         if not args:
             return self._bg
-        self._bg = args[0] if len(args) == 1 else args
-        color = self._bg if isinstance(self._bg, str) else "#ffffff"
+        color = _parse_color_args(args)
         self._bg = color
         window.__turtleCanvasBg = color
         canvas, ctx = _ctx()
@@ -960,6 +1053,9 @@ class Screen:
         ctx.fillStyle = color
         ctx.fillRect(0, 0, canvas.width, canvas.height)
         return self._bg
+
+    def colormode(self, cmode=None):
+        return colormode(cmode)
 
     def clear(self):
         _clear_canvas()
@@ -1047,6 +1143,7 @@ class Turtle:
         self._visible = bool(visible)
         self._filling = False
         self._fill_path = []
+        self._last_pause = 0.0
         self._screen = _screen
         _turtles.append(self)
         self._redraw_turtle()
@@ -1069,6 +1166,19 @@ class Turtle:
         ctx.moveTo(cx0, cy0)
         ctx.lineTo(cx1, cy1)
         ctx.stroke()
+
+    async def _after_move(self):
+        speed = int(self._speed)
+        if speed <= 0:
+            return
+        from js import window
+        now = float(window.performance.now())
+        # Higher speed batches more drawing between paints, so 10 finishes quickly.
+        batch = 16.0 + float((speed - 1) * (speed - 1) * 2)
+        if now - self._last_pause < batch:
+            return
+        self._last_pause = now
+        await _pause(_SPEED_FRAME_MS.get(speed, 0))
 
     def _redraw_turtle(self):
         # Marker is optional; keep drawings persistent so we do not erase the path.
@@ -1118,34 +1228,37 @@ class Turtle:
     def pencolor(self, *args):
         if not args:
             return self._pencolor
-        self._pencolor = args[0] if len(args) == 1 else args
-        if not isinstance(self._pencolor, str):
-            self._pencolor = "#215c42"
+        self._pencolor = _parse_color_args(args)
         return self._pencolor
 
     def fillcolor(self, *args):
         if not args:
             return self._fillcolor
-        self._fillcolor = args[0] if len(args) == 1 else args
-        if not isinstance(self._fillcolor, str):
-            self._fillcolor = "#215c42"
+        self._fillcolor = _parse_color_args(args)
         return self._fillcolor
 
     def color(self, *args):
         if not args:
             return (self._pencolor, self._fillcolor)
-        if len(args) == 1:
-            self.pencolor(args[0])
-            self.fillcolor(args[0])
+        if len(args) == 3:
+            css = _css_color(args)
+            self._pencolor = css
+            self._fillcolor = css
+        elif len(args) == 1:
+            css = _css_color(args[0])
+            self._pencolor = css
+            self._fillcolor = css
+        elif len(args) == 2:
+            self._pencolor = _css_color(args[0])
+            self._fillcolor = _css_color(args[1])
         else:
-            self.pencolor(args[0])
-            self.fillcolor(args[1])
+            raise TurtleGraphicsError("bad color arguments")
         return (self._pencolor, self._fillcolor)
 
     def speed(self, speed=None):
         if speed is None:
             return self._speed
-        self._speed = speed
+        self._speed = _normalize_speed(speed)
         return self._speed
 
     def hideturtle(self):
@@ -1161,7 +1274,7 @@ class Turtle:
     def isvisible(self):
         return self._visible
 
-    def goto(self, x, y=None):
+    async def goto(self, x, y=None):
         if y is None:
             x, y = x
         x, y = float(x), float(y)
@@ -1169,30 +1282,31 @@ class Turtle:
         if self._filling:
             self._fill_path.append((x, y))
         self._x, self._y = x, y
+        await self._after_move()
 
     setpos = setposition = goto
 
-    def setx(self, x):
-        self.goto(float(x), self._y)
+    async def setx(self, x):
+        await self.goto(float(x), self._y)
 
-    def sety(self, y):
-        self.goto(self._x, float(y))
+    async def sety(self, y):
+        await self.goto(self._x, float(y))
 
-    def home(self):
-        self.goto(0, 0)
+    async def home(self):
+        await self.goto(0, 0)
         self.setheading(0)
 
-    def forward(self, distance):
+    async def forward(self, distance):
         distance = float(distance)
         rad = math.radians(self._heading)
         x = self._x + distance * math.cos(rad)
         y = self._y + distance * math.sin(rad)
-        self.goto(x, y)
+        await self.goto(x, y)
 
     fd = forward
 
-    def backward(self, distance):
-        self.forward(-float(distance))
+    async def backward(self, distance):
+        await self.forward(-float(distance))
 
     bk = back = backward
 
@@ -1206,14 +1320,13 @@ class Turtle:
 
     rt = right
 
-    def circle(self, radius, extent=None, steps=None):
+    async def circle(self, radius, extent=None, steps=None):
         radius = float(radius)
         extent = 360.0 if extent is None else float(extent)
         steps = max(12, int(abs(extent) / 6)) if steps is None else max(3, int(steps))
         angle_step = extent / steps
-        # Approximate with short chords; move sideways for circle center like classic turtle.
         for _ in range(steps):
-            self.forward(2 * math.pi * abs(radius) * (abs(angle_step) / 360.0))
+            await self.forward(2 * math.pi * abs(radius) * (abs(angle_step) / 360.0))
             if radius >= 0:
                 self.left(angle_step)
             else:
@@ -1264,6 +1377,7 @@ class Turtle:
         self._pensize = 2.0
         self._filling = False
         self._fill_path = []
+        self._last_pause = 0.0
 
     def write(self, arg, move=False, align="left", font=("Arial", 12, "normal")):
         text = str(arg)
@@ -1367,15 +1481,15 @@ def bye():
     return _screen.bye()
 
 
-def forward(distance):
-    return _ensure_default().forward(distance)
+async def forward(distance):
+    return await _ensure_default().forward(distance)
 
 
 fd = forward
 
 
-def backward(distance):
-    return _ensure_default().backward(distance)
+async def backward(distance):
+    return await _ensure_default().backward(distance)
 
 
 bk = back = backward
@@ -1395,19 +1509,19 @@ def right(angle):
 rt = right
 
 
-def goto(x, y=None):
-    return _ensure_default().goto(x, y)
+async def goto(x, y=None):
+    return await _ensure_default().goto(x, y)
 
 
 setpos = setposition = goto
 
 
-def setx(x):
-    return _ensure_default().setx(x)
+async def setx(x):
+    return await _ensure_default().setx(x)
 
 
-def sety(y):
-    return _ensure_default().sety(y)
+async def sety(y):
+    return await _ensure_default().sety(y)
 
 
 def setheading(to_angle):
@@ -1417,12 +1531,12 @@ def setheading(to_angle):
 seth = setheading
 
 
-def home():
-    return _ensure_default().home()
+async def home():
+    return await _ensure_default().home()
 
 
-def circle(radius, extent=None, steps=None):
-    return _ensure_default().circle(radius, extent, steps)
+async def circle(radius, extent=None, steps=None):
+    return await _ensure_default().circle(radius, extent, steps)
 
 
 def dot(size=None, color=None):
@@ -1520,7 +1634,12 @@ def heading():
 
 
 class _AwaitTurtleInput(ast.NodeTransformer):
-    _NAMES = {"textinput", "numinput"}
+    _NAMES = {
+        "textinput", "numinput",
+        "forward", "fd", "backward", "bk", "back",
+        "goto", "setpos", "setposition", "setx", "sety", "home",
+        "circle",
+    }
 
     def visit_Await(self, node):
         if isinstance(node.value, ast.Call):
@@ -1605,6 +1724,15 @@ Screen = Screen
         askResolver = null;
         if (resolve) resolve(value);
       }
+
+      window.__cipherTurtlePause = (ms) => new Promise((resolve) => {
+        const delay = Math.max(0, Number(ms) || 0);
+        if (delay <= 0) {
+          requestAnimationFrame(() => resolve());
+          return;
+        }
+        window.setTimeout(resolve, delay);
+      });
 
       window.__cipherTurtleAsk = (title, prompt, defaultValue = "", errorMessage = "") => {
         return new Promise((resolve) => {
@@ -1891,13 +2019,8 @@ turtle.resetscreen()
         clearTurtleCanvas();
 
         try {
-          // Reset turtle state between runs so drawings start clean.
-          await pyodide.runPythonAsync(`
-import sys
-if "turtle" in sys.modules:
-    import turtle
-    turtle.resetscreen()
-`);
+          // Reload the canvas turtle so speed / color fixes apply without a hard refresh.
+          await installTurtleModule();
           pyodide.globals.set("__cipher_user_src", getCode());
           await pyodide.runPythonAsync(`
 import turtle
