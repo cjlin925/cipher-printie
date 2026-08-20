@@ -539,6 +539,11 @@
       cursor: pointer;
     }
 
+    .option-row label:has(input:disabled) {
+      opacity: 0.45;
+      cursor: default;
+    }
+
     .field {
       display: grid;
       gap: 0.4rem;
@@ -1148,6 +1153,9 @@
             <label><input type="checkbox" name="sheet-type" value="match"> Match</label>
             <label><input type="checkbox" name="include-answers" id="include-answers"> Answer key</label>
           </div>
+          <div class="option-row" id="trace-print-options" role="group" aria-label="Trace options">
+            <label><input type="checkbox" id="print-stroke-order" checked> Stroke order on example</label>
+          </div>
           <div class="field field-wide">
             <label for="custom-chars">Characters to trace</label>
             <textarea id="custom-chars" rows="1" placeholder="Enter characters like 我愛學中文. Leave blank to print 5 random ones." autocomplete="off" spellcheck="false" aria-describedby="preview-note"></textarea>
@@ -1159,7 +1167,7 @@
         </div>
       </div>
 
-      <p class="disclaimer">Cipher Printie © 2026. For personal and educational use. Traditional characters with 注音. <span class="build-version">Chinese v1.3.0</span></p>
+      <p class="disclaimer">Cipher Printie © 2026. For personal and educational use. Traditional characters with 注音. <span class="build-version">Chinese v1.4.1</span></p>
     </section>
   </main>
 
@@ -1286,6 +1294,7 @@
       const btnAnimate = document.getElementById("btn-animate");
       const btnQuiz = document.getElementById("btn-quiz");
       const btnPrint = document.getElementById("btn-print");
+      const printStrokeOrderInput = document.getElementById("print-stroke-order");
 
       function setStrokeStatus(message, isError = false) {
         strokeStatus.textContent = message;
@@ -1329,7 +1338,7 @@
         await Promise.all(unique.map((character) => loadCharData(character).catch(() => null)));
       }
 
-      function medianStartScreenPoint(median, transformData, size) {
+      function medianStartScreenPoint(median, transformData, size, offset = 36) {
         const start = median[0];
         const next = median[Math.min(1, median.length - 1)];
         let dx = next[0] - start[0];
@@ -1339,7 +1348,6 @@
         dy /= length;
 
         // Place the number just before the stroke begins.
-        const offset = 36;
         const charX = start[0] - dx * offset;
         const charY = start[1] - dy * offset;
 
@@ -1646,6 +1654,15 @@
         );
       }
 
+      function wantsStrokeOrder() {
+        return Boolean(printStrokeOrderInput && printStrokeOrderInput.checked && !printStrokeOrderInput.disabled);
+      }
+
+      function syncTracePrintOptions() {
+        const traceOn = selectedSheetTypes().includes("trace");
+        if (printStrokeOrderInput) printStrokeOrderInput.disabled = !traceOn;
+      }
+
       function parseCustomCharacters(text) {
         const matches = String(text).match(/[\u3400-\u4DBF\u4E00-\u9FFF\uF900-\uFAFF]/g) || [];
         const seen = new Set();
@@ -1730,7 +1747,20 @@
         return `<span class="sheet-page">Page ${pageIndex + 1} / ${pageCount}</span>`;
       }
 
-      function charSvgMarkup(charData, mode) {
+      function strokeOrderLabelMarkup(charData, size, transformData) {
+        const labels = (charData.medians || []).map((median, index) => {
+          if (!median || !median.length) return "";
+          const point = medianStartScreenPoint(median, transformData, size, 55);
+          const x = Math.min(size - 5.5, Math.max(5.5, point.x));
+          const y = Math.min(size - 5.5, Math.max(5.5, point.y));
+          const n = index + 1;
+          const fontSize = n >= 10 ? 6.2 : 7.2;
+          return `<g transform="translate(${x.toFixed(2)} ${y.toFixed(2)})"><circle cx="0" cy="0" r="5.2" fill="#fff" stroke="#222" stroke-width="0.85"/><text x="0" y="0" text-anchor="middle" dominant-baseline="central" fill="#222" font-size="${fontSize}" font-weight="800" font-family="Arial, Helvetica, sans-serif">${n}</text></g>`;
+        }).join("");
+        return labels;
+      }
+
+      function charSvgMarkup(charData, mode, showStrokeOrder = false) {
         if (!charData || !charData.strokes) return "";
         const size = 100;
         const transformData = HanziWriter.getScalingTransform(size, size, 6);
@@ -1740,7 +1770,8 @@
           const paths = charData.strokes
             .map((strokePath) => `<path d="${escapeHtml(strokePath)}" fill="#222"/>`)
             .join("");
-          return `<svg class="trace-char-svg" viewBox="0 0 ${size} ${size}" width="100%" height="100%" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><g transform="${transform}">${paths}</g></svg>`;
+          const numbers = showStrokeOrder ? strokeOrderLabelMarkup(charData, size, transformData) : "";
+          return `<svg class="trace-char-svg" viewBox="0 0 ${size} ${size}" width="100%" height="100%" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><g transform="${transform}">${paths}</g>${numbers}</svg>`;
         }
 
         // Hollow glyph with dashed outline (same stroke paths as animation).
@@ -1752,18 +1783,18 @@
         return `<svg class="trace-char-svg" viewBox="0 0 ${size} ${size}" width="100%" height="100%" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><g transform="${transform}">${paths}</g></svg>`;
       }
 
-      function traceCellMarkup(char, mode) {
+      function traceCellMarkup(char, mode, showStrokeOrder = false) {
         const data = charDataCache.get(char);
         const resolved = data && typeof data.then !== "function" ? data : null;
-        const svg = resolved ? charSvgMarkup(resolved, mode) : `<span class="trace-fallback">${escapeHtml(char)}</span>`;
+        const svg = resolved ? charSvgMarkup(resolved, mode, showStrokeOrder) : `<span class="trace-fallback">${escapeHtml(char)}</span>`;
         const className = mode === "example" ? "trace-cell is-example" : "trace-cell";
         return `<div class="${className}">${svg}</div>`;
       }
 
-      function renderTraceCharRow(item) {
+      function renderTraceCharRow(item, showStrokeOrder = false) {
         const cells = [];
         for (let col = 0; col < TRACE_COLS; col += 1) {
-          cells.push(traceCellMarkup(item.char, col === 0 ? "example" : "practice"));
+          cells.push(traceCellMarkup(item.char, col === 0 ? "example" : "practice", showStrokeOrder));
         }
 
         return `
@@ -1774,9 +1805,12 @@
         `;
       }
 
-      function renderTraceSheets(items, deckLabel) {
+      function renderTraceSheets(items, deckLabel, showStrokeOrder = false) {
         const perPage = TRACE_CHARS_PER_PAGE;
         const pages = chunkItems(items, perPage);
+        const hint = showStrokeOrder
+          ? "One character per row · Follow the numbered stroke order in the example, then trace the dashed outlines"
+          : "One character per row · Trace inside the dashed hollow outlines";
 
         return pages.map((pageItems, pageIndex) => `
           <article class="print-sheet">
@@ -1784,9 +1818,9 @@
               <p>Cipher Printie · Chinese</p>
               <h2>Trace practice</h2>
             </header>
-            <p class="sheet-meta">${pageLabel(pageIndex, pages.length)}One character per row · Trace inside the dashed hollow outlines</p>
+            <p class="sheet-meta">${pageLabel(pageIndex, pages.length)}${hint}</p>
             <div class="trace-page" data-chars="${perPage}">
-              ${pageItems.map((item) => renderTraceCharRow(item)).join("")}
+              ${pageItems.map((item) => renderTraceCharRow(item, showStrokeOrder)).join("")}
             </div>
             <footer class="sheet-footer">Traditional Chinese practice · 注音 study companion</footer>
           </article>
@@ -1918,7 +1952,7 @@
           }
 
           const sheets = [];
-          if (types.includes("trace")) sheets.push(renderTraceSheets(items, deckLabel));
+          if (types.includes("trace")) sheets.push(renderTraceSheets(items, deckLabel, wantsStrokeOrder()));
           if (types.includes("zhuyin")) sheets.push(renderZhuyinSheets(items, deckLabel));
           if (types.includes("match")) sheets.push(renderMatchSheet(items, deckLabel));
           if (includeAnswers) sheets.push(renderAnswerSheets(items, deckLabel));
@@ -2011,7 +2045,12 @@
         if (state.charData) renderStrokeNumbers(state.charData, state.numbersVisible);
       });
 
+      document.querySelectorAll('input[name="sheet-type"]').forEach((input) => {
+        input.addEventListener("change", syncTracePrintOptions);
+      });
+
       setStrokeControlsEnabled(false);
+      syncTracePrintOptions();
       rebuildQueue();
     })();
   </script>

@@ -807,7 +807,7 @@
         <div class="collection" id="collection"></div>
       </div>
 
-      <p class="disclaimer">Cipher Printie © 2026. For personal and educational use. Traditional characters with 注音. <span class="build-version">Chinese Quest v1.0.2</span></p>
+      <p class="disclaimer">Cipher Printie © 2026. For personal and educational use. Traditional characters with 注音. <span class="build-version">Chinese Quest v1.0.3</span></p>
     </section>
   </main>
 
@@ -1187,13 +1187,32 @@
           strokeColor: "#17412f",
           outlineColor: "#d5ddd8",
           drawingColor: "#215c42",
-          highlightColor: "#c4922a",
+          drawingWidth: 16,
+          highlightColor: "#e8a317",
+          strokeHighlightSpeed: 0.85,
+          strokeHighlightDuration: 420,
           strokeAnimationSpeed: 1.1,
-          quizStartStrokeNum: 0
+          quizStartStrokeNum: 0,
+          acceptBackwardsStrokes: false,
+          markStrokeCorrectAfterMisses: false,
+          showHintAfterMisses: 1
         });
         state.writer = writer;
         writer.quiz({
-          onMistake: () => { state.mistakes += 1; },
+          showHintAfterMisses: 1,
+          markStrokeCorrectAfterMisses: false,
+          acceptBackwardsStrokes: false,
+          onMistake: () => {
+            state.mistakes += 1;
+            if (state.locked) return;
+            feedbackEl.className = "feedback is-bad";
+            feedbackEl.textContent = "Wrong stroke. Follow the flash.";
+          },
+          onCorrectStroke: () => {
+            if (state.locked) return;
+            feedbackEl.className = "feedback";
+            feedbackEl.textContent = "";
+          },
           onComplete: () => {
             if (state.locked) return;
             resolveAnswer(true, item, state.mistakes === 0 ? 15 : 8);
