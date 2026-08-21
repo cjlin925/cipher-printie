@@ -176,10 +176,10 @@
       white-space: pre-wrap;
       word-break: break-word;
       font-family: ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
-      font-size: 0.92rem;
-      line-height: 1.65;
-      padding: 1rem 1.1rem;
-      border-radius: 0.85rem;
+      font-size: 0.9rem;
+      line-height: 1.55;
+      padding: 0.7rem 0.75rem;
+      border-radius: 0.55rem;
       background: #111;
       color: #c8c8c8;
     }
@@ -252,7 +252,7 @@
       pointer-events: none;
       position: fixed;
       left: 50%;
-      bottom: max(1.25rem, env(safe-area-inset-bottom));
+      bottom: calc(3.75rem + env(safe-area-inset-bottom));
       z-index: 40;
       transform: translateX(-50%) translateY(8px);
       opacity: 0;
@@ -261,10 +261,14 @@
       border: 1px solid rgba(23, 32, 27, 0.1);
       background: rgba(255, 255, 255, 0.94);
       color: #17412f;
-      padding: 0.45rem 0.85rem;
-      font-size: 0.78rem;
+      padding: 0.4rem 0.75rem;
+      font-size: 0.75rem;
       font-weight: 600;
       box-shadow: 0 8px 24px rgba(23, 32, 27, 0.12);
+    }
+
+    body.is-reading .gesture-hint {
+      bottom: max(0.75rem, env(safe-area-inset-bottom));
     }
 
     .gesture-hint.is-on {
@@ -272,12 +276,79 @@
       transform: translateX(-50%) translateY(0);
     }
 
-    .safe-bottom {
-      padding-bottom: max(1rem, env(safe-area-inset-bottom));
+    .app-main {
+      touch-action: pan-y;
+      padding-bottom: calc(4.25rem + env(safe-area-inset-bottom));
     }
 
-    main {
-      touch-action: pan-y;
+    body.is-reading .app-main {
+      padding-bottom: max(0.5rem, env(safe-area-inset-bottom));
+    }
+
+    .search-input {
+      width: 100%;
+      border: 1px solid #dfe5e1;
+      border-radius: 0.7rem;
+      background: #fff;
+      padding: 0.55rem 0.75rem;
+      font-size: 0.9rem;
+      outline: none;
+    }
+    .search-input:focus {
+      border-color: rgba(33, 92, 66, 0.45);
+      box-shadow: 0 0 0 3px rgba(33, 92, 66, 0.12);
+    }
+
+    .bottom-nav {
+      position: fixed;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      z-index: 35;
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 0;
+      border-top: 1px solid rgba(23, 32, 27, 0.1);
+      background: rgba(255, 255, 255, 0.96);
+      backdrop-filter: blur(12px);
+      padding: 0.2rem 0.15rem calc(0.2rem + env(safe-area-inset-bottom));
+    }
+
+    .bottom-nav[hidden] { display: none !important; }
+
+    .bottom-nav button {
+      border: 0;
+      background: transparent;
+      color: #69736d;
+      padding: 0.35rem 0.2rem;
+      font-size: 0.68rem;
+      font-weight: 600;
+      line-height: 1.15;
+      cursor: pointer;
+    }
+
+    .bottom-nav button .tab-ico {
+      display: block;
+      margin: 0 auto 0.15rem;
+      font-size: 1.05rem;
+      line-height: 1;
+    }
+
+    .bottom-nav button.is-active {
+      color: #215c42;
+    }
+
+    .site-nav {
+      padding: 0.45rem 0.75rem;
+    }
+
+    .site-nav-brand {
+      font-size: 1rem;
+    }
+
+    .article-body {
+      padding: 0.7rem 0.75rem;
+      border-radius: 0.55rem;
     }
   </style>
 </head>
@@ -301,24 +372,23 @@
     </div>
   </nav>
 
-  <header class="border-b border-line/80 bg-white/70 backdrop-blur">
-    <div class="mx-auto flex max-w-3xl items-center justify-between gap-3 px-4 py-3 sm:px-6">
+  <header class="border-b border-line/80 bg-white/80 backdrop-blur">
+    <div class="mx-auto flex max-w-3xl items-center justify-between gap-2 px-2 py-1.5 sm:px-3">
       <div class="min-w-0">
-        <p class="text-[0.7rem] font-semibold uppercase tracking-[0.18em] text-accent">Cipher PTT Speed</p>
-        <h1 class="truncate text-lg font-semibold tracking-tight sm:text-xl">Speed PTT</h1>
+        <h1 class="truncate text-base font-semibold tracking-tight">Speed PTT</h1>
       </div>
-      <div class="flex shrink-0 items-center gap-2">
-        <span id="mode-badge" class="rounded-md border border-line bg-accent-soft px-2 py-1 text-[0.7rem] font-semibold text-accent-dark">Demo</span>
-        <button type="button" id="btn-logout" class="hidden rounded-lg border border-line bg-white px-3 py-1.5 text-sm font-medium text-ink hover:border-accent/40">登出</button>
-        <button type="button" id="btn-nav-settings" class="rounded-lg border border-line bg-white px-3 py-1.5 text-sm font-medium text-ink hover:border-accent/40">設定</button>
+      <div class="flex shrink-0 items-center gap-1.5">
+        <span id="mode-badge" class="rounded-md border border-line bg-accent-soft px-1.5 py-0.5 text-[0.65rem] font-semibold text-accent-dark">Demo</span>
+        <button type="button" id="btn-logout" class="hidden rounded-md border border-line bg-white px-2 py-1 text-xs font-medium text-ink">登出</button>
+        <button type="button" id="btn-nav-settings" class="rounded-md border border-line bg-white px-2 py-1 text-xs font-medium text-ink">設定</button>
       </div>
     </div>
   </header>
 
-  <main class="mx-auto max-w-3xl px-4 py-5 sm:px-6 safe-bottom">
+  <main class="app-main mx-auto max-w-3xl px-2 py-2 sm:px-3">
     <!-- Settings / Login -->
     <section id="view-settings" class="hidden space-y-4" aria-labelledby="settings-heading">
-      <div class="rounded-2xl border border-line bg-white p-5 shadow-card sm:p-6">
+      <div class="rounded-xl border border-line bg-white p-3.5 shadow-card">
         <h2 id="settings-heading" class="text-xl font-semibold tracking-tight">設定 / 登入</h2>
         <p class="mt-2 text-sm leading-relaxed text-muted">
           PTT 帳密只在你的瀏覽器以 AES-GCM 加密保存，送到 Worker 前會再用 RSA-OAEP 包一層，不會以明文出現在請求內容。
@@ -379,84 +449,106 @@
       </div>
     </section>
 
-    <!-- Boards home: favorites first, then hot -->
-    <section id="view-boards" class="hidden space-y-3" aria-labelledby="boards-heading">
-      <div class="flex items-center justify-between gap-3">
-        <div class="min-w-0">
-          <h2 id="boards-heading" class="text-xl font-semibold tracking-tight">看板</h2>
-          <p class="mt-0.5 text-sm text-muted">我的最愛優先 · 點 ★ 加入最愛</p>
-        </div>
-        <button type="button" id="btn-refresh-boards" class="rounded-lg border border-line bg-white px-3 py-1.5 text-sm font-medium hover:border-accent/40">重整</button>
+    <!-- Hot boards tab -->
+    <section id="view-boards" class="hidden space-y-2" aria-labelledby="boards-heading">
+      <div class="flex items-center justify-between gap-2">
+        <h2 id="boards-heading" class="text-base font-semibold tracking-tight">熱門看板</h2>
+        <button type="button" id="btn-refresh-boards" class="rounded-md border border-line bg-white px-2 py-1 text-xs font-medium">重整</button>
       </div>
+      <div id="boards-skeleton" class="hidden overflow-hidden rounded-xl border border-line bg-white" aria-hidden="true">
+        <div class="skeleton h-12 border-b border-line"></div>
+        <div class="skeleton h-12 border-b border-line"></div>
+        <div class="skeleton h-12 border-b border-line"></div>
+        <div class="skeleton h-12"></div>
+      </div>
+      <div id="boards-home" class="overflow-hidden rounded-xl border border-line bg-white"></div>
+      <p id="boards-status" class="text-xs text-muted" role="status" aria-live="polite"></p>
+    </section>
 
-      <div id="boards-skeleton" class="hidden overflow-hidden rounded-2xl border border-line bg-white" aria-hidden="true">
-        <div class="skeleton h-14 border-b border-line"></div>
+    <!-- Favorites tab -->
+    <section id="view-favorites" class="hidden space-y-2" aria-labelledby="favorites-heading">
+      <div class="flex items-center justify-between gap-2">
+        <h2 id="favorites-heading" class="text-base font-semibold tracking-tight">我的最愛</h2>
+        <button type="button" id="btn-refresh-favorites" class="rounded-md border border-line bg-white px-2 py-1 text-xs font-medium">重整</button>
+      </div>
+      <div id="favorites-list" class="overflow-hidden rounded-xl border border-line bg-white"></div>
+      <p id="favorites-status" class="text-xs text-muted" role="status" aria-live="polite"></p>
+    </section>
+
+    <!-- Mailbox tab (placeholder) -->
+    <section id="view-mail" class="hidden space-y-2" aria-labelledby="mail-heading">
+      <h2 id="mail-heading" class="text-base font-semibold tracking-tight">信箱</h2>
+      <div class="rounded-xl border border-dashed border-line bg-white px-3 py-6 text-sm text-muted">
+        信箱介面預留中。之後會透過 Worker 轉發 PTT 站內信／水球通知。
+      </div>
+    </section>
+
+    <!-- More tab -->
+    <section id="view-more" class="hidden space-y-2" aria-labelledby="more-heading">
+      <h2 id="more-heading" class="text-base font-semibold tracking-tight">更多</h2>
+      <div class="overflow-hidden rounded-xl border border-line bg-white">
+        <button type="button" id="btn-more-settings" class="ptt-row w-full text-left font-medium">設定 / 登入</button>
+        <button type="button" id="btn-more-logout" class="ptt-row w-full text-left font-medium">登出</button>
+      </div>
+      <p class="px-1 text-xs text-muted">Speed PTT v0.5.0 · 右滑返回 · 搜尋推文數/標題/作者</p>
+    </section>
+
+    <!-- Board article list -->
+    <section id="view-thread" class="hidden space-y-2" aria-labelledby="thread-heading">
+      <div class="flex items-center gap-1.5">
+        <button type="button" id="btn-back-hot" class="shrink-0 rounded-md border border-line bg-white px-2 py-1 text-xs font-medium">← 返回</button>
+        <div class="min-w-0 flex-1">
+          <h2 id="thread-heading" class="truncate text-base font-semibold tracking-tight">看板</h2>
+          <p id="thread-sub" class="truncate text-xs text-muted"></p>
+        </div>
+        <button type="button" id="btn-fav-thread" class="fav-btn" aria-label="加入我的最愛" title="我的最愛">☆</button>
+        <button type="button" id="btn-refresh-thread" class="shrink-0 rounded-md border border-line bg-white px-2 py-1 text-xs font-medium">重整</button>
+      </div>
+      <input id="thread-search" class="search-input" type="search" enterkeyhint="search" placeholder="搜尋推文數、標題、作者（如 >=10）" autocomplete="off">
+      <div id="articles-skeleton" class="hidden overflow-hidden rounded-xl border border-line bg-white" aria-hidden="true">
         <div class="skeleton h-14 border-b border-line"></div>
         <div class="skeleton h-14 border-b border-line"></div>
         <div class="skeleton h-14 border-b border-line"></div>
         <div class="skeleton h-14"></div>
       </div>
-      <div id="boards-home" class="space-y-3"></div>
-      <p id="boards-status" class="text-sm text-muted" role="status" aria-live="polite"></p>
-    </section>
-
-    <!-- Board article list (PTT board index) -->
-    <section id="view-thread" class="hidden space-y-3" aria-labelledby="thread-heading">
-      <div class="flex items-center gap-2">
-        <button type="button" id="btn-back-hot" class="shrink-0 rounded-lg border border-line bg-white px-3 py-1.5 text-sm font-medium hover:border-accent/40">← 看板</button>
-        <div class="min-w-0 flex-1">
-          <h2 id="thread-heading" class="truncate text-lg font-semibold tracking-tight">看板</h2>
-          <p id="thread-sub" class="truncate text-sm text-muted"></p>
-        </div>
-        <button type="button" id="btn-fav-thread" class="fav-btn" aria-label="加入我的最愛" title="我的最愛">☆</button>
-        <button type="button" id="btn-refresh-thread" class="shrink-0 rounded-lg border border-line bg-white px-3 py-1.5 text-sm font-medium hover:border-accent/40">重整</button>
-      </div>
-
-      <div id="articles-skeleton" class="hidden overflow-hidden rounded-2xl border border-line bg-white" aria-hidden="true">
-        <div class="skeleton h-16 border-b border-line"></div>
-        <div class="skeleton h-16 border-b border-line"></div>
-        <div class="skeleton h-16 border-b border-line"></div>
-        <div class="skeleton h-16 border-b border-line"></div>
-        <div class="skeleton h-16"></div>
-      </div>
-      <div id="articles-list" class="overflow-hidden rounded-2xl border border-line bg-white"></div>
-      <p id="thread-status" class="text-sm text-muted" role="status" aria-live="polite"></p>
+      <div id="articles-list" class="overflow-hidden rounded-xl border border-line bg-white"></div>
+      <p id="thread-status" class="text-xs text-muted" role="status" aria-live="polite"></p>
     </section>
 
     <!-- Article reader -->
-    <section id="view-article" class="hidden space-y-4" aria-labelledby="article-heading">
-      <div class="flex items-center gap-2">
-        <button type="button" id="btn-back-thread" class="shrink-0 rounded-lg border border-line bg-white px-3 py-1.5 text-sm font-medium hover:border-accent/40">← 列表</button>
-        <p id="article-crumb" class="truncate text-sm text-muted"></p>
+    <section id="view-article" class="hidden space-y-2" aria-labelledby="article-heading">
+      <div class="flex items-center gap-1.5">
+        <button type="button" id="btn-back-thread" class="shrink-0 rounded-md border border-line bg-white px-2 py-1 text-xs font-medium">← 列表</button>
+        <p id="article-crumb" class="truncate text-xs text-muted"></p>
       </div>
 
-      <div id="article-skeleton" class="hidden space-y-3 rounded-2xl border border-line bg-white p-5 shadow-card" aria-hidden="true">
-        <div class="skeleton h-6 w-3/4 rounded"></div>
-        <div class="skeleton h-4 w-1/2 rounded"></div>
-        <div class="skeleton mt-4 h-3 w-full rounded"></div>
+      <div id="article-skeleton" class="hidden space-y-2 rounded-xl border border-line bg-white p-3" aria-hidden="true">
+        <div class="skeleton h-5 w-3/4 rounded"></div>
+        <div class="skeleton h-3 w-1/2 rounded"></div>
+        <div class="skeleton mt-2 h-3 w-full rounded"></div>
         <div class="skeleton h-3 w-full rounded"></div>
         <div class="skeleton h-3 w-5/6 rounded"></div>
-        <div class="skeleton h-3 w-full rounded"></div>
-        <div class="skeleton h-3 w-2/3 rounded"></div>
       </div>
 
-      <article id="article-card" class="hidden rounded-2xl border border-line bg-white p-5 shadow-card sm:p-6">
-        <header class="border-b border-line pb-4">
-          <p id="article-board" class="text-xs font-semibold uppercase tracking-[0.14em] text-accent"></p>
-          <h2 id="article-heading" class="mt-1 text-xl font-semibold tracking-tight sm:text-2xl"></h2>
-          <p id="article-meta" class="mt-2 text-sm text-muted"></p>
+      <article id="article-card" class="hidden rounded-xl border border-line bg-white p-2.5">
+        <header class="border-b border-line pb-2">
+          <p id="article-board" class="text-[0.65rem] font-semibold uppercase tracking-[0.12em] text-accent"></p>
+          <h2 id="article-heading" class="mt-0.5 text-lg font-semibold tracking-tight"></h2>
+          <p id="article-meta" class="mt-1 text-xs text-muted"></p>
         </header>
-        <div id="article-content" class="article-body mt-4"></div>
+        <div id="article-content" class="article-body mt-2"></div>
       </article>
 
-      <p id="article-status" class="text-sm text-muted" role="status" aria-live="polite"></p>
+      <p id="article-status" class="text-xs text-muted" role="status" aria-live="polite"></p>
     </section>
   </main>
 
-  <footer class="mx-auto max-w-3xl px-4 pb-8 text-center text-xs text-muted sm:px-6">
-    Cipher Printie · Speed PTT · 右滑返回 · 左滑下一篇 · ANSI 色碼
-    <span class="ml-1 inline-block rounded-full border border-line bg-white px-2 py-0.5 font-mono text-[0.65rem] font-bold tracking-wide text-accent-dark">Speed PTT v0.4.0</span>
-  </footer>
+  <nav id="bottom-nav" class="bottom-nav" hidden aria-label="Speed PTT">
+    <button type="button" data-tab="hot" class="is-active"><span class="tab-ico" aria-hidden="true">🔥</span>熱門看板</button>
+    <button type="button" data-tab="favorites"><span class="tab-ico" aria-hidden="true">★</span>我的最愛</button>
+    <button type="button" data-tab="mail"><span class="tab-ico" aria-hidden="true">✉</span>信箱</button>
+    <button type="button" data-tab="more"><span class="tab-ico" aria-hidden="true">⋯</span>更多</button>
+  </nav>
 
   <div id="gesture-hint" class="gesture-hint" aria-live="polite"></div>
 
@@ -489,6 +581,9 @@
     const views = {
       settings: document.getElementById("view-settings"),
       boards: document.getElementById("view-boards"),
+      favorites: document.getElementById("view-favorites"),
+      mail: document.getElementById("view-mail"),
+      more: document.getElementById("view-more"),
       thread: document.getElementById("view-thread"),
       article: document.getElementById("view-article"),
     };
@@ -507,9 +602,12 @@
       boardsList: document.getElementById("boards-home"),
       boardsSkeleton: document.getElementById("boards-skeleton"),
       boardsStatus: document.getElementById("boards-status"),
+      favoritesList: document.getElementById("favorites-list"),
+      favoritesStatus: document.getElementById("favorites-status"),
       threadHeading: document.getElementById("thread-heading"),
       threadSub: document.getElementById("thread-sub"),
       threadStatus: document.getElementById("thread-status"),
+      threadSearch: document.getElementById("thread-search"),
       favThreadBtn: document.getElementById("btn-fav-thread"),
       articlesList: document.getElementById("articles-list"),
       articlesSkeleton: document.getElementById("articles-skeleton"),
@@ -522,14 +620,18 @@
       articleCrumb: document.getElementById("article-crumb"),
       articleStatus: document.getElementById("article-status"),
       gestureHint: document.getElementById("gesture-hint"),
+      bottomNav: document.getElementById("bottom-nav"),
     };
 
     const state = {
       view: "settings",
+      tab: "hot",
       activeBoard: null,
       activeBoardTitle: "",
       activeArticleId: null,
       articleCache: [],
+      hotCache: [],
+      searchQuery: "",
     };
 
     let gestureHintTimer = 0;
@@ -546,6 +648,16 @@
         ? "rounded-md border border-line bg-accent-soft px-2 py-1 text-[0.7rem] font-semibold text-accent-dark"
         : "rounded-md border border-accent/30 bg-white px-2 py-1 text-[0.7rem] font-semibold text-accent";
       document.getElementById("btn-logout").classList.toggle("hidden", !ptt.isLoggedIn());
+      syncBottomNav();
+    }
+
+    function syncBottomNav() {
+      const showNav = ptt.isLoggedIn() && state.view !== "article";
+      els.bottomNav.hidden = !showNav;
+      document.body.classList.toggle("is-reading", state.view === "article");
+      els.bottomNav.querySelectorAll("[data-tab]").forEach((btn) => {
+        btn.classList.toggle("is-active", btn.getAttribute("data-tab") === state.tab);
+      });
     }
 
     function showView(name) {
@@ -553,7 +665,29 @@
       Object.entries(views).forEach(([key, node]) => {
         node.classList.toggle("hidden", key !== name);
       });
+      syncBottomNav();
       window.scrollTo(0, 0);
+    }
+
+    function openTab(tab) {
+      state.tab = tab;
+      if (tab === "hot") {
+        showView("boards");
+        loadHotBoards();
+        return;
+      }
+      if (tab === "favorites") {
+        showView("favorites");
+        loadFavorites();
+        return;
+      }
+      if (tab === "mail") {
+        showView("mail");
+        return;
+      }
+      if (tab === "more") {
+        showView("more");
+      }
     }
 
     function showGestureHint(message) {
@@ -573,23 +707,30 @@
     function goBack() {
       if (state.view === "article") {
         if (state.activeBoard) showView("thread");
-        else showView("boards");
+        else openTab(state.tab || "hot");
         return true;
       }
       if (state.view === "thread") {
         state.activeBoard = null;
         state.articleCache = [];
-        showView("boards");
+        state.searchQuery = "";
+        if (els.threadSearch) els.threadSearch.value = "";
+        openTab(state.tab || "hot");
         return true;
       }
       return false;
     }
 
+    function visibleArticleCache() {
+      return state.articleCache.filter((article) => articleMatchesQuery(article, state.searchQuery));
+    }
+
     function openAdjacentArticle(delta) {
-      if (state.view !== "article" || !state.articleCache.length) return false;
-      const index = currentArticleIndex();
+      const list = visibleArticleCache();
+      if (state.view !== "article" || !list.length) return false;
+      const index = list.findIndex((item) => item.id === state.activeArticleId);
       if (index < 0) return false;
-      const next = state.articleCache[index + delta];
+      const next = list[index + delta];
       if (!next) {
         showGestureHint(delta > 0 ? "已經是列表最後一篇" : "已經是列表第一篇");
         return false;
@@ -750,76 +891,104 @@
 
     async function afterLogin() {
       updateModeBadge();
-      showView("boards");
-      await loadHomeBoards();
+      openTab("hot");
     }
 
-    async function loadHomeBoards() {
+    async function loadHotBoards() {
       els.boardsStatus.textContent = "";
       els.boardsList.innerHTML = "";
       els.boardsSkeleton.classList.remove("hidden");
       try {
         const { boards } = await ptt.getHotBoards();
+        state.hotCache = boards;
         els.boardsSkeleton.classList.add("hidden");
-        const favorites = ptt.getFavoriteBoards();
-        const hotNames = new Set(boards.map((board) => board.name));
-        const favoriteRows = favorites.map((fav) => {
-          const hot = boards.find((board) => board.name === fav.name);
-          return {
-            name: fav.name,
-            title: hot?.title || fav.title || fav.name,
-            nuser: hot?.nuser,
-            hot: true,
-          };
-        });
-        const hotOnly = boards.filter((board) => !favorites.some((fav) => fav.name === board.name));
-
-        if (!favoriteRows.length && !hotOnly.length) {
-          els.boardsStatus.textContent = "目前沒有看板。";
+        if (!boards.length) {
+          els.boardsStatus.textContent = "目前沒有熱門看板。";
           return;
         }
-
-        const chunks = [];
-        if (favoriteRows.length) {
-          chunks.push(`
-            <div class="overflow-hidden rounded-2xl border border-line bg-white">
-              <div class="board-section-title">我的最愛</div>
-              ${favoriteRows.map((board) => boardRowMarkup(board, { showUsers: board.nuser != null })).join("")}
-            </div>`);
-        } else {
-          chunks.push(`
-            <div class="rounded-2xl border border-dashed border-line bg-white/70 px-4 py-3 text-sm text-muted">
-              尚未加入最愛。在熱門看板點 ★，登入後會優先顯示在這裡。
-            </div>`);
-        }
-
-        if (hotOnly.length) {
-          chunks.push(`
-            <div class="overflow-hidden rounded-2xl border border-line bg-white">
-              <div class="board-section-title">熱門看板</div>
-              ${hotOnly.map((board) => boardRowMarkup(board)).join("")}
-            </div>`);
-        } else if (!favoriteRows.length) {
-          /* already empty */
-        } else if (!hotNames.size) {
-          els.boardsStatus.textContent = "熱門看板暫時無法載入。";
-        }
-
-        els.boardsList.innerHTML = chunks.join("");
+        els.boardsList.innerHTML = boards.map((board) => boardRowMarkup(board)).join("");
       } catch (error) {
         els.boardsSkeleton.classList.add("hidden");
-        const favorites = ptt.getFavoriteBoards();
-        if (favorites.length) {
-          els.boardsList.innerHTML = `
-            <div class="overflow-hidden rounded-2xl border border-line bg-white">
-              <div class="board-section-title">我的最愛</div>
-              ${favorites.map((board) => boardRowMarkup(board, { showUsers: false })).join("")}
-            </div>`;
-          els.boardsStatus.textContent = `熱門看板載入失敗：${errMessage(error)}`;
-        } else {
-          els.boardsStatus.textContent = errMessage(error);
-        }
+        els.boardsStatus.textContent = errMessage(error);
       }
+    }
+
+    function loadFavorites() {
+      const favorites = ptt.getFavoriteBoards().map((fav) => {
+        const hot = state.hotCache.find((board) => board.name === fav.name);
+        return {
+          name: fav.name,
+          title: hot?.title || fav.title || fav.name,
+          nuser: hot?.nuser,
+        };
+      });
+      if (!favorites.length) {
+        els.favoritesList.innerHTML = "";
+        els.favoritesStatus.textContent = "尚未加入最愛。到熱門看板點 ★ 即可加入。";
+        return;
+      }
+      els.favoritesStatus.textContent = "";
+      els.favoritesList.innerHTML = favorites
+        .map((board) => boardRowMarkup(board, { showUsers: board.nuser != null }))
+        .join("");
+    }
+
+    function articleMatchesQuery(article, query) {
+      const q = String(query || "").trim().toLowerCase();
+      if (!q) return true;
+      const title = String(article.title || "").toLowerCase();
+      const author = String(article.author || "").toLowerCase();
+      const pushText = nrecLabel(article.push).toLowerCase();
+      const push = Number(article.push) || 0;
+
+      const cmp = q.match(/^(>=|>|<=|<|=)\s*(\d+)$/);
+      if (cmp) {
+        const op = cmp[1];
+        const n = Number(cmp[2]);
+        if (op === ">=") return push >= n;
+        if (op === ">") return push > n;
+        if (op === "<=") return push <= n;
+        if (op === "<") return push < n;
+        return push === n;
+      }
+      if (q === "爆") return push >= 100;
+      if (/^x\d+$/i.test(q)) return push === -Number(q.slice(1));
+      if (/^\d+$/.test(q)) return push === Number(q) || pushText.includes(q) || title.includes(q) || author.includes(q);
+      return title.includes(q) || author.includes(q) || pushText.includes(q);
+    }
+
+    function renderArticlesList(articles, boardName) {
+      const filtered = articles.filter((article) => articleMatchesQuery(article, state.searchQuery));
+      if (!articles.length) {
+        els.articlesList.innerHTML = `<p class="px-3 py-5 text-sm text-muted">此看板暫無文章。</p>`;
+        els.threadStatus.textContent = "";
+        return;
+      }
+      if (!filtered.length) {
+        els.articlesList.innerHTML = `<p class="px-3 py-5 text-sm text-muted">沒有符合「${escapeHtml(state.searchQuery)}」的文章。</p>`;
+        els.threadStatus.textContent = `0 / ${articles.length}`;
+        return;
+      }
+      els.threadStatus.textContent = state.searchQuery
+        ? `${filtered.length} / ${articles.length}`
+        : `${articles.length} 篇`;
+      els.articlesList.innerHTML = filtered
+        .map(
+          (article) => `
+          <button type="button" class="ptt-row"
+            data-article-board="${escapeAttr(article.board || boardName)}"
+            data-article-id="${escapeAttr(article.id)}">
+            <span class="${nrecClass(article.push)}">${nrecLabel(article.push)}</span>
+            <span class="min-w-0 flex-1">
+              <span class="block text-[0.92rem] font-medium leading-snug text-ink">${escapeHtml(article.title)}</span>
+              <span class="mt-1 flex justify-between gap-3 text-xs text-muted">
+                <span class="truncate">${escapeHtml(article.author)}</span>
+                <span class="shrink-0">${escapeHtml(article.date || "")}</span>
+              </span>
+            </span>
+          </button>`
+        )
+        .join("");
     }
 
     async function loadBoardArticles(boardName, boardTitle = "", options = {}) {
@@ -832,7 +1001,8 @@
       els.threadStatus.textContent = "";
       syncThreadFavoriteButton();
 
-      if (!force && state.articleCache.length && els.articlesList.childElementCount) {
+      if (!force && state.articleCache.length) {
+        renderArticlesList(state.articleCache, boardName);
         return;
       }
 
@@ -842,27 +1012,7 @@
         const { articles } = await ptt.getBoardArticles(boardName);
         els.articlesSkeleton.classList.add("hidden");
         state.articleCache = articles;
-        if (!articles.length) {
-          els.articlesList.innerHTML = `<p class="px-4 py-6 text-sm text-muted">此看板暫無文章。</p>`;
-          return;
-        }
-        els.articlesList.innerHTML = articles
-          .map(
-            (article) => `
-            <button type="button" class="ptt-row"
-              data-article-board="${escapeAttr(article.board || boardName)}"
-              data-article-id="${escapeAttr(article.id)}">
-              <span class="${nrecClass(article.push)}">${nrecLabel(article.push)}</span>
-              <span class="min-w-0 flex-1">
-                <span class="block text-[0.95rem] font-medium leading-snug text-ink">${escapeHtml(article.title)}</span>
-                <span class="mt-1 flex justify-between gap-3 text-xs text-muted">
-                  <span class="truncate">${escapeHtml(article.author)}</span>
-                  <span class="shrink-0">${escapeHtml(article.date || "")}</span>
-                </span>
-              </span>
-            </button>`
-          )
-          .join("");
+        renderArticlesList(articles, boardName);
       } catch (error) {
         els.articlesSkeleton.classList.add("hidden");
         els.threadStatus.textContent = errMessage(error);
@@ -931,7 +1081,11 @@
       showView("settings");
     });
 
-    document.getElementById("btn-refresh-boards").addEventListener("click", () => loadHomeBoards());
+    document.getElementById("btn-refresh-boards").addEventListener("click", () => loadHotBoards());
+    document.getElementById("btn-refresh-favorites").addEventListener("click", () => {
+      if (!state.hotCache.length) loadHotBoards().then(() => loadFavorites());
+      else loadFavorites();
+    });
     document.getElementById("btn-refresh-thread").addEventListener("click", () => {
       if (state.activeBoard) loadBoardArticles(state.activeBoard, state.activeBoardTitle, { force: true });
     });
@@ -946,6 +1100,32 @@
       ptt.toggleFavorite({ name: state.activeBoard, title: state.activeBoardTitle || state.activeBoard });
       syncThreadFavoriteButton();
       showGestureHint(ptt.isFavorite(state.activeBoard) ? "已加入最愛" : "已取消最愛");
+      if (state.tab === "favorites") loadFavorites();
+    });
+
+    els.threadSearch.addEventListener("input", () => {
+      state.searchQuery = els.threadSearch.value;
+      if (state.activeBoard) renderArticlesList(state.articleCache, state.activeBoard);
+    });
+
+    els.bottomNav.addEventListener("click", (event) => {
+      const btn = event.target.closest("[data-tab]");
+      if (!btn) return;
+      openTab(btn.getAttribute("data-tab"));
+    });
+
+    document.getElementById("btn-more-settings").addEventListener("click", () => {
+      refreshVaultPanel();
+      updateModeBadge();
+      showView("settings");
+    });
+    document.getElementById("btn-more-logout").addEventListener("click", () => {
+      ptt.logout();
+      updateModeBadge();
+      refreshVaultPanel();
+      applyRememberedUsername();
+      els.settingsStatus.textContent = "已登出。";
+      showView("settings");
     });
 
     (function initGestures() {
@@ -962,14 +1142,14 @@
       function ignoreTarget(target) {
         return Boolean(
           target?.closest?.(
-            "input, textarea, select, button, a, label, .site-nav, #login-form"
+            "input, textarea, select, button, a, label, .site-nav, #login-form, #bottom-nav"
           )
         );
       }
 
       function onStart(event) {
         if (event.touches?.length !== 1) return;
-        if (state.view === "settings" || state.view === "boards") return;
+        if (state.view !== "thread" && state.view !== "article") return;
         const touch = event.touches[0];
         if (ignoreTarget(event.target)) return;
         swipe.active = true;
@@ -1033,7 +1213,7 @@
       });
     })();
 
-    els.boardsList.addEventListener("click", (event) => {
+    function onBoardListClick(event) {
       const favBtn = event.target.closest("[data-fav-board]");
       if (favBtn) {
         event.preventDefault();
@@ -1041,14 +1221,20 @@
         const title = favBtn.getAttribute("data-fav-title") || name;
         const on = ptt.toggleFavorite({ name, title });
         showGestureHint(on ? "已加入最愛" : "已取消最愛");
-        loadHomeBoards();
+        if (state.view === "favorites") loadFavorites();
+        else loadHotBoards();
         return;
       }
       const btn = event.target.closest("[data-board]");
       if (!btn) return;
       state.articleCache = [];
+      state.searchQuery = "";
+      if (els.threadSearch) els.threadSearch.value = "";
       loadBoardArticles(btn.getAttribute("data-board"), btn.getAttribute("data-board-title") || "");
-    });
+    }
+
+    els.boardsList.addEventListener("click", onBoardListClick);
+    els.favoritesList.addEventListener("click", onBoardListClick);
 
     els.articlesList.addEventListener("click", (event) => {
       const btn = event.target.closest("[data-article-id]");
@@ -1128,8 +1314,7 @@
     updateModeBadge();
     refreshVaultPanel();
     if (ptt.isLoggedIn()) {
-      showView("boards");
-      loadHomeBoards();
+      openTab("hot");
     } else {
       showView("settings");
     }
