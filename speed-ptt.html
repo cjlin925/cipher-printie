@@ -178,16 +178,16 @@
       font-family: ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
       font-size: 0.92rem;
       line-height: 1.65;
+      padding: 1rem 1.1rem;
+      border-radius: 0.85rem;
+      background: #111;
+      color: #c8c8c8;
     }
 
-    .view-enter {
-      animation: rise 220ms ease-out;
-    }
-
-    @keyframes rise {
-      from { opacity: 0; transform: translateY(8px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
+    .push-tag { font-weight: 700; }
+    .push-push .push-tag { color: #fff; }
+    .push-arrow .push-tag,
+    .push-boo .push-tag { color: #ff3b30; }
 
     .safe-bottom {
       padding-bottom: max(1rem, env(safe-area-inset-bottom));
@@ -222,6 +222,7 @@
       </div>
       <div class="flex shrink-0 items-center gap-2">
         <span id="mode-badge" class="rounded-md border border-line bg-accent-soft px-2 py-1 text-[0.7rem] font-semibold text-accent-dark">Demo</span>
+        <button type="button" id="btn-logout" class="hidden rounded-lg border border-line bg-white px-3 py-1.5 text-sm font-medium text-ink hover:border-accent/40">登出</button>
         <button type="button" id="btn-nav-settings" class="rounded-lg border border-line bg-white px-3 py-1.5 text-sm font-medium text-ink hover:border-accent/40">設定</button>
       </div>
     </div>
@@ -229,7 +230,7 @@
 
   <main class="mx-auto max-w-3xl px-4 py-5 sm:px-6 safe-bottom">
     <!-- Settings / Login -->
-    <section id="view-settings" class="view-enter hidden space-y-4" aria-labelledby="settings-heading">
+    <section id="view-settings" class="hidden space-y-4" aria-labelledby="settings-heading">
       <div class="rounded-2xl border border-line bg-white p-5 shadow-card sm:p-6">
         <h2 id="settings-heading" class="text-xl font-semibold tracking-tight">設定 / 登入</h2>
         <p class="mt-2 text-sm leading-relaxed text-muted">
@@ -240,9 +241,13 @@
         <form id="login-form" class="mt-5 space-y-4" autocomplete="off">
           <div>
             <label for="ptt-username" class="mb-1.5 block text-sm font-medium">PTT 帳號</label>
-            <input id="ptt-username" name="username" type="text" required spellcheck="false"
+            <input id="ptt-username" name="username" type="text" required spellcheck="false" autocomplete="username"
               class="w-full rounded-xl border border-line bg-paper px-3.5 py-2.5 text-sm outline-none ring-accent/30 focus:ring-2"
               placeholder="username">
+            <label class="mt-2 flex cursor-pointer items-center gap-2 text-sm text-muted">
+              <input id="remember-user" type="checkbox" class="h-4 w-4 rounded border-line text-accent">
+              記住帳號
+            </label>
           </div>
           <div>
             <label for="ptt-password" class="mb-1.5 block text-sm font-medium">PTT 密碼</label>
@@ -288,7 +293,7 @@
     </section>
 
     <!-- Hot boards + articles -->
-    <section id="view-boards" class="view-enter hidden space-y-4" aria-labelledby="boards-heading">
+    <section id="view-boards" class="hidden space-y-4" aria-labelledby="boards-heading">
       <div class="flex items-end justify-between gap-3">
         <div>
           <h2 id="boards-heading" class="text-xl font-semibold tracking-tight">熱門看板</h2>
@@ -322,7 +327,7 @@
     </section>
 
     <!-- Article reader -->
-    <section id="view-article" class="view-enter hidden space-y-4" aria-labelledby="article-heading">
+    <section id="view-article" class="hidden space-y-4" aria-labelledby="article-heading">
       <div class="flex items-center gap-2">
         <button type="button" id="btn-back-boards" class="rounded-lg border border-line bg-white px-3 py-1.5 text-sm font-medium hover:border-accent/40">← 返回</button>
         <p id="article-crumb" class="truncate text-sm text-muted"></p>
@@ -344,7 +349,7 @@
           <h2 id="article-heading" class="mt-1 text-xl font-semibold tracking-tight sm:text-2xl"></h2>
           <p id="article-meta" class="mt-2 text-sm text-muted"></p>
         </header>
-        <div id="article-content" class="article-body mt-4 text-ink"></div>
+        <div id="article-content" class="article-body mt-4"></div>
       </article>
 
       <p id="article-status" class="text-sm text-muted" role="status" aria-live="polite"></p>
@@ -353,7 +358,7 @@
 
   <footer class="mx-auto max-w-3xl px-4 pb-8 text-center text-xs text-muted sm:px-6">
     Cipher Printie · Speed PTT 實驗模組 · 帳密不上雲端資料庫
-    <span class="ml-1 inline-block rounded-full border border-line bg-white px-2 py-0.5 font-mono text-[0.65rem] font-bold tracking-wide text-accent-dark">Speed PTT v0.2.1</span>
+    <span class="ml-1 inline-block rounded-full border border-line bg-white px-2 py-0.5 font-mono text-[0.65rem] font-bold tracking-wide text-accent-dark">Speed PTT v0.2.2</span>
   </footer>
 
   <script type="module">
@@ -392,6 +397,7 @@
       modeBadge: document.getElementById("mode-badge"),
       loginForm: document.getElementById("login-form"),
       username: document.getElementById("ptt-username"),
+      rememberUser: document.getElementById("remember-user"),
       password: document.getElementById("ptt-password"),
       unlock: document.getElementById("unlock-secret"),
       workerUrl: document.getElementById("worker-url"),
@@ -432,19 +438,40 @@
       els.modeBadge.className = demo
         ? "rounded-md border border-line bg-accent-soft px-2 py-1 text-[0.7rem] font-semibold text-accent-dark"
         : "rounded-md border border-accent/30 bg-white px-2 py-1 text-[0.7rem] font-semibold text-accent";
+      document.getElementById("btn-logout").classList.toggle("hidden", !ptt.isLoggedIn());
     }
 
     function showView(name) {
       state.view = name;
       Object.entries(views).forEach(([key, node]) => {
         node.classList.toggle("hidden", key !== name);
-        if (key === name) {
-          node.classList.remove("view-enter");
-          void node.offsetWidth;
-          node.classList.add("view-enter");
-        }
       });
-      window.scrollTo({ top: 0, behavior: "smooth" });
+      window.scrollTo(0, 0);
+    }
+
+    function applyRememberedUsername() {
+      const saved = ptt.getRememberedUsername();
+      if (saved) {
+        els.username.value = saved;
+        els.rememberUser.checked = true;
+      }
+    }
+
+    function persistRememberedUsername(username) {
+      if (els.rememberUser.checked) ptt.setRememberedUsername(username);
+      else ptt.setRememberedUsername("");
+    }
+
+    function renderArticleContent(raw) {
+      return String(raw || "")
+        .split("\n")
+        .map((line) => {
+          const match = line.match(/^(推|噓|→)\s(.*)$/);
+          if (!match) return escapeHtml(line);
+          const kind = match[1] === "推" ? "push" : match[1] === "噓" ? "boo" : "arrow";
+          return `<span class="push-line push-${kind}"><span class="push-tag">${escapeHtml(match[1])}</span>${escapeHtml(` ${match[2]}`)}</span>`;
+        })
+        .join("\n");
     }
 
     function refreshVaultPanel() {
@@ -526,7 +553,6 @@
             </button>`
           )
           .join("");
-        els.articlesPanel.scrollIntoView({ behavior: "smooth", block: "start" });
       } catch (error) {
         els.articlesSkeleton.classList.add("hidden");
         els.boardsStatus.textContent = errMessage(error);
@@ -554,7 +580,7 @@
         ]
           .filter(Boolean)
           .join(" · ");
-        els.articleContent.textContent = article.content || "";
+        els.articleContent.innerHTML = renderArticleContent(article.content);
         els.articleStatus.textContent = "";
       } catch (error) {
         els.articleSkeleton.classList.add("hidden");
@@ -575,6 +601,20 @@
     }
 
     // Events
+    document.getElementById("btn-logout").addEventListener("click", () => {
+      ptt.logout();
+      updateModeBadge();
+      refreshVaultPanel();
+      applyRememberedUsername();
+      els.settingsStatus.textContent = "已登出。";
+      showView("settings");
+    });
+
+    els.rememberUser.addEventListener("change", () => {
+      if (els.rememberUser.checked) persistRememberedUsername(els.username.value.trim());
+      else ptt.setRememberedUsername("");
+    });
+
     document.getElementById("btn-nav-settings").addEventListener("click", () => {
       refreshVaultPanel();
       updateModeBadge();
@@ -620,6 +660,7 @@
         }
 
         await ptt.saveEncryptedCredentials({ username, password }, unlock);
+        persistRememberedUsername(username);
         const result = await ptt.login({ username, password });
         els.password.value = "";
         refreshVaultPanel();
@@ -640,6 +681,7 @@
       try {
         const credentials = await ptt.loadEncryptedCredentials(unlock);
         els.username.value = credentials.username;
+        persistRememberedUsername(credentials.username);
         const worker = els.workerUrl.value.trim();
         if (worker) {
           ptt.setWorkerUrl(worker);
@@ -668,6 +710,7 @@
 
     // Boot
     els.workerUrl.value = ptt.workerUrl || "";
+    applyRememberedUsername();
     updateModeBadge();
     refreshVaultPanel();
     if (ptt.isLoggedIn()) {

@@ -20,6 +20,7 @@ const STORAGE_KEYS = Object.freeze({
   session: "cipher-ptt-speed.session.v1",
   workerUrl: "cipher-ptt-speed.worker-url.v1",
   demoMode: "cipher-ptt-speed.demo.v1",
+  rememberUser: "cipher-ptt-speed.remember-user.v1",
 });
 
 const DEFAULT_WORKER_URL = "";
@@ -349,6 +350,28 @@ export class PttService {
 
   logout() {
     this.#writeSession(null);
+  }
+
+  getRememberedUsername() {
+    try {
+      return localStorage.getItem(STORAGE_KEYS.rememberUser) || "";
+    } catch {
+      return "";
+    }
+  }
+
+  /**
+   * Stores the PTT id only (never the password). Pass empty to forget.
+   * @param {string} username
+   */
+  setRememberedUsername(username) {
+    const value = String(username || "").trim();
+    try {
+      if (value) localStorage.setItem(STORAGE_KEYS.rememberUser, value);
+      else localStorage.removeItem(STORAGE_KEYS.rememberUser);
+    } catch {
+      /* ignore quota / private mode */
+    }
   }
 
   /**
