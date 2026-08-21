@@ -4,6 +4,7 @@
  * Contract (see ../../pttService.js):
  *   GET  /crypto             → { alg, publicKey } RSA-OAEP-256 JWK
  *   POST /login              → { username, passwordEnc } encrypted password only
+ *   POST /favorites          → same blob; scrape (F)avorite list (session required)
 
  *   GET  /hot-boards         → www.ptt.cc/bbs/hotboards.html
  *   GET  /boards/:name       → www.ptt.cc board index
@@ -67,6 +68,10 @@ export default {
         return json(await handleLogin(request, env), 200, cors);
       }
 
+      if (request.method === "POST" && path === "/favorites") {
+        return json(await handleFavorites(request, env), 200, cors);
+      }
+
       if (request.method === "GET" && path === "/hot-boards") {
         await requireSession(request, env);
         const boards = await fetchHotBoards();
@@ -98,9 +103,9 @@ export default {
           {
             ok: true,
             service: "cipher-ptt-worker",
-            version: "0.2.3",
+            version: "0.2.4",
             mode: "ptt",
-            endpoints: ["/crypto", "/login", "/hot-boards", "/boards/:name", "/boards/:name/:id"],
+            endpoints: ["/crypto", "/login", "/favorites", "/hot-boards", "/boards/:name", "/boards/:name/:id"],
           },
           200,
           cors
@@ -162,6 +167,47 @@ async function handleLogin(request, env) {
     user: { username },
     favorites: result.favorites || [],
     message: "已登入 PTT",
+  };
+}
+
+/**
+ * Re-login to PTT just long enough to open (F)avorite and return the list.
+ * Requires an existing Speed PTT session; does not mint a new token.
+ */
+async function handleFavorites(request, env) {
+  await requireSession(request, env);
+
+  let body;
+  try {
+    body = await request.json();
+  } catch {
+    throw httpError("Invalid JSON body", 400);
+  }
+
+  if (body?.password != null && String(body.password).length > 0) {
+    throw httpError("plaintext password is not accepted; send passwordEnc", 400);
+  }
+
+  const username = String(body?.username || "").trim();
+  if (!username || !/^[A-Za-z0-9]{2,20}$/.test(username)) {
+    throw httpError("invalid username", 400);
+  }
+
+  const password = await decryptPasswordEnc(body?.passwordEnc, env);
+  if (!password) {
+    throw httpError("passwordEnc is required", 400);
+  }
+
+  const result = await loginToPtt(username, password, { kick: false });
+  if (!result.ok) {
+    const mapped = LOGIN_ERROR_MAP[result.reason] || LOGIN_ERROR_MAP[LOGIN_REASONS.SOCKET_CLOSED];
+    throw httpError(mapped.message, mapped.status);
+  }
+
+  return {
+    ok: true,
+    favorites: result.favorites || [],
+    message: result.favorites?.length ? `已同步 ${result.favorites.length} 個最愛看板` : "已連線，但未抓到最愛看板",
   };
 }
 

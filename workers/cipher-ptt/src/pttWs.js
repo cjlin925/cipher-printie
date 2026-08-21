@@ -351,13 +351,13 @@ async function scrapeFavorites(bot) {
         await bot.waitFor((sock) => onMainMenu(sock) || onFavoriteList(sock), 2_000);
       }
       if (!onFavoriteList(bot)) {
-        await sleep(250);
-        // Letter shortcut only — Enter would open the highlighted board.
+        console.log("ptt favorites sending F");
         bot.send("F");
-        const opened = await bot.waitFor((sock) => onFavoriteList(sock), 3_500);
+        const opened = await bot.waitFor((sock) => onFavoriteList(sock), 2_500);
         if (!opened) {
-          bot.send("f");
-          await bot.waitFor((sock) => onFavoriteList(sock), 2_000);
+          console.log("ptt favorites sending Enter (F missed, highlight on 我的最愛)");
+          bot.send(KEY_ENTER);
+          await bot.waitFor((sock) => onFavoriteList(sock), 2_500);
         }
       }
     }

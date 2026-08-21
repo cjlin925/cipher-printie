@@ -491,7 +491,7 @@
         <button type="button" id="btn-more-settings" class="ptt-row w-full text-left font-medium">設定 / 登入</button>
         <button type="button" id="btn-more-logout" class="ptt-row w-full text-left font-medium">登出</button>
       </div>
-      <p class="px-1 text-xs text-muted">Speed PTT v0.5.2 · 右滑返回 · 搜尋推文數/標題/作者</p>
+      <p class="px-1 text-xs text-muted">Speed PTT v0.5.3 · 右滑返回 · 搜尋推文數/標題/作者</p>
     </section>
 
     <!-- Board article list -->
@@ -554,7 +554,7 @@
   <div id="gesture-hint" class="gesture-hint" aria-live="polite"></div>
 
   <script type="module">
-    import { APP_VERSION, createPttService, PttServiceError } from "./pttService.js?v=0.5.2";
+    import { APP_VERSION, createPttService, PttServiceError } from "./pttService.js?v=0.5.3";
     console.log(`Speed PTT v${APP_VERSION}`);
 
     (function initMobileNav() {
@@ -673,7 +673,8 @@
       window.scrollTo(0, 0);
     }
 
-    function openTab(tab) {
+    function openTab(tab, options = {}) {
+      const sync = options.sync === true;
       state.tab = tab;
       if (tab === "hot") {
         showView("boards");
@@ -682,7 +683,8 @@
       }
       if (tab === "favorites") {
         showView("favorites");
-        loadFavorites();
+        if (sync) syncFavoritesFromPtt();
+        else loadFavorites();
         return;
       }
       if (tab === "mail") {
@@ -965,6 +967,30 @@
         .join("");
     }
 
+    let favoritesSyncing = false;
+    async function syncFavoritesFromPtt() {
+      loadFavorites();
+      if (favoritesSyncing) return;
+      if (!ptt.isLoggedIn()) {
+        els.favoritesStatus.textContent = "請先登入後再同步我的最愛。";
+        return;
+      }
+      favoritesSyncing = true;
+      els.favoritesStatus.textContent = "正在向 PTT 重抓我的最愛…";
+      try {
+        const list = await ptt.fetchFavorites();
+        loadFavorites();
+        if (!list.length) {
+          els.favoritesStatus.textContent = "已連線，但沒有抓到最愛看板。";
+        }
+      } catch (error) {
+        loadFavorites();
+        els.favoritesStatus.textContent = errMessage(error);
+      } finally {
+        favoritesSyncing = false;
+      }
+    }
+
     function articleMatchesQuery(article, query) {
       const q = String(query || "").trim().toLowerCase();
       if (!q) return true;
@@ -1115,8 +1141,7 @@
 
     document.getElementById("btn-refresh-boards").addEventListener("click", () => loadHotBoards());
     document.getElementById("btn-refresh-favorites").addEventListener("click", () => {
-      if (!state.hotCache.length) loadHotBoards().then(() => loadFavorites());
-      else loadFavorites();
+      syncFavoritesFromPtt();
     });
     document.getElementById("btn-refresh-thread").addEventListener("click", () => {
       if (state.activeBoard) loadBoardArticles(state.activeBoard, state.activeBoardTitle, { force: true });
@@ -1143,7 +1168,7 @@
     els.bottomNav.addEventListener("click", (event) => {
       const btn = event.target.closest("[data-tab]");
       if (!btn) return;
-      openTab(btn.getAttribute("data-tab"));
+      openTab(btn.getAttribute("data-tab"), { sync: btn.getAttribute("data-tab") === "favorites" });
     });
 
     document.getElementById("btn-more-settings").addEventListener("click", () => {

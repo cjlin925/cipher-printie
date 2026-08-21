@@ -6,7 +6,8 @@
  *
  * Worker contract (expected JSON endpoints):
  *   GET  /crypto             → { alg, publicKey } RSA-OAEP-256 JWK
- *   POST /login              { username, passwordEnc } → { ok, sessionToken?, user? }
+ *   POST /login              { username, passwordEnc } → { ok, sessionToken?, user?, favorites? }
+ *   POST /favorites          { username, passwordEnc } → { ok, favorites }
  *   GET  /hot-boards         → { boards: HotBoard[] }
  *   GET  /boards/:name       → { board, articles: ArticleSummary[] }
  *   GET  /boards/:name/:id   → { article: ArticleDetail }
@@ -26,7 +27,7 @@ const STORAGE_KEYS = Object.freeze({
   webauthn: "cipher-ptt-speed.webauthn.v1",
 });
 
-export const APP_VERSION = "0.5.2";
+export const APP_VERSION = "0.5.3";
 
 const DEFAULT_WORKER_URL = "";
 
@@ -257,6 +258,8 @@ const DemoData = {
 };
 
 export class PttService {
+  #livePassword = null;
+
   /**
    * @param {{ workerUrl?: string, demoMode?: boolean }} [options]
    */
@@ -465,6 +468,7 @@ export class PttService {
   }
 
   logout() {
+    this.#livePassword = null;
     this.#writeSession(null);
   }
 
@@ -824,6 +828,7 @@ export class PttService {
         mode: "demo",
         at: Date.now(),
       });
+      this.#livePassword = password;
       this.savePttFavorites(DemoData.boards.slice(0, 4));
       return {
         ok: true,
@@ -851,11 +856,38 @@ export class PttService {
       mode: "worker",
       at: Date.now(),
     });
+    this.#livePassword = password;
     if (Array.isArray(data.favorites) && data.favorites.length) {
       this.savePttFavorites(data.favorites);
     }
 
     return { ok: true, mode: "worker", user: data.user || { username }, ...data };
+  }
+
+  hasLiveCredentials() {
+    return Boolean(this.username && this.#livePassword);
+  }
+
+  /**
+   * Log into PTT again, press F, and replace the local favorite list.
+   * @returns {Promise<Array<{ name: string, title?: string }>>}
+   */
+  async fetchFavorites() {
+    if (this.demoMode || !this.workerUrl) {
+      await this.#delay(180);
+      return this.getFavoriteBoards();
+    }
+    if (!this.username || !this.#livePassword) {
+      throw new PttServiceError("請先重新登入，才能向 PTT 重抓我的最愛。", { code: "NO_LIVE_CREDS" });
+    }
+    const passwordEnc = await this.#encryptPassword(this.#livePassword);
+    const data = await this.#request("/favorites", {
+      method: "POST",
+      json: { username: this.username, passwordEnc },
+    });
+    const list = Array.isArray(data.favorites) ? data.favorites : [];
+    if (list.length) this.savePttFavorites(list);
+    return list;
   }
 
   /** @returns {Promise<{ boards: HotBoard[] }>} */
