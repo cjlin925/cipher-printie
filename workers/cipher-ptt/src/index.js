@@ -98,7 +98,7 @@ export default {
           {
             ok: true,
             service: "cipher-ptt-worker",
-            version: "0.2.2",
+            version: "0.2.3",
             mode: "ptt",
             endpoints: ["/crypto", "/login", "/hot-boards", "/boards/:name", "/boards/:name/:id"],
           },

@@ -491,7 +491,7 @@
         <button type="button" id="btn-more-settings" class="ptt-row w-full text-left font-medium">設定 / 登入</button>
         <button type="button" id="btn-more-logout" class="ptt-row w-full text-left font-medium">登出</button>
       </div>
-      <p class="px-1 text-xs text-muted">Speed PTT v0.5.1 · 右滑返回 · 搜尋推文數/標題/作者</p>
+      <p class="px-1 text-xs text-muted">Speed PTT v0.5.2 · 右滑返回 · 搜尋推文數/標題/作者</p>
     </section>
 
     <!-- Board article list -->
@@ -554,7 +554,7 @@
   <div id="gesture-hint" class="gesture-hint" aria-live="polite"></div>
 
   <script type="module">
-    import { APP_VERSION, createPttService, PttServiceError } from "./pttService.js?v=0.5.1";
+    import { APP_VERSION, createPttService, PttServiceError } from "./pttService.js?v=0.5.2";
     console.log(`Speed PTT v${APP_VERSION}`);
 
     (function initMobileNav() {
@@ -959,7 +959,7 @@
         els.favoritesStatus.textContent = "尚未同步到 PTT 我的最愛。請重新登入；也可在熱門看板點 ★。";
         return;
       }
-      els.favoritesStatus.textContent = "";
+      els.favoritesStatus.textContent = `${favorites.length} 個看板`;
       els.favoritesList.innerHTML = favorites
         .map((board) => boardRowMarkup(board, { showUsers: board.nuser != null }))
         .join("");

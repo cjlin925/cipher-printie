@@ -26,7 +26,7 @@ const STORAGE_KEYS = Object.freeze({
   webauthn: "cipher-ptt-speed.webauthn.v1",
 });
 
-export const APP_VERSION = "0.5.1";
+export const APP_VERSION = "0.5.2";
 
 const DEFAULT_WORKER_URL = "";
 
@@ -851,7 +851,9 @@ export class PttService {
       mode: "worker",
       at: Date.now(),
     });
-    if (Array.isArray(data.favorites)) this.savePttFavorites(data.favorites);
+    if (Array.isArray(data.favorites) && data.favorites.length) {
+      this.savePttFavorites(data.favorites);
+    }
 
     return { ok: true, mode: "worker", user: data.user || { username }, ...data };
   }

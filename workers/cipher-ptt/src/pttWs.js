@@ -34,7 +34,7 @@ const PHRASES = {
     bytes: [u8("ab f6 a5 f4 b7 4e c1 e4 c4 7e c4 f2"), u8("e6 8c 89 e4 bb bb e6 84 8f e9 8d b5 e7 b9 bc e7 ba 8c")],
   },
   mainMenu: {
-    text: ["【主功能表】", "主功能表"],
+    text: ["【主功能表】", "主功能表", "(F)avorite", "精華公佈欄", "我 的 最愛"],
     bytes: [u8("a1 69 a5 44 a5 5c af e0 aa ed a1 6a"), u8("e3 80 90 e4 b8 bb e5 8a 9f e8 83 bd e8 a1 a8 e3 80 91")],
   },
   wrongPassword: {
@@ -78,10 +78,8 @@ const PHRASES = {
     bytes: [u8("e7 9b ae e5 89 8d e9 a1 a5 e7 a4 ba"), u8("e9 9b a2 e9 96 8b")],
   },
   favList: {
-    text: ["看板列表", "選擇看板", "增加看板", "進入已知板名"],
+    text: ["選擇看板", "增加看板", "進入已知板名", "(a)增加看板", "(s)進入已知板名"],
     bytes: [
-      u8("ac dd aa 4f a6 43 aa ed"),
-      u8("e7 9c 8b e6 9d bf e5 88 97 e8 a1 a8"),
       u8("bf ef be dc ac dd aa 4f"),
       u8("e9 81 b8 e6 93 87 e7 9c 8b e6 9d bf"),
       u8("bc 57 a5 5b ac dd aa 4f"),
@@ -330,7 +328,11 @@ function mergeBoards(into, extra) {
 }
 
 function onFavoriteList(bot) {
-  return bot.has(PHRASES.favList) && /ˇ[A-Za-z]|◎/.test(bot.tail);
+  return bot.has(PHRASES.favList);
+}
+
+function onMainMenu(bot) {
+  return bot.has(PHRASES.mainMenu);
 }
 
 /**
@@ -342,34 +344,29 @@ function onFavoriteList(bot) {
 async function scrapeFavorites(bot) {
   try {
     await bot.drain();
-    let boards = parseFavoriteBoards(bot.screen);
 
-    if (!onFavoriteList(bot) && !/ˇ[A-Za-z]/.test(bot.screen)) {
-      for (let i = 0; i < 6; i += 1) {
-        await bot.drain();
-        if (bot.has(PHRASES.mainMenu) || onFavoriteList(bot)) break;
+    if (!onFavoriteList(bot)) {
+      if (bot.has(PHRASES.browsing) && !onMainMenu(bot)) {
         bot.send("q");
-        await bot.waitFor(
-          (sock) => sock.has(PHRASES.mainMenu) || onFavoriteList(sock) || sock.has(PHRASES.anyKey),
-          700
-        );
-        if (bot.has(PHRASES.anyKey)) {
-          bot.send(KEY_ENTER);
-          await sleep(180);
-        }
+        await bot.waitFor((sock) => onMainMenu(sock) || onFavoriteList(sock), 2_000);
       }
       if (!onFavoriteList(bot)) {
-        // Single keystroke — do not send Enter or we enter the first board.
+        await sleep(250);
+        // Letter shortcut only — Enter would open the highlighted board.
         bot.send("F");
-        await bot.waitFor((sock) => onFavoriteList(sock) || sock.has(PHRASES.favList), 5_000);
+        const opened = await bot.waitFor((sock) => onFavoriteList(sock), 3_500);
+        if (!opened) {
+          bot.send("f");
+          await bot.waitFor((sock) => onFavoriteList(sock), 2_000);
+        }
       }
     }
 
-    await sleep(250);
+    await sleep(280);
     await bot.drain();
-    boards = mergeBoards(boards, parseFavoriteBoards(bot.screen));
+    let boards = parseFavoriteBoards(bot.screen);
 
-    if (boards.length < 2) {
+    if (boards.length < 2 && onFavoriteList(bot)) {
       bot.send(" ");
       await sleep(280);
       await bot.drain();
