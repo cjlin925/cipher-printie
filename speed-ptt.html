@@ -189,6 +189,33 @@
     .push-arrow .push-tag,
     .push-boo .push-tag { color: #ff3b30; }
 
+    .nrec {
+      font-variant-numeric: tabular-nums;
+      font-weight: 700;
+      font-size: 0.82rem;
+      min-width: 2.1rem;
+      text-align: center;
+    }
+    .nrec-hot { color: #c2410c; }
+    .nrec-mid { color: #15803d; }
+    .nrec-low { color: #64748b; }
+    .nrec-boo { color: #b91c1c; }
+
+    .ptt-row {
+      display: flex;
+      width: 100%;
+      align-items: flex-start;
+      gap: 0.7rem;
+      padding: 0.72rem 0.9rem;
+      text-align: left;
+      border: 0;
+      border-bottom: 1px solid #ecefed;
+      background: #fff;
+      cursor: pointer;
+    }
+    .ptt-row:active { background: #f3f6f4; }
+    .ptt-row:last-child { border-bottom: 0; }
+
     .safe-bottom {
       padding-bottom: max(1rem, env(safe-area-inset-bottom));
     }
@@ -292,44 +319,53 @@
       </div>
     </section>
 
-    <!-- Hot boards + articles -->
-    <section id="view-boards" class="hidden space-y-4" aria-labelledby="boards-heading">
-      <div class="flex items-end justify-between gap-3">
-        <div>
+    <!-- Hot boards (PTT app home) -->
+    <section id="view-boards" class="hidden space-y-3" aria-labelledby="boards-heading">
+      <div class="flex items-center justify-between gap-3">
+        <div class="min-w-0">
           <h2 id="boards-heading" class="text-xl font-semibold tracking-tight">熱門看板</h2>
-          <p class="mt-1 text-sm text-muted">點看板載入文章列表 · 點文章進入閱讀器</p>
+          <p class="mt-0.5 text-sm text-muted">點看板進入文章列表</p>
         </div>
-        <button type="button" id="btn-refresh-boards" class="rounded-lg border border-line bg-white px-3 py-1.5 text-sm font-medium hover:border-accent/40">重新整理</button>
+        <button type="button" id="btn-refresh-boards" class="rounded-lg border border-line bg-white px-3 py-1.5 text-sm font-medium hover:border-accent/40">重整</button>
       </div>
 
-      <div id="boards-skeleton" class="hidden space-y-3" aria-hidden="true">
-        <div class="skeleton h-24 rounded-2xl"></div>
-        <div class="skeleton h-24 rounded-2xl"></div>
-        <div class="skeleton h-24 rounded-2xl"></div>
+      <div id="boards-skeleton" class="hidden overflow-hidden rounded-2xl border border-line bg-white" aria-hidden="true">
+        <div class="skeleton h-14 border-b border-line"></div>
+        <div class="skeleton h-14 border-b border-line"></div>
+        <div class="skeleton h-14 border-b border-line"></div>
+        <div class="skeleton h-14 border-b border-line"></div>
+        <div class="skeleton h-14"></div>
       </div>
-      <div id="boards-list" class="grid gap-3 sm:grid-cols-2"></div>
-
-      <div id="articles-panel" class="hidden space-y-3 pt-2">
-        <div class="flex items-center justify-between gap-2">
-          <h3 id="articles-heading" class="text-lg font-semibold tracking-tight">文章</h3>
-          <button type="button" id="btn-close-articles" class="text-sm font-medium text-muted hover:text-accent">收合</button>
-        </div>
-        <div id="articles-skeleton" class="hidden space-y-2" aria-hidden="true">
-          <div class="skeleton h-16 rounded-xl"></div>
-          <div class="skeleton h-16 rounded-xl"></div>
-          <div class="skeleton h-16 rounded-xl"></div>
-          <div class="skeleton h-16 rounded-xl"></div>
-        </div>
-        <div id="articles-list" class="space-y-2"></div>
-      </div>
-
+      <div id="boards-list" class="overflow-hidden rounded-2xl border border-line bg-white"></div>
       <p id="boards-status" class="text-sm text-muted" role="status" aria-live="polite"></p>
+    </section>
+
+    <!-- Board article list (PTT board index) -->
+    <section id="view-thread" class="hidden space-y-3" aria-labelledby="thread-heading">
+      <div class="flex items-center gap-2">
+        <button type="button" id="btn-back-hot" class="shrink-0 rounded-lg border border-line bg-white px-3 py-1.5 text-sm font-medium hover:border-accent/40">← 看板</button>
+        <div class="min-w-0 flex-1">
+          <h2 id="thread-heading" class="truncate text-lg font-semibold tracking-tight">看板</h2>
+          <p id="thread-sub" class="truncate text-sm text-muted"></p>
+        </div>
+        <button type="button" id="btn-refresh-thread" class="shrink-0 rounded-lg border border-line bg-white px-3 py-1.5 text-sm font-medium hover:border-accent/40">重整</button>
+      </div>
+
+      <div id="articles-skeleton" class="hidden overflow-hidden rounded-2xl border border-line bg-white" aria-hidden="true">
+        <div class="skeleton h-16 border-b border-line"></div>
+        <div class="skeleton h-16 border-b border-line"></div>
+        <div class="skeleton h-16 border-b border-line"></div>
+        <div class="skeleton h-16 border-b border-line"></div>
+        <div class="skeleton h-16"></div>
+      </div>
+      <div id="articles-list" class="overflow-hidden rounded-2xl border border-line bg-white"></div>
+      <p id="thread-status" class="text-sm text-muted" role="status" aria-live="polite"></p>
     </section>
 
     <!-- Article reader -->
     <section id="view-article" class="hidden space-y-4" aria-labelledby="article-heading">
       <div class="flex items-center gap-2">
-        <button type="button" id="btn-back-boards" class="rounded-lg border border-line bg-white px-3 py-1.5 text-sm font-medium hover:border-accent/40">← 返回</button>
+        <button type="button" id="btn-back-thread" class="shrink-0 rounded-lg border border-line bg-white px-3 py-1.5 text-sm font-medium hover:border-accent/40">← 列表</button>
         <p id="article-crumb" class="truncate text-sm text-muted"></p>
       </div>
 
@@ -358,7 +394,7 @@
 
   <footer class="mx-auto max-w-3xl px-4 pb-8 text-center text-xs text-muted sm:px-6">
     Cipher Printie · Speed PTT 實驗模組 · 帳密不上雲端資料庫
-    <span class="ml-1 inline-block rounded-full border border-line bg-white px-2 py-0.5 font-mono text-[0.65rem] font-bold tracking-wide text-accent-dark">Speed PTT v0.2.2</span>
+    <span class="ml-1 inline-block rounded-full border border-line bg-white px-2 py-0.5 font-mono text-[0.65rem] font-bold tracking-wide text-accent-dark">Speed PTT v0.3.0</span>
   </footer>
 
   <script type="module">
@@ -390,6 +426,7 @@
     const views = {
       settings: document.getElementById("view-settings"),
       boards: document.getElementById("view-boards"),
+      thread: document.getElementById("view-thread"),
       article: document.getElementById("view-article"),
     };
 
@@ -407,8 +444,9 @@
       boardsList: document.getElementById("boards-list"),
       boardsSkeleton: document.getElementById("boards-skeleton"),
       boardsStatus: document.getElementById("boards-status"),
-      articlesPanel: document.getElementById("articles-panel"),
-      articlesHeading: document.getElementById("articles-heading"),
+      threadHeading: document.getElementById("thread-heading"),
+      threadSub: document.getElementById("thread-sub"),
+      threadStatus: document.getElementById("thread-status"),
       articlesList: document.getElementById("articles-list"),
       articlesSkeleton: document.getElementById("articles-skeleton"),
       articleSkeleton: document.getElementById("article-skeleton"),
@@ -424,7 +462,9 @@
     const state = {
       view: "settings",
       activeBoard: null,
+      activeBoardTitle: "",
       activeArticleId: null,
+      articleCache: [],
     };
 
     function errMessage(error) {
@@ -447,6 +487,20 @@
         node.classList.toggle("hidden", key !== name);
       });
       window.scrollTo(0, 0);
+    }
+
+    function nrecClass(push) {
+      if (push >= 100) return "nrec nrec-hot";
+      if (push >= 10) return "nrec nrec-mid";
+      if (push < 0) return "nrec nrec-boo";
+      return "nrec nrec-low";
+    }
+
+    function nrecLabel(push) {
+      if (push == null) return "·";
+      if (push >= 100) return "爆";
+      if (push < 0) return `X${Math.abs(push)}`;
+      return String(push);
     }
 
     function applyRememberedUsername() {
@@ -504,17 +558,12 @@
         els.boardsList.innerHTML = boards
           .map(
             (board) => `
-            <button type="button"
-              class="group rounded-2xl border border-line bg-white p-4 text-left shadow-card transition hover:border-accent/35 hover:shadow-md"
-              data-board="${escapeAttr(board.name)}">
-              <div class="flex items-start justify-between gap-2">
-                <div>
-                  <p class="font-semibold tracking-tight text-ink group-hover:text-accent">${escapeHtml(board.name)}</p>
-                  <p class="mt-1 text-sm text-muted">${escapeHtml(board.title || board.name)}</p>
-                </div>
-                ${board.hot ? '<span class="rounded-md bg-accent-soft px-2 py-0.5 text-[0.65rem] font-bold text-accent-dark">HOT</span>' : ""}
-              </div>
-              <p class="mt-3 text-xs text-muted">${board.nuser != null ? `${Number(board.nuser).toLocaleString()} 人氣` : "—"}</p>
+            <button type="button" class="ptt-row" data-board="${escapeAttr(board.name)}" data-board-title="${escapeAttr(board.title || board.name)}">
+              <span class="min-w-0 flex-1">
+                <span class="block truncate font-semibold tracking-tight text-ink">${escapeHtml(board.name)}</span>
+                <span class="mt-0.5 block truncate text-sm text-muted">${escapeHtml(board.title || "")}</span>
+              </span>
+              <span class="nrec nrec-mid shrink-0">${board.nuser != null ? Number(board.nuser).toLocaleString() : "—"}</span>
             </button>`
           )
           .join("");
@@ -524,38 +573,49 @@
       }
     }
 
-    async function loadBoardArticles(boardName) {
+    async function loadBoardArticles(boardName, boardTitle = "", options = {}) {
+      const { force = false } = options;
       state.activeBoard = boardName;
-      els.articlesPanel.classList.remove("hidden");
-      els.articlesHeading.textContent = `${boardName} · 文章列表`;
+      state.activeBoardTitle = boardTitle || state.activeBoardTitle || boardName;
+      showView("thread");
+      els.threadHeading.textContent = boardName;
+      els.threadSub.textContent = state.activeBoardTitle;
+      els.threadStatus.textContent = "";
+
+      if (!force && state.articleCache.length && els.articlesList.childElementCount) {
+        return;
+      }
+
       els.articlesList.innerHTML = "";
       els.articlesSkeleton.classList.remove("hidden");
-      els.boardsStatus.textContent = "";
       try {
         const { articles } = await ptt.getBoardArticles(boardName);
         els.articlesSkeleton.classList.add("hidden");
+        state.articleCache = articles;
         if (!articles.length) {
-          els.articlesList.innerHTML = `<p class="text-sm text-muted">此看板暫無文章。</p>`;
+          els.articlesList.innerHTML = `<p class="px-4 py-6 text-sm text-muted">此看板暫無文章。</p>`;
           return;
         }
         els.articlesList.innerHTML = articles
           .map(
             (article) => `
-            <button type="button"
-              class="flex w-full items-start gap-3 rounded-xl border border-line bg-white px-3.5 py-3 text-left transition hover:border-accent/35"
+            <button type="button" class="ptt-row"
               data-article-board="${escapeAttr(article.board || boardName)}"
               data-article-id="${escapeAttr(article.id)}">
-              <span class="mt-0.5 w-10 shrink-0 text-center text-sm font-bold text-accent">${article.push != null ? article.push : "·"}</span>
+              <span class="${nrecClass(article.push)}">${nrecLabel(article.push)}</span>
               <span class="min-w-0 flex-1">
-                <span class="block truncate font-medium text-ink">${escapeHtml(article.title)}</span>
-                <span class="mt-1 block text-xs text-muted">${escapeHtml(article.author)} · ${escapeHtml(article.date || "")}</span>
+                <span class="block text-[0.95rem] font-medium leading-snug text-ink">${escapeHtml(article.title)}</span>
+                <span class="mt-1 flex justify-between gap-3 text-xs text-muted">
+                  <span class="truncate">${escapeHtml(article.author)}</span>
+                  <span class="shrink-0">${escapeHtml(article.date || "")}</span>
+                </span>
               </span>
             </button>`
           )
           .join("");
       } catch (error) {
         els.articlesSkeleton.classList.add("hidden");
-        els.boardsStatus.textContent = errMessage(error);
+        els.threadStatus.textContent = errMessage(error);
       }
     }
 
@@ -622,18 +682,27 @@
     });
 
     document.getElementById("btn-refresh-boards").addEventListener("click", () => loadHotBoards());
-    document.getElementById("btn-close-articles").addEventListener("click", () => {
-      els.articlesPanel.classList.add("hidden");
-      state.activeBoard = null;
+    document.getElementById("btn-refresh-thread").addEventListener("click", () => {
+      if (state.activeBoard) loadBoardArticles(state.activeBoard, state.activeBoardTitle, { force: true });
     });
-    document.getElementById("btn-back-boards").addEventListener("click", () => {
+    document.getElementById("btn-back-hot").addEventListener("click", () => {
+      state.activeBoard = null;
+      state.articleCache = [];
+      showView("boards");
+    });
+    document.getElementById("btn-back-thread").addEventListener("click", () => {
+      if (state.activeBoard) {
+        showView("thread");
+        return;
+      }
       showView("boards");
     });
 
     els.boardsList.addEventListener("click", (event) => {
       const btn = event.target.closest("[data-board]");
       if (!btn) return;
-      loadBoardArticles(btn.getAttribute("data-board"));
+      state.articleCache = [];
+      loadBoardArticles(btn.getAttribute("data-board"), btn.getAttribute("data-board-title") || "");
     });
 
     els.articlesList.addEventListener("click", (event) => {
