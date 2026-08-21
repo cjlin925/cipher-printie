@@ -431,7 +431,7 @@
               加密儲存並登入
             </button>
             <button type="button" id="btn-webauthn" class="inline-flex flex-1 items-center justify-center rounded-xl border border-line bg-white px-4 py-2.5 text-sm font-semibold text-ink hover:border-accent/40">
-              Face ID / 生物辨識（預留）
+              綁定 Touch ID / Face ID
             </button>
           </div>
         </form>
@@ -441,6 +441,7 @@
           <p id="vault-meta" class="mt-1 text-xs text-muted"></p>
           <div class="mt-3 flex flex-col gap-2 sm:flex-row">
             <button type="button" id="btn-unlock-login" class="rounded-xl bg-accent px-4 py-2 text-sm font-semibold text-white hover:bg-accent-dark">用密語解鎖登入</button>
+            <button type="button" id="btn-bio-login" class="hidden rounded-xl border border-accent/40 bg-white px-4 py-2 text-sm font-semibold text-accent-dark hover:border-accent">用生物辨識登入</button>
             <button type="button" id="btn-clear-vault" class="rounded-xl border border-line bg-white px-4 py-2 text-sm font-medium">清除本機憑證</button>
           </div>
         </div>
@@ -490,7 +491,7 @@
         <button type="button" id="btn-more-settings" class="ptt-row w-full text-left font-medium">設定 / 登入</button>
         <button type="button" id="btn-more-logout" class="ptt-row w-full text-left font-medium">登出</button>
       </div>
-      <p class="px-1 text-xs text-muted">Speed PTT v0.5.0 · 右滑返回 · 搜尋推文數/標題/作者</p>
+      <p class="px-1 text-xs text-muted">Speed PTT v0.5.1 · 右滑返回 · 搜尋推文數/標題/作者</p>
     </section>
 
     <!-- Board article list -->
@@ -553,7 +554,8 @@
   <div id="gesture-hint" class="gesture-hint" aria-live="polite"></div>
 
   <script type="module">
-    import { createPttService, PttServiceError } from "./pttService.js";
+    import { APP_VERSION, createPttService, PttServiceError } from "./pttService.js";
+    console.log(`Speed PTT v${APP_VERSION}`);
 
     (function initMobileNav() {
       const toggle = document.querySelector(".nav-toggle");
@@ -599,6 +601,8 @@
       settingsStatus: document.getElementById("settings-status"),
       vaultPanel: document.getElementById("vault-panel"),
       vaultMeta: document.getElementById("vault-meta"),
+      bioLogin: document.getElementById("btn-bio-login"),
+      webauthnBtn: document.getElementById("btn-webauthn"),
       boardsList: document.getElementById("boards-home"),
       boardsSkeleton: document.getElementById("boards-skeleton"),
       boardsStatus: document.getElementById("boards-status"),
@@ -881,12 +885,40 @@
 
     function refreshVaultPanel() {
       const meta = ptt.getVaultMeta();
-      if (!meta) {
+      const enrolled = ptt.hasWebAuthn();
+      const label = ptt.biometricLabel();
+      if (els.webauthnBtn) {
+        els.webauthnBtn.textContent = enrolled ? `重新綁定${label}` : `綁定${label}`;
+      }
+      if (els.bioLogin) {
+        els.bioLogin.textContent = `用${label}登入`;
+        els.bioLogin.classList.toggle("hidden", !enrolled);
+      }
+      const pinBtn = document.getElementById("btn-unlock-login");
+      if (pinBtn) pinBtn.classList.toggle("hidden", !meta);
+      if (!meta && !enrolled) {
         els.vaultPanel.classList.add("hidden");
         return;
       }
       els.vaultPanel.classList.remove("hidden");
-      els.vaultMeta.textContent = `提示：${meta.usernameHint || "?"}… · ${meta.alg || "AES-GCM"} · ${meta.savedAt ? new Date(meta.savedAt).toLocaleString() : ""}`;
+      if (meta) {
+        els.vaultMeta.textContent = `提示：${meta.usernameHint || "?"}… · ${meta.alg || "AES-GCM"} · ${meta.savedAt ? new Date(meta.savedAt).toLocaleString() : ""}`;
+      } else {
+        els.vaultMeta.textContent = `已綁定${label}，可用它解鎖登入。`;
+      }
+    }
+
+    async function loginWithCredentials(credentials, statusPrefix) {
+      persistRememberedUsername(credentials.username);
+      const worker = els.workerUrl.value.trim();
+      if (worker) {
+        ptt.setWorkerUrl(worker);
+        ptt.setDemoMode(false);
+        els.settingsStatus.textContent = statusPrefix || "正在向 PTT 驗證帳密…";
+      }
+      const result = await ptt.login(credentials);
+      els.settingsStatus.textContent = result.message || "登入成功";
+      await afterLogin();
     }
 
     async function afterLogin() {
@@ -1264,7 +1296,8 @@
         const result = await ptt.login({ username, password });
         els.password.value = "";
         refreshVaultPanel();
-        els.settingsStatus.textContent = result.message || `已登入 ${username}`;
+        const hint = ptt.hasWebAuthn() ? "" : ` · 可再綁定${ptt.biometricLabel()}`;
+        els.settingsStatus.textContent = `${result.message || `已登入 ${username}`}${hint}`;
         await afterLogin();
       } catch (error) {
         els.settingsStatus.textContent = errMessage(error);
@@ -1281,16 +1314,7 @@
       try {
         const credentials = await ptt.loadEncryptedCredentials(unlock);
         els.username.value = credentials.username;
-        persistRememberedUsername(credentials.username);
-        const worker = els.workerUrl.value.trim();
-        if (worker) {
-          ptt.setWorkerUrl(worker);
-          ptt.setDemoMode(false);
-          els.settingsStatus.textContent = "正在向 PTT 驗證帳密…";
-        }
-        const result = await ptt.login(credentials);
-        els.settingsStatus.textContent = result.message || "解鎖登入成功";
-        await afterLogin();
+        await loginWithCredentials(credentials);
       } catch (error) {
         els.settingsStatus.textContent = errMessage(error);
       }
@@ -1304,8 +1328,40 @@
     });
 
     document.getElementById("btn-webauthn").addEventListener("click", async () => {
-      const result = await ptt.unlockWithWebAuthn();
-      els.settingsStatus.textContent = result.message;
+      const username = els.username.value.trim();
+      const password = els.password.value;
+      const unlock = els.unlock.value;
+      const label = ptt.biometricLabel();
+      els.settingsStatus.textContent = `請用${label}確認…`;
+      try {
+        let credentials = null;
+        if (username && password) {
+          credentials = { username, password };
+        } else if (unlock && ptt.hasVault()) {
+          credentials = await ptt.loadEncryptedCredentials(unlock);
+        }
+        if (!credentials) {
+          els.settingsStatus.textContent = `請先輸入帳密，或輸入密語解鎖後再綁定${label}。`;
+          return;
+        }
+        const result = await ptt.enrollWebAuthn(credentials);
+        refreshVaultPanel();
+        els.settingsStatus.textContent = result.message;
+      } catch (error) {
+        els.settingsStatus.textContent = errMessage(error);
+      }
+    });
+
+    document.getElementById("btn-bio-login").addEventListener("click", async () => {
+      const label = ptt.biometricLabel();
+      els.settingsStatus.textContent = `請用${label}解鎖…`;
+      try {
+        const credentials = await ptt.unlockWithWebAuthn();
+        els.username.value = credentials.username;
+        await loginWithCredentials(credentials, `正在以${label}登入…`);
+      } catch (error) {
+        els.settingsStatus.textContent = errMessage(error);
+      }
     });
 
     // Boot

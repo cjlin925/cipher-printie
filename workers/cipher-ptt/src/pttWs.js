@@ -318,6 +318,21 @@ const SKIP_BOARD_NAMES = new Set([
   "help", "guest", "new", "ptt", "bbs", "index",
 ]);
 
+function mergeBoards(into, extra) {
+  const seen = new Set(into.map((b) => b.name.toLowerCase()));
+  for (const board of extra) {
+    const key = board.name.toLowerCase();
+    if (seen.has(key)) continue;
+    seen.add(key);
+    into.push(board);
+  }
+  return into;
+}
+
+function onFavoriteList(bot) {
+  return bot.has(PHRASES.favList) && /ˇ[A-Za-z]|◎/.test(bot.tail);
+}
+
 /**
  * After login, open (F)avorite and parse the board list. Best-effort: an
  * empty array is fine — login itself still succeeds.
@@ -327,28 +342,46 @@ const SKIP_BOARD_NAMES = new Set([
 async function scrapeFavorites(bot) {
   try {
     await bot.drain();
-    if (!bot.has(PHRASES.favList)) {
-      for (let i = 0; i < 8; i += 1) {
+    let boards = parseFavoriteBoards(bot.screen);
+
+    if (!onFavoriteList(bot) && !/ˇ[A-Za-z]/.test(bot.screen)) {
+      for (let i = 0; i < 6; i += 1) {
         await bot.drain();
-        if (bot.has(PHRASES.mainMenu) || bot.has(PHRASES.favList)) break;
+        if (bot.has(PHRASES.mainMenu) || onFavoriteList(bot)) break;
         bot.send("q");
-        await sleep(220);
+        await bot.waitFor(
+          (sock) => sock.has(PHRASES.mainMenu) || onFavoriteList(sock) || sock.has(PHRASES.anyKey),
+          700
+        );
+        if (bot.has(PHRASES.anyKey)) {
+          bot.send(KEY_ENTER);
+          await sleep(180);
+        }
       }
-      if (!bot.has(PHRASES.favList)) {
-        bot.send(`F${KEY_ENTER}`);
-        await bot.waitFor((sock) => sock.has(PHRASES.favList), 4_000);
+      if (!onFavoriteList(bot)) {
+        // Single keystroke — do not send Enter or we enter the first board.
+        bot.send("F");
+        await bot.waitFor((sock) => onFavoriteList(sock) || sock.has(PHRASES.favList), 5_000);
       }
     }
-    await sleep(300);
+
+    await sleep(250);
     await bot.drain();
-    let boards = parseFavoriteBoards(bot.tail.length > 200 ? bot.tail : bot.screen);
-    if (boards.length < 4) {
+    boards = mergeBoards(boards, parseFavoriteBoards(bot.screen));
+
+    if (boards.length < 2) {
       bot.send(" ");
-      await sleep(350);
+      await sleep(280);
       await bot.drain();
-      boards = parseFavoriteBoards(bot.tail);
+      boards = mergeBoards(boards, parseFavoriteBoards(bot.screen));
     }
-    console.log(`ptt favorites scraped ${boards.length} ${boards.map((b) => b.name).join(",")}`);
+
+    const names = boards.map((b) => b.name).join(",");
+    if (!boards.length) {
+      console.log(`ptt favorites scraped 0 tail=${sanitizeTail(bot)}`);
+    } else {
+      console.log(`ptt favorites scraped ${boards.length} ${names}`);
+    }
     return boards;
   } catch (error) {
     console.log(`ptt favorites scrape failed: ${error?.message || error}`);
@@ -363,7 +396,8 @@ async function scrapeFavorites(bot) {
 function parseFavoriteBoards(screen) {
   const text = String(screen || "")
     .replace(/\x1b\[[\??!>]?[0-9;]*[@A-Za-z`]/g, "")
-    .replace(/\r/g, "\n");
+    .replace(/[\r\n]+/g, " ")
+    .replace(/\s+/g, " ");
   const found = [];
   const seen = new Set();
 
@@ -373,15 +407,16 @@ function parseFavoriteBoards(screen) {
     if (!/^[A-Za-z][A-Za-z0-9_-]{1,19}$/.test(name)) return;
     seen.add(key);
     const cleaned = String(title || name).replace(/[\[\]〔〕◎○]/g, "").trim() || name;
-    found.push({ name, title: cleaned });
+    found.push({ name, title: cleaned.slice(0, 40) });
   };
 
-  const compact = /(?:ˇ|>)?\s*([A-Za-z][A-Za-z0-9_-]{1,19})\s+\S{1,8}\s+◎\s*(\[[^\]]*\]|〔[^〕]*〕|[^\sˇ]+)/g;
   let match;
-  while ((match = compact.exec(text))) add(match[1], match[2]);
+  const marked = /ˇ([A-Za-z][A-Za-z0-9_-]{1,19})/g;
+  while ((match = marked.exec(text))) add(match[1], match[1]);
 
-  const numbered = /(?:^|[\n\r])[>ˇ ]{0,4}\s*\d{1,3}\s+([A-Za-z][A-Za-z0-9_-]{1,19})\s+([^\n\r]*)/gm;
-  while ((match = numbered.exec(text))) add(match[1], match[2]);
+  const titled =
+    /([A-Za-z][A-Za-z0-9_-]{1,19})\s*\S{0,8}\s*◎\s*(\[[^\]]*\]|〔[^〕]*〕|[^\sˇ>]+)/g;
+  while ((match = titled.exec(text))) add(match[1], match[2]);
 
   return found.slice(0, 40);
 }

@@ -23,7 +23,10 @@ const STORAGE_KEYS = Object.freeze({
   rememberUser: "cipher-ptt-speed.remember-user.v1",
   favorites: "cipher-ptt-speed.favorites.v1",
   pttFavorites: "cipher-ptt-speed.ptt-favorites.v1",
+  webauthn: "cipher-ptt-speed.webauthn.v1",
 });
+
+export const APP_VERSION = "0.5.1";
 
 const DEFAULT_WORKER_URL = "";
 
@@ -48,7 +51,7 @@ export class PttServiceError extends Error {
 /**
  * Thin Web Crypto helpers for AES-GCM credential vaults.
  * Key material is derived from a local unlock secret (PIN / passphrase).
- * WebAuthn is reserved as a future unlock gate — see unlockWithWebAuthn().
+ * WebAuthn PRF can also wrap a copy of the vault for Touch ID / Face ID.
  */
 const CryptoVault = {
   textEncoder: new TextEncoder(),
@@ -128,6 +131,40 @@ const CryptoVault = {
       { name: "AES-GCM", iv: this.base64ToBytes(vault.iv) },
       key,
       this.base64ToBytes(vault.ciphertext)
+    );
+    return JSON.parse(this.textDecoder.decode(plainBuf));
+  },
+
+  /**
+   * @param {unknown} payload
+   * @param {BufferSource} rawKeyBytes
+   */
+  async wrapWithRawKey(payload, rawKeyBytes) {
+    const digest = await crypto.subtle.digest("SHA-256", rawKeyBytes);
+    const key = await crypto.subtle.importKey("raw", digest, "AES-GCM", false, ["encrypt"]);
+    const iv = crypto.getRandomValues(new Uint8Array(12));
+    const cipherBuf = await crypto.subtle.encrypt(
+      { name: "AES-GCM", iv },
+      key,
+      this.textEncoder.encode(JSON.stringify(payload))
+    );
+    return {
+      iv: this.bytesToBase64(iv),
+      ciphertext: this.bytesToBase64(new Uint8Array(cipherBuf)),
+    };
+  },
+
+  /**
+   * @param {{ iv: string, ciphertext: string }} blob
+   * @param {BufferSource} rawKeyBytes
+   */
+  async unwrapWithRawKey(blob, rawKeyBytes) {
+    const digest = await crypto.subtle.digest("SHA-256", rawKeyBytes);
+    const key = await crypto.subtle.importKey("raw", digest, "AES-GCM", false, ["decrypt"]);
+    const plainBuf = await crypto.subtle.decrypt(
+      { name: "AES-GCM", iv: this.base64ToBytes(blob.iv) },
+      key,
+      this.base64ToBytes(blob.ciphertext)
     );
     return JSON.parse(this.textDecoder.decode(plainBuf));
   },
@@ -424,6 +461,7 @@ export class PttService {
 
   clearVault() {
     localStorage.removeItem(STORAGE_KEYS.vault);
+    this.clearWebAuthn();
   }
 
   logout() {
@@ -453,24 +491,225 @@ export class PttService {
   }
 
   /**
-   * Placeholder for Face ID / WebAuthn gate before vault unlock.
-   * Wire PublicKeyCredential.get() here once relying-party IDs are ready.
-   * @returns {Promise<{ ok: boolean, method: string, message: string }>}
+   * Platform authenticator (Touch ID on Mac, Face ID on iPhone).
+   * Credentials are wrapped with the WebAuthn PRF output — never sent to a server.
+   */
+  biometricLabel() {
+    const ua = navigator.userAgent || "";
+    if (/iPhone|iPad/.test(ua)) return "Face ID";
+    if (/Mac/.test(ua)) return "Touch ID";
+    return "生物辨識";
+  }
+
+  hasWebAuthn() {
+    try {
+      const raw = localStorage.getItem(STORAGE_KEYS.webauthn);
+      if (!raw) return false;
+      const rec = JSON.parse(raw);
+      return Boolean(rec?.credId && rec?.wrap && rec?.prfSalt);
+    } catch {
+      return false;
+    }
+  }
+
+  clearWebAuthn() {
+    try {
+      localStorage.removeItem(STORAGE_KEYS.webauthn);
+    } catch {
+      /* ignore */
+    }
+  }
+
+  #webauthnRpId() {
+    const host = window.location.hostname;
+    if (!host || host === "localhost" || host === "127.0.0.1") return host || "localhost";
+    return host;
+  }
+
+  #randomBytes(n) {
+    return crypto.getRandomValues(new Uint8Array(n));
+  }
+
+  #asBuffer(bytes) {
+    const u8 = bytes instanceof Uint8Array ? bytes : new Uint8Array(bytes);
+    return u8.buffer.slice(u8.byteOffset, u8.byteOffset + u8.byteLength);
+  }
+
+  #prfFromCredential(credential) {
+    const ext = credential?.getClientExtensionResults?.() || {};
+    const first = ext.prf?.results?.first;
+    if (!first) return null;
+    return first instanceof Uint8Array ? first : new Uint8Array(first);
+  }
+
+  /**
+   * Bind platform biometrics and wrap PTT credentials with the PRF secret.
+   * @param {{ username: string, password: string }} credentials
+   */
+  async enrollWebAuthn(credentials) {
+    const username = String(credentials?.username || "").trim();
+    const password = String(credentials?.password || "");
+    if (!username || !password) {
+      throw new PttServiceError("請先輸入 PTT 帳號與密碼再綁定生物辨識。", { code: "VALIDATION" });
+    }
+    if (!window.PublicKeyCredential || !window.crypto?.subtle) {
+      throw new PttServiceError("此瀏覽器不支援生物辨識解鎖。", { code: "WEBAUTHN_UNAVAILABLE" });
+    }
+    const available = await PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable().catch(
+      () => false
+    );
+    if (!available) {
+      throw new PttServiceError("這台裝置沒有可用的指紋 / 面容感應器。", { code: "NO_PLATFORM_AUTH" });
+    }
+
+    const salt = this.#randomBytes(32);
+    const userId = this.#randomBytes(16);
+    const rpId = this.#webauthnRpId();
+    let credential;
+    try {
+      credential = await navigator.credentials.create({
+        publicKey: {
+          challenge: this.#asBuffer(this.#randomBytes(32)),
+          rp: { name: "Speed PTT", id: rpId },
+          user: {
+            id: this.#asBuffer(userId),
+            name: username,
+            displayName: username,
+          },
+          pubKeyCredParams: [
+            { type: "public-key", alg: -7 },
+            { type: "public-key", alg: -257 },
+          ],
+          timeout: 120_000,
+          authenticatorSelection: {
+            authenticatorAttachment: "platform",
+            residentKey: "preferred",
+            userVerification: "required",
+          },
+          extensions: { prf: { eval: { first: this.#asBuffer(salt) } } },
+        },
+      });
+    } catch (cause) {
+      if (cause?.name === "NotAllowedError") {
+        throw new PttServiceError("已取消生物辨識。", { code: "WEBAUTHN_CANCELLED", cause });
+      }
+      throw new PttServiceError("無法綁定生物辨識。", { code: "WEBAUTHN_CREATE", cause });
+    }
+
+    let prf = this.#prfFromCredential(credential);
+    if (!prf) {
+      try {
+        const asserted = await navigator.credentials.get({
+          publicKey: {
+            challenge: this.#asBuffer(this.#randomBytes(32)),
+            rpId,
+            timeout: 120_000,
+            userVerification: "required",
+            allowCredentials: [
+              {
+                type: "public-key",
+                id: credential.rawId,
+                transports: ["internal"],
+              },
+            ],
+            extensions: { prf: { eval: { first: this.#asBuffer(salt) } } },
+          },
+        });
+        prf = this.#prfFromCredential(asserted);
+      } catch (cause) {
+        throw new PttServiceError("生物辨識已建立，但此瀏覽器不支援用它解鎖密碼（缺 PRF）。", {
+          code: "WEBAUTHN_NO_PRF",
+          cause,
+        });
+      }
+    }
+    if (!prf) {
+      throw new PttServiceError("此瀏覽器的生物辨識無法用來加密密碼庫（需要 WebAuthn PRF）。", {
+        code: "WEBAUTHN_NO_PRF",
+      });
+    }
+
+    const wrap = await CryptoVault.wrapWithRawKey({ username, password }, prf);
+    localStorage.setItem(
+      STORAGE_KEYS.webauthn,
+      JSON.stringify({
+        v: 1,
+        credId: CryptoVault.bytesToBase64(new Uint8Array(credential.rawId)),
+        rpId,
+        prfSalt: CryptoVault.bytesToBase64(salt),
+        wrap,
+        usernameHint: username.slice(0, 3),
+        enrolledAt: new Date().toISOString(),
+      })
+    );
+    return {
+      ok: true,
+      method: "webauthn",
+      message: `已綁定${this.biometricLabel()}，之後可用它解鎖登入。`,
+    };
+  }
+
+  /**
+   * Unlock wrapped credentials with Touch ID / Face ID.
+   * @returns {Promise<{ username: string, password: string }>}
    */
   async unlockWithWebAuthn() {
     if (!window.PublicKeyCredential) {
-      return {
-        ok: false,
-        method: "webauthn",
-        message: "此瀏覽器尚不支援 WebAuthn / 生物辨識。",
-      };
+      throw new PttServiceError("此瀏覽器尚不支援 WebAuthn / 生物辨識。", {
+        code: "WEBAUTHN_UNAVAILABLE",
+      });
     }
-    // Intentionally stubbed: real ceremony needs RP ID + registered credential.
-    return {
-      ok: false,
-      method: "webauthn",
-      message: "已預留 Face ID / WebAuthn 觸發點，待綁定裝置金鑰後啟用。",
-    };
+    const raw = localStorage.getItem(STORAGE_KEYS.webauthn);
+    if (!raw) {
+      throw new PttServiceError(`尚未綁定${this.biometricLabel()}。請先用帳密登入後再綁定。`, {
+        code: "NO_WEBAUTHN",
+      });
+    }
+    let rec;
+    try {
+      rec = JSON.parse(raw);
+    } catch {
+      throw new PttServiceError("生物辨識設定損壞，請重新綁定。", { code: "WEBAUTHN_BAD" });
+    }
+
+    let credential;
+    try {
+      credential = await navigator.credentials.get({
+        publicKey: {
+          challenge: this.#asBuffer(this.#randomBytes(32)),
+          rpId: rec.rpId || this.#webauthnRpId(),
+          timeout: 120_000,
+          userVerification: "required",
+          allowCredentials: [
+            {
+              type: "public-key",
+              id: this.#asBuffer(CryptoVault.base64ToBytes(rec.credId)),
+              transports: ["internal"],
+            },
+          ],
+          extensions: {
+            prf: { eval: { first: this.#asBuffer(CryptoVault.base64ToBytes(rec.prfSalt)) } },
+          },
+        },
+      });
+    } catch (cause) {
+      if (cause?.name === "NotAllowedError") {
+        throw new PttServiceError("已取消生物辨識。", { code: "WEBAUTHN_CANCELLED", cause });
+      }
+      throw new PttServiceError(`${this.biometricLabel()} 驗證失敗。`, { code: "WEBAUTHN_GET", cause });
+    }
+
+    const prf = this.#prfFromCredential(credential);
+    if (!prf) {
+      throw new PttServiceError("生物辨識成功，但無法解出密碼庫（缺 PRF）。", {
+        code: "WEBAUTHN_NO_PRF",
+      });
+    }
+    try {
+      return await CryptoVault.unwrapWithRawKey(rec.wrap, prf);
+    } catch (cause) {
+      throw new PttServiceError("生物辨識解鎖失敗。", { code: "WEBAUTHN_UNWRAP", cause });
+    }
   }
 
   /**
@@ -679,3 +918,5 @@ export function createPttService(options) {
 }
 
 export default PttService;
+
+console.log(`Speed PTT v${APP_VERSION}`);
