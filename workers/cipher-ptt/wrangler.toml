@@ -1,0 +1,11 @@
+name = "cipher-ptt-worker"
+main = "src/index.js"
+compatibility_date = "2026-08-21"
+workers_dev = true
+
+# Optional: bind a custom route later
+# routes = [{ pattern = "ptt-api.example.com/*", zone_name = "example.com" }]
+
+[vars]
+# Comma-separated extra allowed origins (optional)
+# EXTRA_ORIGINS = "https://example.com"

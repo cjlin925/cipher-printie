@@ -1,0 +1,15 @@
+{
+  "name": "cipher-ptt-worker",
+  "private": true,
+  "version": "0.1.0",
+  "description": "Cloudflare Worker stub for Cipher PTT Speed — proxy API with CORS, no credential storage.",
+  "type": "module",
+  "scripts": {
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy",
+    "tail": "wrangler tail"
+  },
+  "devDependencies": {
+    "wrangler": "^4.28.0"
+  }
+}

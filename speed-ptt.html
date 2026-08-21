@@ -260,8 +260,8 @@
             <label for="worker-url" class="mb-1.5 block text-sm font-medium">Cloudflare Worker URL（可選）</label>
             <input id="worker-url" name="worker" type="url"
               class="w-full rounded-xl border border-line bg-paper px-3.5 py-2.5 text-sm outline-none ring-accent/30 focus:ring-2"
-              placeholder="https://your-worker.example.workers.dev">
-            <p class="mt-1.5 text-xs text-muted">留空則使用 Demo Mode（本機假資料，方便先調 UI）。</p>
+              placeholder="https://cipher-ptt-worker.YOUR_SUBDOMAIN.workers.dev">
+            <p class="mt-1.5 text-xs text-muted">留空 = Demo Mode。Worker 雛形在 repo 的 <code class="rounded bg-paper px-1">workers/cipher-ptt</code>（見該目錄 README）。</p>
           </div>
 
           <div class="flex flex-col gap-2 sm:flex-row">
@@ -353,7 +353,7 @@
 
   <footer class="mx-auto max-w-3xl px-4 pb-8 text-center text-xs text-muted sm:px-6">
     Cipher Printie · Speed PTT 實驗模組 · 帳密不上雲端資料庫
-    <span class="ml-1 inline-block rounded-full border border-line bg-white px-2 py-0.5 font-mono text-[0.65rem] font-bold tracking-wide text-accent-dark">Speed PTT v0.1.0</span>
+    <span class="ml-1 inline-block rounded-full border border-line bg-white px-2 py-0.5 font-mono text-[0.65rem] font-bold tracking-wide text-accent-dark">Speed PTT v0.1.1</span>
   </footer>
 
   <script type="module">
