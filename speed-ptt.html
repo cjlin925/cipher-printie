@@ -234,7 +234,7 @@
         <h2 id="settings-heading" class="text-xl font-semibold tracking-tight">設定 / 登入</h2>
         <p class="mt-2 text-sm leading-relaxed text-muted">
           PTT 帳密只在你的瀏覽器以 AES-GCM 加密保存，不會寫入任何伺服器資料庫。
-          Cloudflare Worker 僅作為即時轉發介面。
+          Cloudflare Worker 會向 PTT 驗證帳密（不落盤），看板與文章則讀 www.ptt.cc。
         </p>
 
         <form id="login-form" class="mt-5 space-y-4" autocomplete="off">
@@ -260,8 +260,8 @@
             <label for="worker-url" class="mb-1.5 block text-sm font-medium">Cloudflare Worker URL（可選）</label>
             <input id="worker-url" name="worker" type="url"
               class="w-full rounded-xl border border-line bg-paper px-3.5 py-2.5 text-sm outline-none ring-accent/30 focus:ring-2"
-              placeholder="https://cipher-ptt-worker.YOUR_SUBDOMAIN.workers.dev">
-            <p class="mt-1.5 text-xs text-muted">留空 = Demo Mode。Worker 雛形在 repo 的 <code class="rounded bg-paper px-1">workers/cipher-ptt</code>（見該目錄 README）。</p>
+              placeholder="https://cipher-ptt-worker.cjlin925.workers.dev">
+            <p class="mt-1.5 text-xs text-muted">留空 = Demo Mode。填了之後會走真實 PTT 登入（約需數秒）。</p>
           </div>
 
           <div class="flex flex-col gap-2 sm:flex-row">
@@ -353,7 +353,7 @@
 
   <footer class="mx-auto max-w-3xl px-4 pb-8 text-center text-xs text-muted sm:px-6">
     Cipher Printie · Speed PTT 實驗模組 · 帳密不上雲端資料庫
-    <span class="ml-1 inline-block rounded-full border border-line bg-white px-2 py-0.5 font-mono text-[0.65rem] font-bold tracking-wide text-accent-dark">Speed PTT v0.1.1</span>
+    <span class="ml-1 inline-block rounded-full border border-line bg-white px-2 py-0.5 font-mono text-[0.65rem] font-bold tracking-wide text-accent-dark">Speed PTT v0.2.0</span>
   </footer>
 
   <script type="module">
@@ -428,7 +428,7 @@
 
     function updateModeBadge() {
       const demo = ptt.demoMode || !ptt.workerUrl;
-      els.modeBadge.textContent = demo ? "Demo" : "Worker";
+      els.modeBadge.textContent = demo ? "Demo" : "PTT";
       els.modeBadge.className = demo
         ? "rounded-md border border-line bg-accent-soft px-2 py-1 text-[0.7rem] font-semibold text-accent-dark"
         : "rounded-md border border-accent/30 bg-white px-2 py-1 text-[0.7rem] font-semibold text-accent";
@@ -604,11 +604,11 @@
 
     els.loginForm.addEventListener("submit", async (event) => {
       event.preventDefault();
-      els.settingsStatus.textContent = "加密憑證並登入中…";
       const username = els.username.value.trim();
       const password = els.password.value;
       const unlock = els.unlock.value;
       const worker = els.workerUrl.value.trim();
+      els.settingsStatus.textContent = worker ? "正在向 PTT 驗證帳密…" : "加密憑證並登入中…";
 
       try {
         if (worker) {
@@ -644,6 +644,7 @@
         if (worker) {
           ptt.setWorkerUrl(worker);
           ptt.setDemoMode(false);
+          els.settingsStatus.textContent = "正在向 PTT 驗證帳密…";
         }
         const result = await ptt.login(credentials);
         els.settingsStatus.textContent = result.message || "解鎖登入成功";

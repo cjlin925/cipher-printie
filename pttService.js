@@ -191,7 +191,7 @@ const DemoData = {
         `時間: 2026-${summary.date || "08/21"} 12:00:00`,
         "",
         "※ 此為 Cipher PTT Speed 本機示範內容（Demo Mode）。",
-        "※ 設定 Cloudflare Worker URL 後，會改打真實轉發 API。",
+        "※ 設定 Cloudflare Worker URL 後，會改打真實 PTT（登入走 ws.ptt.cc，文章走 www.ptt.cc）。",
         "",
         "設計原則：",
         "1. 帳密只在瀏覽器端加密保存，Worker 不落盤。",

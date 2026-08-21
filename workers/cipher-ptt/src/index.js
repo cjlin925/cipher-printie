@@ -1,14 +1,17 @@
 /**
- * Cipher PTT Speed — Cloudflare Worker stub
+ * Cipher PTT Speed — Cloudflare Worker
  *
  * Contract (see ../../pttService.js):
- *   POST /login
- *   GET  /hot-boards
- *   GET  /boards/:name
- *   GET  /boards/:name/:id
+ *   POST /login              → real PTT WebSocket login (password not stored)
+ *   GET  /hot-boards         → www.ptt.cc/bbs/hotboards.html
+ *   GET  /boards/:name       → www.ptt.cc board index
+ *   GET  /boards/:name/:id   → www.ptt.cc article
  *
  * Never persist plaintext PTT credentials (no KV / D1 / R2 password writes).
  */
+
+import { loginToPtt, LOGIN_REASONS } from "./pttWs.js";
+import { fetchHotBoards, fetchBoardArticles, fetchArticle } from "./pttWeb.js";
 
 const DEFAULT_ORIGINS = [
   "https://cjlin925.github.io",
@@ -20,45 +23,22 @@ const DEFAULT_ORIGINS = [
   "http://127.0.0.1:8765",
 ];
 
-const STUB_BOARDS = [
-  { name: "Gossiping", title: "八卦板", nuser: 12840, hot: true },
-  { name: "Stock", title: "股板", nuser: 6120, hot: true },
-  { name: "Baseball", title: "棒球", nuser: 4210, hot: true },
-  { name: "Tech_Job", title: "科技業面試", nuser: 2890, hot: true },
-  { name: "Mobilesales", title: "手機買賣", nuser: 1980, hot: false },
-  { name: "joke", title: "就可板", nuser: 1540, hot: false },
-];
+const SESSION_TTL_MS = 12 * 60 * 60 * 1000;
+const BOARD_NAME_RE = /^[A-Za-z0-9_-]{1,20}$/;
+const ARTICLE_ID_RE = /^M\.[0-9]+\.A\.[0-9A-Za-z]+$/;
 
-/** @type {Record<string, Array<{ id: string, title: string, author: string, date: string, push: number }>>} */
-const STUB_ARTICLES = {
-  Gossiping: [
-    { id: "M.1700000001.A.001", title: "[爆卦] Worker stub 已上線", author: "cipherer", date: "08/21", push: 99 },
-    { id: "M.1700000002.A.002", title: "[問卦] CORS 設定好了沒", author: "fastreader", date: "08/21", push: 42 },
-    { id: "M.1700000003.A.003", title: "[新聞] 無伺服器前端討論", author: "newsbot", date: "08/20", push: 18 },
-  ],
-  Stock: [
-    { id: "M.1700000101.A.001", title: "[標的] stub 資料勿跟單", author: "value", date: "08/21", push: 12 },
-    { id: "M.1700000102.A.002", title: "[心得] Worker 轉發架構", author: "holder", date: "08/20", push: 7 },
-  ],
-  Baseball: [
-    { id: "M.1700000201.A.001", title: "[Live] 示範賽況", author: "umpire", date: "08/21", push: 56 },
-  ],
-  Tech_Job: [
-    { id: "M.1700000301.A.001", title: "[請益] Cloudflare Worker 心得", author: "sre", date: "08/21", push: 33 },
-    { id: "M.1700000302.A.002", title: "[心得] 前後端分離", author: "mobiledev", date: "08/19", push: 21 },
-  ],
-  Mobilesales: [
-    { id: "M.1700000401.A.001", title: "[販售] Demo only", author: "seller", date: "08/18", push: 3 },
-  ],
-  joke: [
-    { id: "M.1700000501.A.001", title: "[豪傑] 告別黑底白字", author: "joker", date: "08/21", push: 88 },
-  ],
+const LOGIN_ERROR_MAP = {
+  [LOGIN_REASONS.WRONG_PASSWORD]: { status: 401, message: "帳號或密碼錯誤" },
+  [LOGIN_REASONS.SERVER_BUSY]: { status: 503, message: "PTT 忙碌中，請稍後再試" },
+  [LOGIN_REASONS.TIMEOUT]: { status: 504, message: "登入逾時，請再試一次" },
+  [LOGIN_REASONS.SOCKET_CLOSED]: { status: 502, message: "無法連線到 PTT" },
+  [LOGIN_REASONS.NO_PROMPT]: { status: 502, message: "PTT 登入畫面無回應" },
 };
 
 export default {
   /**
    * @param {Request} request
-   * @param {{ EXTRA_ORIGINS?: string }} env
+   * @param {{ EXTRA_ORIGINS?: string, SESSION_SECRET?: string }} env
    */
   async fetch(request, env) {
     const origin = request.headers.get("Origin") || "";
@@ -73,27 +53,32 @@ export default {
       const path = url.pathname.replace(/\/+$/, "") || "/";
 
       if (request.method === "POST" && path === "/login") {
-        return json(await handleLogin(request), 200, cors);
+        return json(await handleLogin(request, env), 200, cors);
       }
 
       if (request.method === "GET" && path === "/hot-boards") {
-        requireSession(request);
-        return json({ boards: STUB_BOARDS }, 200, cors);
+        await requireSession(request, env);
+        const boards = await fetchHotBoards();
+        return json({ boards }, 200, cors);
       }
 
       const boardArticle = path.match(/^\/boards\/([^/]+)\/([^/]+)$/);
       if (request.method === "GET" && boardArticle) {
-        requireSession(request);
+        await requireSession(request, env);
         const board = decodeURIComponent(boardArticle[1]);
         const id = decodeURIComponent(boardArticle[2]);
-        return json({ article: stubArticle(board, id) }, 200, cors);
+        assertBoard(board);
+        assertArticleId(id);
+        const article = await fetchArticle(board, id);
+        return json({ article }, 200, cors);
       }
 
       const boardOnly = path.match(/^\/boards\/([^/]+)$/);
       if (request.method === "GET" && boardOnly) {
-        requireSession(request);
+        await requireSession(request, env);
         const board = decodeURIComponent(boardOnly[1]);
-        const articles = (STUB_ARTICLES[board] || []).map((a) => ({ ...a, board }));
+        assertBoard(board);
+        const articles = await fetchBoardArticles(board);
         return json({ board, articles }, 200, cors);
       }
 
@@ -102,8 +87,8 @@ export default {
           {
             ok: true,
             service: "cipher-ptt-worker",
-            version: "0.1.0",
-            mode: "stub",
+            version: "0.2.0",
+            mode: "ptt",
             endpoints: ["/login", "/hot-boards", "/boards/:name", "/boards/:name/:id"],
           },
           200,
@@ -122,107 +107,158 @@ export default {
 
 /**
  * @param {Request} request
+ * @param {{ SESSION_SECRET?: string }} env
  */
-async function handleLogin(request) {
+async function handleLogin(request, env) {
   let body;
   try {
     body = await request.json();
   } catch {
-    const err = new Error("Invalid JSON body");
-    err.status = 400;
-    throw err;
+    throw httpError("Invalid JSON body", 400);
   }
 
   const username = String(body?.username || "").trim();
   const password = String(body?.password || "");
 
-  // Password is read only to validate presence — never logged or stored.
   if (!username || !password) {
-    const err = new Error("username and password are required");
-    err.status = 400;
-    throw err;
+    throw httpError("username and password are required", 400);
+  }
+  if (!/^[A-Za-z0-9]{2,20}$/.test(username)) {
+    throw httpError("invalid username", 400);
   }
 
-  const sessionToken = await mintSessionToken(username);
+  const result = await loginToPtt(username, password, { kick: false });
+  if (!result.ok) {
+    const mapped = LOGIN_ERROR_MAP[result.reason] || LOGIN_ERROR_MAP[LOGIN_REASONS.SOCKET_CLOSED];
+    throw httpError(mapped.message, mapped.status);
+  }
+
+  const sessionToken = await mintSessionToken(username, env);
 
   return {
     ok: true,
-    mode: "stub",
+    mode: "ptt",
     sessionToken,
     user: { username },
-    message: "Stub login OK — replace with real PTT bridge later.",
+    message: "已登入 PTT",
   };
 }
 
 /**
  * @param {string} username
+ * @param {{ SESSION_SECRET?: string }} env
  */
-async function mintSessionToken(username) {
-  const payload = {
+async function mintSessionToken(username, env) {
+  const secret = sessionSecret(env);
+  const payload = JSON.stringify({
     u: username,
     iat: Date.now(),
-    // Stub only: real impl should be random opaque IDs server-side.
-    n: crypto.randomUUID(),
-  };
-  const bytes = new TextEncoder().encode(JSON.stringify(payload));
-  let binary = "";
-  bytes.forEach((b) => {
-    binary += String.fromCharCode(b);
+    exp: Date.now() + SESSION_TTL_MS,
   });
-  return `stub.${btoa(binary)}`;
+  const payloadB64 = b64urlEncode(payload);
+  const sig = await hmacSign(secret, payloadB64);
+  return `v1.${payloadB64}.${sig}`;
 }
 
 /**
  * @param {Request} request
+ * @param {{ SESSION_SECRET?: string }} env
  */
-function requireSession(request) {
+async function requireSession(request, env) {
   const auth = request.headers.get("Authorization") || "";
-  if (!auth.startsWith("Bearer ") || auth.length < 16) {
-    const err = new Error("Unauthorized — login first");
-    err.status = 401;
-    throw err;
+  if (!auth.startsWith("Bearer ")) {
+    throw httpError("Unauthorized — login first", 401);
+  }
+  const token = auth.slice("Bearer ".length).trim();
+  const valid = await verifySessionToken(token, env);
+  if (!valid) {
+    throw httpError("Session expired — please login again", 401);
   }
 }
 
 /**
- * @param {string} board
- * @param {string} id
+ * @param {string} token
+ * @param {{ SESSION_SECRET?: string }} env
  */
-function stubArticle(board, id) {
-  const list = STUB_ARTICLES[board] || [];
-  const summary = list.find((a) => a.id === id) || {
-    id,
-    title: id,
-    author: "unknown",
-    date: "—",
-    push: 0,
-  };
+async function verifySessionToken(token, env) {
+  const parts = String(token || "").split(".");
+  if (parts.length !== 3 || parts[0] !== "v1") return false;
+  const [, payloadB64, sig] = parts;
+  const expected = await hmacSign(sessionSecret(env), payloadB64);
+  if (!timingSafeEqual(sig, expected)) return false;
+  try {
+    const payload = JSON.parse(b64urlDecode(payloadB64));
+    if (!payload?.u || typeof payload.exp !== "number") return false;
+    return payload.exp > Date.now();
+  } catch {
+    return false;
+  }
+}
 
-  return {
-    id: summary.id,
-    board,
-    title: summary.title,
-    author: summary.author,
-    date: summary.date,
-    push: summary.push,
-    content: [
-      `作者: ${summary.author}`,
-      `看板: ${board}`,
-      `標題: ${summary.title}`,
-      `時間: 2026-${summary.date || "08/21"} 12:00:00`,
-      "",
-      "※ 這是 Cloudflare Worker stub 回傳的示範內文。",
-      "※ 請在 workers/cipher-ptt/src/index.js 接上真實 PTT 轉發。",
-      "※ 帳密僅用於本次 /login 請求，Worker 不落盤。",
-      "",
-      "推文區（示範）",
-      "→ 推 cipherer: Worker CORS 通過",
-      "→ → fastreader: 接下來接 telnet/websocket",
-      "",
-      "--",
-      "※ 發信站: cipher-ptt-worker (stub)",
-    ].join("\n"),
-  };
+/** @param {{ SESSION_SECRET?: string }} env */
+function sessionSecret(env) {
+  const secret = String(env?.SESSION_SECRET || "").trim();
+  if (!secret) {
+    throw httpError("Worker SESSION_SECRET is not configured", 500);
+  }
+  return secret;
+}
+
+/**
+ * @param {string} secret
+ * @param {string} message
+ */
+async function hmacSign(secret, message) {
+  const key = await crypto.subtle.importKey(
+    "raw",
+    new TextEncoder().encode(secret),
+    { name: "HMAC", hash: "SHA-256" },
+    false,
+    ["sign"]
+  );
+  const sig = await crypto.subtle.sign("HMAC", key, new TextEncoder().encode(message));
+  return b64urlEncodeBytes(new Uint8Array(sig));
+}
+
+function timingSafeEqual(a, b) {
+  if (a.length !== b.length) return false;
+  let out = 0;
+  for (let i = 0; i < a.length; i += 1) out |= a.charCodeAt(i) ^ b.charCodeAt(i);
+  return out === 0;
+}
+
+function b64urlEncode(text) {
+  return b64urlEncodeBytes(new TextEncoder().encode(text));
+}
+
+function b64urlEncodeBytes(bytes) {
+  let binary = "";
+  bytes.forEach((b) => {
+    binary += String.fromCharCode(b);
+  });
+  return btoa(binary).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/g, "");
+}
+
+function b64urlDecode(text) {
+  const padded = text.replace(/-/g, "+").replace(/_/g, "/") + "===".slice((text.length + 3) % 4);
+  const binary = atob(padded);
+  const bytes = new Uint8Array(binary.length);
+  for (let i = 0; i < binary.length; i += 1) bytes[i] = binary.charCodeAt(i);
+  return new TextDecoder().decode(bytes);
+}
+
+function assertBoard(name) {
+  if (!BOARD_NAME_RE.test(name)) throw httpError("invalid board name", 400);
+}
+
+function assertArticleId(id) {
+  if (!ARTICLE_ID_RE.test(id)) throw httpError("invalid article id", 400);
+}
+
+function httpError(message, status) {
+  const err = new Error(message);
+  err.status = status;
+  return err;
 }
 
 /**
@@ -245,8 +281,6 @@ function buildCorsHeaders(origin, env) {
 
   if (origin && (allowed.has(origin) || isLocalDevOrigin(origin))) {
     headers.set("Access-Control-Allow-Origin", origin);
-  } else if (!origin) {
-    // Non-browser clients (curl / wrangler) — no ACAO needed.
   }
 
   return headers;

@@ -7,5 +7,8 @@ workers_dev = true
 # routes = [{ pattern = "ptt-api.example.com/*", zone_name = "example.com" }]
 
 [vars]
+# Signs browser session tokens only — never a PTT password.
+# Override in production: npx wrangler secret put SESSION_SECRET
+SESSION_SECRET = "cipher-ptt-dev-change-me"
 # Comma-separated extra allowed origins (optional)
 # EXTRA_ORIGINS = "https://example.com"
