@@ -216,8 +216,36 @@
     .ptt-row:active { background: #f3f6f4; }
     .ptt-row:last-child { border-bottom: 0; }
 
+    .gesture-hint {
+      pointer-events: none;
+      position: fixed;
+      left: 50%;
+      bottom: max(1.25rem, env(safe-area-inset-bottom));
+      z-index: 40;
+      transform: translateX(-50%) translateY(8px);
+      opacity: 0;
+      transition: opacity 160ms ease, transform 160ms ease;
+      border-radius: 999px;
+      border: 1px solid rgba(23, 32, 27, 0.1);
+      background: rgba(255, 255, 255, 0.94);
+      color: #17412f;
+      padding: 0.45rem 0.85rem;
+      font-size: 0.78rem;
+      font-weight: 600;
+      box-shadow: 0 8px 24px rgba(23, 32, 27, 0.12);
+    }
+
+    .gesture-hint.is-on {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+
     .safe-bottom {
       padding-bottom: max(1rem, env(safe-area-inset-bottom));
+    }
+
+    main {
+      touch-action: pan-y;
     }
   </style>
 </head>
@@ -393,9 +421,11 @@
   </main>
 
   <footer class="mx-auto max-w-3xl px-4 pb-8 text-center text-xs text-muted sm:px-6">
-    Cipher Printie · Speed PTT 實驗模組 · 帳密不上雲端資料庫
-    <span class="ml-1 inline-block rounded-full border border-line bg-white px-2 py-0.5 font-mono text-[0.65rem] font-bold tracking-wide text-accent-dark">Speed PTT v0.3.0</span>
+    Cipher Printie · Speed PTT 實驗模組 · 右滑返回 · 閱讀器左右滑切換文章
+    <span class="ml-1 inline-block rounded-full border border-line bg-white px-2 py-0.5 font-mono text-[0.65rem] font-bold tracking-wide text-accent-dark">Speed PTT v0.3.1</span>
   </footer>
+
+  <div id="gesture-hint" class="gesture-hint" aria-live="polite"></div>
 
   <script type="module">
     import { createPttService, PttServiceError } from "./pttService.js";
@@ -457,6 +487,7 @@
       articleContent: document.getElementById("article-content"),
       articleCrumb: document.getElementById("article-crumb"),
       articleStatus: document.getElementById("article-status"),
+      gestureHint: document.getElementById("gesture-hint"),
     };
 
     const state = {
@@ -466,6 +497,8 @@
       activeArticleId: null,
       articleCache: [],
     };
+
+    let gestureHintTimer = 0;
 
     function errMessage(error) {
       if (error instanceof PttServiceError) return error.message;
@@ -487,6 +520,49 @@
         node.classList.toggle("hidden", key !== name);
       });
       window.scrollTo(0, 0);
+    }
+
+    function showGestureHint(message) {
+      if (!els.gestureHint || !message) return;
+      els.gestureHint.textContent = message;
+      els.gestureHint.classList.add("is-on");
+      window.clearTimeout(gestureHintTimer);
+      gestureHintTimer = window.setTimeout(() => {
+        els.gestureHint.classList.remove("is-on");
+      }, 900);
+    }
+
+    function currentArticleIndex() {
+      return state.articleCache.findIndex((item) => item.id === state.activeArticleId);
+    }
+
+    function goBack() {
+      if (state.view === "article") {
+        if (state.activeBoard) showView("thread");
+        else showView("boards");
+        return true;
+      }
+      if (state.view === "thread") {
+        state.activeBoard = null;
+        state.articleCache = [];
+        showView("boards");
+        return true;
+      }
+      return false;
+    }
+
+    function openAdjacentArticle(delta) {
+      if (state.view !== "article" || !state.articleCache.length) return false;
+      const index = currentArticleIndex();
+      if (index < 0) return false;
+      const next = state.articleCache[index + delta];
+      if (!next) {
+        showGestureHint(delta > 0 ? "已經是列表最後一篇" : "已經是列表第一篇");
+        return false;
+      }
+      showGestureHint(delta > 0 ? "下一篇" : "上一篇");
+      openArticle(next.board || state.activeBoard, next.id);
+      return true;
     }
 
     function nrecClass(push) {
@@ -686,17 +762,104 @@
       if (state.activeBoard) loadBoardArticles(state.activeBoard, state.activeBoardTitle, { force: true });
     });
     document.getElementById("btn-back-hot").addEventListener("click", () => {
-      state.activeBoard = null;
-      state.articleCache = [];
-      showView("boards");
+      goBack();
     });
     document.getElementById("btn-back-thread").addEventListener("click", () => {
-      if (state.activeBoard) {
-        showView("thread");
-        return;
-      }
-      showView("boards");
+      goBack();
     });
+
+    (function initGestures() {
+      const MIN_DX = 64;
+      const MAX_DURATION = 700;
+      const swipe = {
+        active: false,
+        x0: 0,
+        y0: 0,
+        t0: 0,
+        locked: "",
+      };
+
+      function ignoreTarget(target) {
+        return Boolean(
+          target?.closest?.(
+            "input, textarea, select, button, a, label, .site-nav, #login-form"
+          )
+        );
+      }
+
+      function onStart(event) {
+        if (event.touches?.length !== 1) return;
+        if (state.view === "settings" || state.view === "boards") return;
+        const touch = event.touches[0];
+        if (ignoreTarget(event.target)) return;
+        swipe.active = true;
+        swipe.x0 = touch.clientX;
+        swipe.y0 = touch.clientY;
+        swipe.t0 = Date.now();
+        swipe.locked = "";
+      }
+
+      function onMove(event) {
+        if (!swipe.active || event.touches?.length !== 1) return;
+        const touch = event.touches[0];
+        const dx = touch.clientX - swipe.x0;
+        const dy = touch.clientY - swipe.y0;
+        if (!swipe.locked) {
+          if (Math.abs(dx) < 12 && Math.abs(dy) < 12) return;
+          swipe.locked = Math.abs(dx) > Math.abs(dy) * 1.15 ? "x" : "y";
+        }
+        if (swipe.locked === "x" && Math.abs(dx) > 18) {
+          // Keep the page from rubber-banding sideways while swiping.
+          event.preventDefault();
+        }
+      }
+
+      function onEnd(event) {
+        if (!swipe.active) return;
+        const touch = event.changedTouches?.[0];
+        swipe.active = false;
+        if (!touch || swipe.locked === "y") return;
+        const dx = touch.clientX - swipe.x0;
+        const dy = touch.clientY - swipe.y0;
+        const dt = Date.now() - swipe.t0;
+        if (dt > MAX_DURATION) return;
+        if (Math.abs(dx) < MIN_DX || Math.abs(dx) < Math.abs(dy) * 1.35) return;
+
+        if (dx > 0) {
+          // Right swipe: previous article in reader, otherwise back.
+          if (state.view === "article") {
+            const index = currentArticleIndex();
+            if (index > 0) {
+              openAdjacentArticle(-1);
+              return;
+            }
+          }
+          if (goBack()) showGestureHint("返回");
+          return;
+        }
+
+        // Left swipe: next article while reading.
+        if (state.view === "article") openAdjacentArticle(1);
+      }
+
+      document.addEventListener("touchstart", onStart, { passive: true });
+      document.addEventListener("touchmove", onMove, { passive: false });
+      document.addEventListener("touchend", onEnd, { passive: true });
+      document.addEventListener("touchcancel", () => {
+        swipe.active = false;
+      }, { passive: true });
+
+      document.addEventListener("keydown", (event) => {
+        if (event.target?.closest?.("input, textarea, select")) return;
+        if (event.key === "Escape") {
+          goBack();
+          return;
+        }
+        if (state.view !== "article") return;
+        if (event.key === "ArrowLeft") openAdjacentArticle(-1);
+        if (event.key === "ArrowRight") openAdjacentArticle(1);
+      });
+    })();
 
     els.boardsList.addEventListener("click", (event) => {
       const btn = event.target.closest("[data-board]");
