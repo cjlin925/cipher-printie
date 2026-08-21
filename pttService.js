@@ -21,6 +21,7 @@ const STORAGE_KEYS = Object.freeze({
   workerUrl: "cipher-ptt-speed.worker-url.v1",
   demoMode: "cipher-ptt-speed.demo.v1",
   rememberUser: "cipher-ptt-speed.remember-user.v1",
+  favorites: "cipher-ptt-speed.favorites.v1",
 });
 
 const DEFAULT_WORKER_URL = "";
@@ -284,6 +285,59 @@ export class PttService {
 
   isLoggedIn() {
     return Boolean(this.sessionToken || (this.demoMode && this.username));
+  }
+
+  /**
+   * Local favorite boards (★). Shown above hot boards after login.
+   * @returns {Array<{ name: string, title?: string }>}
+   */
+  getFavoriteBoards() {
+    try {
+      const raw = localStorage.getItem(STORAGE_KEYS.favorites);
+      const list = raw ? JSON.parse(raw) : [];
+      if (!Array.isArray(list)) return [];
+      return list
+        .map((item) => ({
+          name: String(item?.name || "").trim(),
+          title: String(item?.title || item?.name || "").trim(),
+        }))
+        .filter((item) => item.name);
+    } catch {
+      return [];
+    }
+  }
+
+  /** @param {Array<{ name: string, title?: string }>} boards */
+  saveFavoriteBoards(boards) {
+    const cleaned = (Array.isArray(boards) ? boards : [])
+      .map((item) => ({
+        name: String(item?.name || "").trim(),
+        title: String(item?.title || item?.name || "").trim(),
+      }))
+      .filter((item) => item.name)
+      .slice(0, 40);
+    localStorage.setItem(STORAGE_KEYS.favorites, JSON.stringify(cleaned));
+    return cleaned;
+  }
+
+  isFavorite(boardName) {
+    const name = String(boardName || "").trim();
+    return this.getFavoriteBoards().some((board) => board.name === name);
+  }
+
+  /**
+   * @param {{ name: string, title?: string }} board
+   * @returns {boolean} true if now favorited
+   */
+  toggleFavorite(board) {
+    const name = String(board?.name || "").trim();
+    if (!name) return false;
+    const title = String(board?.title || name).trim() || name;
+    let list = this.getFavoriteBoards().filter((item) => item.name !== name);
+    const wasFavorite = this.isFavorite(name);
+    if (!wasFavorite) list = [{ name, title }, ...list];
+    this.saveFavoriteBoards(list);
+    return !wasFavorite;
   }
 
   hasVault() {

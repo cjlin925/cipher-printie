@@ -51,6 +51,25 @@ function parsePush(raw) {
   return Number.isFinite(n) ? n : 0;
 }
 
+/** Map www.ptt.cc color spans (f0–f7 / b0–b7 / hl) into ANSI SGR for the reader. */
+function htmlColorsToAnsi(html) {
+  return String(html || "").replace(/<span\b([^>]*)>([\s\S]*?)<\/span>/gi, (_, attrs, inner) => {
+    const converted = htmlColorsToAnsi(inner);
+    const cls = `${attrs.match(/class\s*=\s*"([^"]*)"/i)?.[1] || ""} ${
+      attrs.match(/class\s*=\s*'([^']*)'/i)?.[1] || ""
+    }`;
+    const codes = [];
+    const hl = /\bhl\b/.test(cls);
+    const fg = cls.match(/\bf([0-7])\b/);
+    const bg = cls.match(/\bb([0-7])\b/);
+    if (fg) codes.push((hl ? 90 : 30) + Number(fg[1]));
+    else if (hl) codes.push(1);
+    if (bg) codes.push(40 + Number(bg[1]));
+    if (!codes.length) return converted;
+    return `\x1b[${codes.join(";")}m${converted}\x1b[0m`;
+  });
+}
+
 /**
  * @param {string} board
  * @param {string} [path]
@@ -185,12 +204,14 @@ export async function fetchArticle(board, articleId) {
     .replace(/<div class="article-metaline[\s\S]*?<\/div>/g, "")
     .replace(/<div class="article-metaline-right"[\s\S]*?<\/div>/g, "");
 
-  const withPushes = bodyHtml.replace(
+  const coloredBody = htmlColorsToAnsi(bodyHtml);
+
+  const withPushes = coloredBody.replace(
     /<div class="push">([\s\S]*?)<\/div>/g,
     (_, pushHtml) => {
       const tag = innerText(pushHtml.match(/push-tag">([^<]*)/)?.[1] || "").trim();
       const user = innerText(pushHtml.match(/push-userid">([^<]*)/)?.[1] || "").trim();
-      const content = innerText(pushHtml.match(/push-content">:?\s*([\s\S]*?)<\/span>/)?.[1] || "");
+      const content = innerText(htmlColorsToAnsi(pushHtml.match(/push-content">:?\s*([\s\S]*?)<\/span>/)?.[1] || ""));
       const time = innerText(pushHtml.match(/push-ipdatetime">([^<]*)/)?.[1] || "").trim();
       return `\n${tag} ${user}${content ? `: ${content}` : ""}${time ? `  ${time}` : ""}`;
     }

@@ -205,16 +205,48 @@
       display: flex;
       width: 100%;
       align-items: flex-start;
-      gap: 0.7rem;
-      padding: 0.72rem 0.9rem;
+      gap: 0.45rem;
+      padding: 0.72rem 0.75rem 0.72rem 0.45rem;
       text-align: left;
       border: 0;
       border-bottom: 1px solid #ecefed;
       background: #fff;
-      cursor: pointer;
     }
     .ptt-row:active { background: #f3f6f4; }
     .ptt-row:last-child { border-bottom: 0; }
+    .ptt-row > button[data-board] {
+      border: 0;
+      background: transparent;
+      padding: 0;
+      cursor: pointer;
+    }
+
+    .fav-btn {
+      flex: 0 0 auto;
+      width: 2rem;
+      height: 2rem;
+      margin: -0.25rem 0;
+      border: 0;
+      border-radius: 999px;
+      background: transparent;
+      color: #b7beb9;
+      font-size: 1.05rem;
+      line-height: 1;
+      cursor: pointer;
+    }
+    .fav-btn.is-on { color: #d97706; }
+    .fav-btn:active { background: #f3f6f4; }
+
+    .board-section-title {
+      padding: 0.55rem 0.9rem 0.35rem;
+      color: #69736d;
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+    }
+
+    .ansi-bold { font-weight: 700; }
 
     .gesture-hint {
       pointer-events: none;
@@ -347,12 +379,12 @@
       </div>
     </section>
 
-    <!-- Hot boards (PTT app home) -->
+    <!-- Boards home: favorites first, then hot -->
     <section id="view-boards" class="hidden space-y-3" aria-labelledby="boards-heading">
       <div class="flex items-center justify-between gap-3">
         <div class="min-w-0">
-          <h2 id="boards-heading" class="text-xl font-semibold tracking-tight">熱門看板</h2>
-          <p class="mt-0.5 text-sm text-muted">點看板進入文章列表</p>
+          <h2 id="boards-heading" class="text-xl font-semibold tracking-tight">看板</h2>
+          <p class="mt-0.5 text-sm text-muted">我的最愛優先 · 點 ★ 加入最愛</p>
         </div>
         <button type="button" id="btn-refresh-boards" class="rounded-lg border border-line bg-white px-3 py-1.5 text-sm font-medium hover:border-accent/40">重整</button>
       </div>
@@ -364,7 +396,7 @@
         <div class="skeleton h-14 border-b border-line"></div>
         <div class="skeleton h-14"></div>
       </div>
-      <div id="boards-list" class="overflow-hidden rounded-2xl border border-line bg-white"></div>
+      <div id="boards-home" class="space-y-3"></div>
       <p id="boards-status" class="text-sm text-muted" role="status" aria-live="polite"></p>
     </section>
 
@@ -376,6 +408,7 @@
           <h2 id="thread-heading" class="truncate text-lg font-semibold tracking-tight">看板</h2>
           <p id="thread-sub" class="truncate text-sm text-muted"></p>
         </div>
+        <button type="button" id="btn-fav-thread" class="fav-btn" aria-label="加入我的最愛" title="我的最愛">☆</button>
         <button type="button" id="btn-refresh-thread" class="shrink-0 rounded-lg border border-line bg-white px-3 py-1.5 text-sm font-medium hover:border-accent/40">重整</button>
       </div>
 
@@ -421,8 +454,8 @@
   </main>
 
   <footer class="mx-auto max-w-3xl px-4 pb-8 text-center text-xs text-muted sm:px-6">
-    Cipher Printie · Speed PTT 實驗模組 · 右滑返回 · 閱讀器左右滑切換文章
-    <span class="ml-1 inline-block rounded-full border border-line bg-white px-2 py-0.5 font-mono text-[0.65rem] font-bold tracking-wide text-accent-dark">Speed PTT v0.3.1</span>
+    Cipher Printie · Speed PTT · 右滑返回 · 左滑下一篇 · ANSI 色碼
+    <span class="ml-1 inline-block rounded-full border border-line bg-white px-2 py-0.5 font-mono text-[0.65rem] font-bold tracking-wide text-accent-dark">Speed PTT v0.4.0</span>
   </footer>
 
   <div id="gesture-hint" class="gesture-hint" aria-live="polite"></div>
@@ -471,12 +504,13 @@
       settingsStatus: document.getElementById("settings-status"),
       vaultPanel: document.getElementById("vault-panel"),
       vaultMeta: document.getElementById("vault-meta"),
-      boardsList: document.getElementById("boards-list"),
+      boardsList: document.getElementById("boards-home"),
       boardsSkeleton: document.getElementById("boards-skeleton"),
       boardsStatus: document.getElementById("boards-status"),
       threadHeading: document.getElementById("thread-heading"),
       threadSub: document.getElementById("thread-sub"),
       threadStatus: document.getElementById("thread-status"),
+      favThreadBtn: document.getElementById("btn-fav-thread"),
       articlesList: document.getElementById("articles-list"),
       articlesSkeleton: document.getElementById("articles-skeleton"),
       articleSkeleton: document.getElementById("article-skeleton"),
@@ -597,11 +631,111 @@
         .split("\n")
         .map((line) => {
           const match = line.match(/^(推|噓|→)\s(.*)$/);
-          if (!match) return escapeHtml(line);
+          if (!match) return ansiToHtml(line);
           const kind = match[1] === "推" ? "push" : match[1] === "噓" ? "boo" : "arrow";
-          return `<span class="push-line push-${kind}"><span class="push-tag">${escapeHtml(match[1])}</span>${escapeHtml(` ${match[2]}`)}</span>`;
+          return `<span class="push-line push-${kind}"><span class="push-tag">${escapeHtml(match[1])}</span> ${ansiToHtml(match[2])}</span>`;
         })
         .join("\n");
+    }
+
+    const ANSI_FG = {
+      30: "#9ca3af",
+      31: "#f87171",
+      32: "#4ade80",
+      33: "#facc15",
+      34: "#60a5fa",
+      35: "#e879f9",
+      36: "#22d3ee",
+      37: "#e5e7eb",
+      90: "#d1d5db",
+      91: "#fca5a5",
+      92: "#86efac",
+      93: "#fde047",
+      94: "#93c5fd",
+      95: "#f0abfc",
+      96: "#67e8f9",
+      97: "#ffffff",
+    };
+    const ANSI_BG = {
+      40: "#111827",
+      41: "#7f1d1d",
+      42: "#14532d",
+      43: "#713f12",
+      44: "#1e3a8a",
+      45: "#701a75",
+      46: "#155e75",
+      47: "#374151",
+    };
+
+    function ansiToHtml(text) {
+      const parts = String(text ?? "").split(/(\u001b\[[0-9;]*m)/);
+      let html = "";
+      let open = false;
+      let style = { fg: null, bg: null, bold: false };
+
+      const openSpan = () => {
+        const css = [];
+        if (style.fg) css.push(`color:${style.fg}`);
+        if (style.bg) css.push(`background:${style.bg}`);
+        if (style.bold) css.push("font-weight:700");
+        return css.length ? `<span style="${css.join(";")}">` : "";
+      };
+
+      for (const part of parts) {
+        const seq = part.match(/^\u001b\[([0-9;]*)m$/);
+        if (seq) {
+          if (open) {
+            html += "</span>";
+            open = false;
+          }
+          const codes = seq[1] === "" ? [0] : seq[1].split(";").map((n) => Number(n));
+          for (const code of codes) {
+            if (code === 0) style = { fg: null, bg: null, bold: false };
+            else if (code === 1) style.bold = true;
+            else if (code === 22) style.bold = false;
+            else if (ANSI_FG[code]) style.fg = ANSI_FG[code];
+            else if (ANSI_BG[code]) style.bg = ANSI_BG[code];
+            else if (code === 39) style.fg = null;
+            else if (code === 49) style.bg = null;
+          }
+          const span = openSpan();
+          if (span) {
+            html += span;
+            open = true;
+          }
+          continue;
+        }
+        html += escapeHtml(part);
+      }
+      if (open) html += "</span>";
+      return html;
+    }
+
+    function favButtonMarkup(boardName, boardTitle) {
+      const on = ptt.isFavorite(boardName);
+      return `<button type="button" class="fav-btn${on ? " is-on" : ""}" data-fav-board="${escapeAttr(boardName)}" data-fav-title="${escapeAttr(boardTitle || boardName)}" aria-label="${on ? "取消最愛" : "加入最愛"}">${on ? "★" : "☆"}</button>`;
+    }
+
+    function boardRowMarkup(board, options = {}) {
+      const { showUsers = true } = options;
+      const title = board.title || board.name;
+      return `
+        <div class="ptt-row" role="listitem">
+          ${favButtonMarkup(board.name, title)}
+          <button type="button" class="min-w-0 flex-1 text-left" data-board="${escapeAttr(board.name)}" data-board-title="${escapeAttr(title)}">
+            <span class="block truncate font-semibold tracking-tight text-ink">${escapeHtml(board.name)}</span>
+            <span class="mt-0.5 block truncate text-sm text-muted">${escapeHtml(title)}</span>
+          </button>
+          ${showUsers ? `<span class="nrec nrec-mid shrink-0">${board.nuser != null ? Number(board.nuser).toLocaleString() : "—"}</span>` : ""}
+        </div>`;
+    }
+
+    function syncThreadFavoriteButton() {
+      if (!els.favThreadBtn || !state.activeBoard) return;
+      const on = ptt.isFavorite(state.activeBoard);
+      els.favThreadBtn.classList.toggle("is-on", on);
+      els.favThreadBtn.textContent = on ? "★" : "☆";
+      els.favThreadBtn.setAttribute("aria-label", on ? "取消最愛" : "加入最愛");
     }
 
     function refreshVaultPanel() {
@@ -617,35 +751,74 @@
     async function afterLogin() {
       updateModeBadge();
       showView("boards");
-      await loadHotBoards();
+      await loadHomeBoards();
     }
 
-    async function loadHotBoards() {
+    async function loadHomeBoards() {
       els.boardsStatus.textContent = "";
       els.boardsList.innerHTML = "";
       els.boardsSkeleton.classList.remove("hidden");
       try {
         const { boards } = await ptt.getHotBoards();
         els.boardsSkeleton.classList.add("hidden");
-        if (!boards.length) {
-          els.boardsStatus.textContent = "目前沒有熱門看板。";
+        const favorites = ptt.getFavoriteBoards();
+        const hotNames = new Set(boards.map((board) => board.name));
+        const favoriteRows = favorites.map((fav) => {
+          const hot = boards.find((board) => board.name === fav.name);
+          return {
+            name: fav.name,
+            title: hot?.title || fav.title || fav.name,
+            nuser: hot?.nuser,
+            hot: true,
+          };
+        });
+        const hotOnly = boards.filter((board) => !favorites.some((fav) => fav.name === board.name));
+
+        if (!favoriteRows.length && !hotOnly.length) {
+          els.boardsStatus.textContent = "目前沒有看板。";
           return;
         }
-        els.boardsList.innerHTML = boards
-          .map(
-            (board) => `
-            <button type="button" class="ptt-row" data-board="${escapeAttr(board.name)}" data-board-title="${escapeAttr(board.title || board.name)}">
-              <span class="min-w-0 flex-1">
-                <span class="block truncate font-semibold tracking-tight text-ink">${escapeHtml(board.name)}</span>
-                <span class="mt-0.5 block truncate text-sm text-muted">${escapeHtml(board.title || "")}</span>
-              </span>
-              <span class="nrec nrec-mid shrink-0">${board.nuser != null ? Number(board.nuser).toLocaleString() : "—"}</span>
-            </button>`
-          )
-          .join("");
+
+        const chunks = [];
+        if (favoriteRows.length) {
+          chunks.push(`
+            <div class="overflow-hidden rounded-2xl border border-line bg-white">
+              <div class="board-section-title">我的最愛</div>
+              ${favoriteRows.map((board) => boardRowMarkup(board, { showUsers: board.nuser != null })).join("")}
+            </div>`);
+        } else {
+          chunks.push(`
+            <div class="rounded-2xl border border-dashed border-line bg-white/70 px-4 py-3 text-sm text-muted">
+              尚未加入最愛。在熱門看板點 ★，登入後會優先顯示在這裡。
+            </div>`);
+        }
+
+        if (hotOnly.length) {
+          chunks.push(`
+            <div class="overflow-hidden rounded-2xl border border-line bg-white">
+              <div class="board-section-title">熱門看板</div>
+              ${hotOnly.map((board) => boardRowMarkup(board)).join("")}
+            </div>`);
+        } else if (!favoriteRows.length) {
+          /* already empty */
+        } else if (!hotNames.size) {
+          els.boardsStatus.textContent = "熱門看板暫時無法載入。";
+        }
+
+        els.boardsList.innerHTML = chunks.join("");
       } catch (error) {
         els.boardsSkeleton.classList.add("hidden");
-        els.boardsStatus.textContent = errMessage(error);
+        const favorites = ptt.getFavoriteBoards();
+        if (favorites.length) {
+          els.boardsList.innerHTML = `
+            <div class="overflow-hidden rounded-2xl border border-line bg-white">
+              <div class="board-section-title">我的最愛</div>
+              ${favorites.map((board) => boardRowMarkup(board, { showUsers: false })).join("")}
+            </div>`;
+          els.boardsStatus.textContent = `熱門看板載入失敗：${errMessage(error)}`;
+        } else {
+          els.boardsStatus.textContent = errMessage(error);
+        }
       }
     }
 
@@ -657,6 +830,7 @@
       els.threadHeading.textContent = boardName;
       els.threadSub.textContent = state.activeBoardTitle;
       els.threadStatus.textContent = "";
+      syncThreadFavoriteButton();
 
       if (!force && state.articleCache.length && els.articlesList.childElementCount) {
         return;
@@ -757,7 +931,7 @@
       showView("settings");
     });
 
-    document.getElementById("btn-refresh-boards").addEventListener("click", () => loadHotBoards());
+    document.getElementById("btn-refresh-boards").addEventListener("click", () => loadHomeBoards());
     document.getElementById("btn-refresh-thread").addEventListener("click", () => {
       if (state.activeBoard) loadBoardArticles(state.activeBoard, state.activeBoardTitle, { force: true });
     });
@@ -766,6 +940,12 @@
     });
     document.getElementById("btn-back-thread").addEventListener("click", () => {
       goBack();
+    });
+    els.favThreadBtn.addEventListener("click", () => {
+      if (!state.activeBoard) return;
+      ptt.toggleFavorite({ name: state.activeBoard, title: state.activeBoardTitle || state.activeBoard });
+      syncThreadFavoriteButton();
+      showGestureHint(ptt.isFavorite(state.activeBoard) ? "已加入最愛" : "已取消最愛");
     });
 
     (function initGestures() {
@@ -809,7 +989,6 @@
           swipe.locked = Math.abs(dx) > Math.abs(dy) * 1.15 ? "x" : "y";
         }
         if (swipe.locked === "x" && Math.abs(dx) > 18) {
-          // Keep the page from rubber-banding sideways while swiping.
           event.preventDefault();
         }
       }
@@ -826,14 +1005,7 @@
         if (Math.abs(dx) < MIN_DX || Math.abs(dx) < Math.abs(dy) * 1.35) return;
 
         if (dx > 0) {
-          // Right swipe: previous article in reader, otherwise back.
-          if (state.view === "article") {
-            const index = currentArticleIndex();
-            if (index > 0) {
-              openAdjacentArticle(-1);
-              return;
-            }
-          }
+          // Right swipe: always leave current screen / go up one level.
           if (goBack()) showGestureHint("返回");
           return;
         }
@@ -856,12 +1028,22 @@
           return;
         }
         if (state.view !== "article") return;
-        if (event.key === "ArrowLeft") openAdjacentArticle(-1);
+        if (event.key === "ArrowLeft") goBack();
         if (event.key === "ArrowRight") openAdjacentArticle(1);
       });
     })();
 
     els.boardsList.addEventListener("click", (event) => {
+      const favBtn = event.target.closest("[data-fav-board]");
+      if (favBtn) {
+        event.preventDefault();
+        const name = favBtn.getAttribute("data-fav-board");
+        const title = favBtn.getAttribute("data-fav-title") || name;
+        const on = ptt.toggleFavorite({ name, title });
+        showGestureHint(on ? "已加入最愛" : "已取消最愛");
+        loadHomeBoards();
+        return;
+      }
       const btn = event.target.closest("[data-board]");
       if (!btn) return;
       state.articleCache = [];
@@ -947,7 +1129,7 @@
     refreshVaultPanel();
     if (ptt.isLoggedIn()) {
       showView("boards");
-      loadHotBoards();
+      loadHomeBoards();
     } else {
       showView("settings");
     }
