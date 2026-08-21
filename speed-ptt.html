@@ -891,7 +891,7 @@
 
     async function afterLogin() {
       updateModeBadge();
-      openTab("hot");
+      openTab("favorites");
     }
 
     async function loadHotBoards() {
@@ -1314,7 +1314,7 @@
     updateModeBadge();
     refreshVaultPanel();
     if (ptt.isLoggedIn()) {
-      openTab("hot");
+      openTab("favorites");
     } else {
       showView("settings");
     }

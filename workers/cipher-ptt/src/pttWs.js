@@ -78,8 +78,17 @@ const PHRASES = {
     bytes: [u8("e7 9b ae e5 89 8d e9 a1 a5 e7 a4 ba"), u8("e9 9b a2 e9 96 8b")],
   },
   favList: {
-    text: ["看板列表"],
-    bytes: [u8("ac dd aa 4f a6 43 aa ed"), u8("e7 9c 8b e6 9d bf e5 88 97 e8 a1 a8")],
+    text: ["看板列表", "選擇看板", "增加看板", "進入已知板名"],
+    bytes: [
+      u8("ac dd aa 4f a6 43 aa ed"),
+      u8("e7 9c 8b e6 9d bf e5 88 97 e8 a1 a8"),
+      u8("bf ef be dc ac dd aa 4f"),
+      u8("e9 81 b8 e6 93 87 e7 9c 8b e6 9d bf"),
+      u8("bc 57 a5 5b ac dd aa 4f"),
+      u8("e5 a2 9e e5 8a a0 e7 9c 8b e6 9d bf"),
+      u8("b6 69 a4 4a a4 77 aa be aa 4f a6 57"),
+      u8("e9 80 b2 e5 85 a5 e5 b7 b2 e7 9f a5 e6 9d bf e5 90 8d"),
+    ],
   },
 };
 
@@ -317,28 +326,29 @@ const SKIP_BOARD_NAMES = new Set([
  */
 async function scrapeFavorites(bot) {
   try {
-    for (let i = 0; i < 8; i += 1) {
-      await bot.drain();
-      if (bot.has(PHRASES.mainMenu)) break;
-      bot.send("q");
-      await sleep(220);
-    }
-    bot.send(`F${KEY_ENTER}`);
-    const ok = await bot.waitFor((sock) => sock.has(PHRASES.favList), 5_000);
-    if (!ok) {
-      console.log(`ptt favorites screen missing tail=${sanitizeTail(bot)}`);
-      return [];
-    }
-    await sleep(350);
     await bot.drain();
-    let boards = parseFavoriteBoards(bot.screen);
-    if (boards.length < 6) {
-      bot.send(" ");
-      await sleep(400);
-      await bot.drain();
-      boards = parseFavoriteBoards(bot.screen);
+    if (!bot.has(PHRASES.favList)) {
+      for (let i = 0; i < 8; i += 1) {
+        await bot.drain();
+        if (bot.has(PHRASES.mainMenu) || bot.has(PHRASES.favList)) break;
+        bot.send("q");
+        await sleep(220);
+      }
+      if (!bot.has(PHRASES.favList)) {
+        bot.send(`F${KEY_ENTER}`);
+        await bot.waitFor((sock) => sock.has(PHRASES.favList), 4_000);
+      }
     }
-    console.log(`ptt favorites scraped ${boards.length}`);
+    await sleep(300);
+    await bot.drain();
+    let boards = parseFavoriteBoards(bot.tail.length > 200 ? bot.tail : bot.screen);
+    if (boards.length < 4) {
+      bot.send(" ");
+      await sleep(350);
+      await bot.drain();
+      boards = parseFavoriteBoards(bot.tail);
+    }
+    console.log(`ptt favorites scraped ${boards.length} ${boards.map((b) => b.name).join(",")}`);
     return boards;
   } catch (error) {
     console.log(`ptt favorites scrape failed: ${error?.message || error}`);
@@ -351,21 +361,28 @@ async function scrapeFavorites(bot) {
  * @returns {Array<{ name: string, title: string }>}
  */
 function parseFavoriteBoards(screen) {
-  const text = String(screen || "").replace(/\x1b\[[\??!>]?[0-9;]*[@A-Za-z`]/g, "");
+  const text = String(screen || "")
+    .replace(/\x1b\[[\??!>]?[0-9;]*[@A-Za-z`]/g, "")
+    .replace(/\r/g, "\n");
   const found = [];
   const seen = new Set();
-  const numbered = /(?:^|[\n\r])[> ]{0,4}\s*\d{1,3}\s+([A-Za-z][A-Za-z0-9_-]{1,19})\s+([^\n\r]*)/gm;
-  let match;
-  while ((match = numbered.exec(text))) {
-    const name = match[1];
-    const key = name.toLowerCase();
-    if (seen.has(key) || SKIP_BOARD_NAMES.has(key)) continue;
+
+  const add = (name, title) => {
+    const key = String(name || "").toLowerCase();
+    if (!key || seen.has(key) || SKIP_BOARD_NAMES.has(key)) return;
+    if (!/^[A-Za-z][A-Za-z0-9_-]{1,19}$/.test(name)) return;
     seen.add(key);
-    const rest = String(match[2] || "").trim();
-    const titleMatch = rest.match(/◎\s*(\[[^\]]+\]|[^\s]+)/);
-    const title = (titleMatch?.[1] || name).replace(/[\[\]]/g, "").trim() || name;
-    found.push({ name, title });
-  }
+    const cleaned = String(title || name).replace(/[\[\]〔〕◎○]/g, "").trim() || name;
+    found.push({ name, title: cleaned });
+  };
+
+  const compact = /(?:ˇ|>)?\s*([A-Za-z][A-Za-z0-9_-]{1,19})\s+\S{1,8}\s+◎\s*(\[[^\]]*\]|〔[^〕]*〕|[^\sˇ]+)/g;
+  let match;
+  while ((match = compact.exec(text))) add(match[1], match[2]);
+
+  const numbered = /(?:^|[\n\r])[>ˇ ]{0,4}\s*\d{1,3}\s+([A-Za-z][A-Za-z0-9_-]{1,19})\s+([^\n\r]*)/gm;
+  while ((match = numbered.exec(text))) add(match[1], match[2]);
+
   return found.slice(0, 40);
 }
 
