@@ -1,0 +1,680 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <!-- Google tag (gtag.js) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-70VSYRX0L2"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag("js", new Date());
+    gtag("config", "G-70VSYRX0L2");
+  </script>
+  <title>Speed PTT · Cipher Printie</title>
+  <meta name="description" content="Cipher PTT Speed — 極速、無干擾的實驗性 PTT 網頁前端。帳密僅在瀏覽器端加密保存。">
+  <meta name="robots" content="index, follow">
+  <meta name="theme-color" content="#215c42">
+  <link rel="canonical" href="https://cjlin925.github.io/cipher-printie/speed-ptt.html">
+  <link rel="icon" href="/cipher-printie/favicon.ico" sizes="any">
+  <link rel="icon" href="/cipher-printie/favicon.svg" type="image/svg+xml">
+  <link rel="icon" href="/cipher-printie/favicon-32.png" type="image/png" sizes="32x32">
+  <link rel="apple-touch-icon" href="/cipher-printie/apple-touch-icon.png" sizes="180x180">
+  <link rel="manifest" href="/cipher-printie/site.webmanifest">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Cipher Printie">
+  <meta property="og:title" content="Speed PTT · Cipher Printie">
+  <meta property="og:description" content="極速、無干擾的實驗性 PTT 網頁前端。">
+  <meta property="og:url" content="https://cjlin925.github.io/cipher-printie/speed-ptt.html">
+  <meta property="og:locale" content="zh_TW">
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="Speed PTT · Cipher Printie">
+  <meta name="twitter:description" content="極速、無干擾的實驗性 PTT 網頁前端。">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Sans+TC:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            ink: "#17201b",
+            muted: "#69736d",
+            paper: "#f3f5f2",
+            accent: {
+              DEFAULT: "#215c42",
+              dark: "#17412f",
+              soft: "#e7f0eb",
+            },
+            line: "#dfe5e1",
+          },
+          fontFamily: {
+            sans: ['"IBM Plex Sans"', '"IBM Plex Sans TC"', "ui-sans-serif", "system-ui", "sans-serif"],
+          },
+          boxShadow: {
+            card: "0 1px 2px rgba(23,32,27,0.04), 0 8px 24px rgba(23,32,27,0.06)",
+          },
+        },
+      },
+    };
+  </script>
+  <style>
+    :root { color-scheme: light; }
+
+    body {
+      background:
+        radial-gradient(circle at 10% -10%, rgba(33, 92, 66, 0.12), transparent 34rem),
+        radial-gradient(circle at 90% 0%, rgba(23, 65, 47, 0.06), transparent 28rem),
+        #f3f5f2;
+    }
+
+    .site-nav {
+      position: sticky;
+      top: 0;
+      z-index: 30;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.75rem 1rem;
+      padding: 0.85rem clamp(1rem, 4vw, 2rem);
+      border-bottom: 1px solid rgba(23, 32, 27, 0.08);
+      background: rgba(243, 245, 242, 0.88);
+      backdrop-filter: blur(10px);
+    }
+
+    .site-nav-brand {
+      color: #17201b;
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: 1.15rem;
+      font-weight: 500;
+      letter-spacing: -0.03em;
+      text-decoration: none;
+    }
+
+    .nav-toggle {
+      display: none;
+      align-items: center;
+      justify-content: center;
+      width: 2.6rem;
+      height: 2.6rem;
+      padding: 0;
+      border: 1px solid rgba(23, 32, 27, 0.12);
+      border-radius: 0.65rem;
+      background: rgba(255, 255, 255, 0.9);
+      color: #17201b;
+      cursor: pointer;
+    }
+
+    .nav-toggle-bars,
+    .nav-toggle-bars::before,
+    .nav-toggle-bars::after {
+      display: block;
+      width: 1.1rem;
+      height: 2px;
+      border-radius: 999px;
+      background: currentColor;
+    }
+
+    .nav-toggle-bars { position: relative; }
+    .nav-toggle-bars::before,
+    .nav-toggle-bars::after {
+      content: "";
+      position: absolute;
+      left: 0;
+    }
+    .nav-toggle-bars::before { top: -6px; }
+    .nav-toggle-bars::after { top: 6px; }
+
+    .site-nav-links {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.35rem 0.85rem;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+
+    .site-nav-links a {
+      color: #69736d;
+      font-size: 0.92rem;
+      text-decoration: none;
+    }
+
+    .site-nav-links a:hover,
+    .site-nav-links a[aria-current="page"] {
+      color: #215c42;
+    }
+
+    @media (max-width: 720px) {
+      .nav-toggle { display: inline-flex; }
+      .site-nav-menu {
+        display: none;
+        width: 100%;
+      }
+      .site-nav-menu.is-open { display: block; }
+      .site-nav-links {
+        flex-direction: column;
+        gap: 0.55rem;
+        padding: 0.35rem 0 0.5rem;
+      }
+    }
+
+    .skeleton {
+      background: linear-gradient(90deg, #e8ece9 0%, #f7f8f7 50%, #e8ece9 100%);
+      background-size: 200% 100%;
+      animation: shimmer 1.15s ease-in-out infinite;
+    }
+
+    @keyframes shimmer {
+      0% { background-position: 100% 0; }
+      100% { background-position: -100% 0; }
+    }
+
+    .article-body {
+      white-space: pre-wrap;
+      word-break: break-word;
+      font-family: ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+      font-size: 0.92rem;
+      line-height: 1.65;
+    }
+
+    .view-enter {
+      animation: rise 220ms ease-out;
+    }
+
+    @keyframes rise {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .safe-bottom {
+      padding-bottom: max(1rem, env(safe-area-inset-bottom));
+    }
+  </style>
+</head>
+<body class="min-h-screen font-sans text-ink antialiased">
+  <nav class="site-nav" aria-label="Site">
+    <a class="site-nav-brand" href="/cipher-printie/">Cipher Printie</a>
+    <button type="button" class="nav-toggle" aria-expanded="false" aria-controls="site-menu" aria-label="Open menu">
+      <span class="nav-toggle-bars" aria-hidden="true"></span>
+    </button>
+    <div class="site-nav-menu" id="site-menu">
+      <ul class="site-nav-links">
+        <li><a href="/cipher-printie/flag-map.html">Flag Map</a></li>
+        <li><a href="/cipher-printie/origami.html">Origami</a></li>
+        <li><a href="/cipher-printie/food-merge.html">Food Merge</a></li>
+        <li><a href="/cipher-printie/chinese.html">Chinese</a></li>
+        <li><a href="/cipher-printie/chinese-quest.html">Chinese Quest</a></li>
+        <li><a href="/cipher-printie/python.html">Python</a></li>
+        <li><a href="/cipher-printie/speed-ptt.html" aria-current="page">Speed PTT</a></li>
+        <li><a href="/cipher-printie/story.html">Story</a></li>
+      </ul>
+    </div>
+  </nav>
+
+  <header class="border-b border-line/80 bg-white/70 backdrop-blur">
+    <div class="mx-auto flex max-w-3xl items-center justify-between gap-3 px-4 py-3 sm:px-6">
+      <div class="min-w-0">
+        <p class="text-[0.7rem] font-semibold uppercase tracking-[0.18em] text-accent">Cipher PTT Speed</p>
+        <h1 class="truncate text-lg font-semibold tracking-tight sm:text-xl">Speed PTT</h1>
+      </div>
+      <div class="flex shrink-0 items-center gap-2">
+        <span id="mode-badge" class="rounded-md border border-line bg-accent-soft px-2 py-1 text-[0.7rem] font-semibold text-accent-dark">Demo</span>
+        <button type="button" id="btn-nav-settings" class="rounded-lg border border-line bg-white px-3 py-1.5 text-sm font-medium text-ink hover:border-accent/40">設定</button>
+      </div>
+    </div>
+  </header>
+
+  <main class="mx-auto max-w-3xl px-4 py-5 sm:px-6 safe-bottom">
+    <!-- Settings / Login -->
+    <section id="view-settings" class="view-enter hidden space-y-4" aria-labelledby="settings-heading">
+      <div class="rounded-2xl border border-line bg-white p-5 shadow-card sm:p-6">
+        <h2 id="settings-heading" class="text-xl font-semibold tracking-tight">設定 / 登入</h2>
+        <p class="mt-2 text-sm leading-relaxed text-muted">
+          PTT 帳密只在你的瀏覽器以 AES-GCM 加密保存，不會寫入任何伺服器資料庫。
+          Cloudflare Worker 僅作為即時轉發介面。
+        </p>
+
+        <form id="login-form" class="mt-5 space-y-4" autocomplete="off">
+          <div>
+            <label for="ptt-username" class="mb-1.5 block text-sm font-medium">PTT 帳號</label>
+            <input id="ptt-username" name="username" type="text" required spellcheck="false"
+              class="w-full rounded-xl border border-line bg-paper px-3.5 py-2.5 text-sm outline-none ring-accent/30 focus:ring-2"
+              placeholder="username">
+          </div>
+          <div>
+            <label for="ptt-password" class="mb-1.5 block text-sm font-medium">PTT 密碼</label>
+            <input id="ptt-password" name="password" type="password" required
+              class="w-full rounded-xl border border-line bg-paper px-3.5 py-2.5 text-sm outline-none ring-accent/30 focus:ring-2"
+              placeholder="••••••••">
+          </div>
+          <div>
+            <label for="unlock-secret" class="mb-1.5 block text-sm font-medium">本機解鎖密語（加密用）</label>
+            <input id="unlock-secret" name="unlock" type="password" minlength="4" required
+              class="w-full rounded-xl border border-line bg-paper px-3.5 py-2.5 text-sm outline-none ring-accent/30 focus:ring-2"
+              placeholder="至少 4 字元，僅存於本機推導金鑰">
+          </div>
+          <div>
+            <label for="worker-url" class="mb-1.5 block text-sm font-medium">Cloudflare Worker URL（可選）</label>
+            <input id="worker-url" name="worker" type="url"
+              class="w-full rounded-xl border border-line bg-paper px-3.5 py-2.5 text-sm outline-none ring-accent/30 focus:ring-2"
+              placeholder="https://your-worker.example.workers.dev">
+            <p class="mt-1.5 text-xs text-muted">留空則使用 Demo Mode（本機假資料，方便先調 UI）。</p>
+          </div>
+
+          <div class="flex flex-col gap-2 sm:flex-row">
+            <button type="submit" class="inline-flex flex-1 items-center justify-center rounded-xl bg-accent px-4 py-2.5 text-sm font-semibold text-white hover:bg-accent-dark">
+              加密儲存並登入
+            </button>
+            <button type="button" id="btn-webauthn" class="inline-flex flex-1 items-center justify-center rounded-xl border border-line bg-white px-4 py-2.5 text-sm font-semibold text-ink hover:border-accent/40">
+              Face ID / 生物辨識（預留）
+            </button>
+          </div>
+        </form>
+
+        <div id="vault-panel" class="mt-5 hidden rounded-xl border border-dashed border-accent/30 bg-accent-soft/60 p-4">
+          <p class="text-sm font-medium text-accent-dark">已有加密憑證</p>
+          <p id="vault-meta" class="mt-1 text-xs text-muted"></p>
+          <div class="mt-3 flex flex-col gap-2 sm:flex-row">
+            <button type="button" id="btn-unlock-login" class="rounded-xl bg-accent px-4 py-2 text-sm font-semibold text-white hover:bg-accent-dark">用密語解鎖登入</button>
+            <button type="button" id="btn-clear-vault" class="rounded-xl border border-line bg-white px-4 py-2 text-sm font-medium">清除本機憑證</button>
+          </div>
+        </div>
+
+        <p id="settings-status" class="mt-4 text-sm text-muted" role="status" aria-live="polite"></p>
+      </div>
+    </section>
+
+    <!-- Hot boards + articles -->
+    <section id="view-boards" class="view-enter hidden space-y-4" aria-labelledby="boards-heading">
+      <div class="flex items-end justify-between gap-3">
+        <div>
+          <h2 id="boards-heading" class="text-xl font-semibold tracking-tight">熱門看板</h2>
+          <p class="mt-1 text-sm text-muted">點看板載入文章列表 · 點文章進入閱讀器</p>
+        </div>
+        <button type="button" id="btn-refresh-boards" class="rounded-lg border border-line bg-white px-3 py-1.5 text-sm font-medium hover:border-accent/40">重新整理</button>
+      </div>
+
+      <div id="boards-skeleton" class="hidden space-y-3" aria-hidden="true">
+        <div class="skeleton h-24 rounded-2xl"></div>
+        <div class="skeleton h-24 rounded-2xl"></div>
+        <div class="skeleton h-24 rounded-2xl"></div>
+      </div>
+      <div id="boards-list" class="grid gap-3 sm:grid-cols-2"></div>
+
+      <div id="articles-panel" class="hidden space-y-3 pt-2">
+        <div class="flex items-center justify-between gap-2">
+          <h3 id="articles-heading" class="text-lg font-semibold tracking-tight">文章</h3>
+          <button type="button" id="btn-close-articles" class="text-sm font-medium text-muted hover:text-accent">收合</button>
+        </div>
+        <div id="articles-skeleton" class="hidden space-y-2" aria-hidden="true">
+          <div class="skeleton h-16 rounded-xl"></div>
+          <div class="skeleton h-16 rounded-xl"></div>
+          <div class="skeleton h-16 rounded-xl"></div>
+          <div class="skeleton h-16 rounded-xl"></div>
+        </div>
+        <div id="articles-list" class="space-y-2"></div>
+      </div>
+
+      <p id="boards-status" class="text-sm text-muted" role="status" aria-live="polite"></p>
+    </section>
+
+    <!-- Article reader -->
+    <section id="view-article" class="view-enter hidden space-y-4" aria-labelledby="article-heading">
+      <div class="flex items-center gap-2">
+        <button type="button" id="btn-back-boards" class="rounded-lg border border-line bg-white px-3 py-1.5 text-sm font-medium hover:border-accent/40">← 返回</button>
+        <p id="article-crumb" class="truncate text-sm text-muted"></p>
+      </div>
+
+      <div id="article-skeleton" class="hidden space-y-3 rounded-2xl border border-line bg-white p-5 shadow-card" aria-hidden="true">
+        <div class="skeleton h-6 w-3/4 rounded"></div>
+        <div class="skeleton h-4 w-1/2 rounded"></div>
+        <div class="skeleton mt-4 h-3 w-full rounded"></div>
+        <div class="skeleton h-3 w-full rounded"></div>
+        <div class="skeleton h-3 w-5/6 rounded"></div>
+        <div class="skeleton h-3 w-full rounded"></div>
+        <div class="skeleton h-3 w-2/3 rounded"></div>
+      </div>
+
+      <article id="article-card" class="hidden rounded-2xl border border-line bg-white p-5 shadow-card sm:p-6">
+        <header class="border-b border-line pb-4">
+          <p id="article-board" class="text-xs font-semibold uppercase tracking-[0.14em] text-accent"></p>
+          <h2 id="article-heading" class="mt-1 text-xl font-semibold tracking-tight sm:text-2xl"></h2>
+          <p id="article-meta" class="mt-2 text-sm text-muted"></p>
+        </header>
+        <div id="article-content" class="article-body mt-4 text-ink"></div>
+      </article>
+
+      <p id="article-status" class="text-sm text-muted" role="status" aria-live="polite"></p>
+    </section>
+  </main>
+
+  <footer class="mx-auto max-w-3xl px-4 pb-8 text-center text-xs text-muted sm:px-6">
+    Cipher Printie · Speed PTT 實驗模組 · 帳密不上雲端資料庫
+    <span class="ml-1 inline-block rounded-full border border-line bg-white px-2 py-0.5 font-mono text-[0.65rem] font-bold tracking-wide text-accent-dark">Speed PTT v0.1.0</span>
+  </footer>
+
+  <script type="module">
+    import { createPttService, PttServiceError } from "./pttService.js";
+
+    (function initMobileNav() {
+      const toggle = document.querySelector(".nav-toggle");
+      const menu = document.getElementById("site-menu");
+      if (!toggle || !menu) return;
+      const setOpen = (open) => {
+        menu.classList.toggle("is-open", open);
+        toggle.setAttribute("aria-expanded", open ? "true" : "false");
+        toggle.setAttribute("aria-label", open ? "Close menu" : "Open menu");
+      };
+      toggle.addEventListener("click", (event) => {
+        event.stopPropagation();
+        setOpen(toggle.getAttribute("aria-expanded") !== "true");
+      });
+      document.addEventListener("click", (event) => {
+        if (!event.target.closest(".site-nav")) setOpen(false);
+      });
+      document.addEventListener("keydown", (event) => {
+        if (event.key === "Escape") setOpen(false);
+      });
+    })();
+
+    const ptt = createPttService();
+
+    const views = {
+      settings: document.getElementById("view-settings"),
+      boards: document.getElementById("view-boards"),
+      article: document.getElementById("view-article"),
+    };
+
+    const els = {
+      modeBadge: document.getElementById("mode-badge"),
+      loginForm: document.getElementById("login-form"),
+      username: document.getElementById("ptt-username"),
+      password: document.getElementById("ptt-password"),
+      unlock: document.getElementById("unlock-secret"),
+      workerUrl: document.getElementById("worker-url"),
+      settingsStatus: document.getElementById("settings-status"),
+      vaultPanel: document.getElementById("vault-panel"),
+      vaultMeta: document.getElementById("vault-meta"),
+      boardsList: document.getElementById("boards-list"),
+      boardsSkeleton: document.getElementById("boards-skeleton"),
+      boardsStatus: document.getElementById("boards-status"),
+      articlesPanel: document.getElementById("articles-panel"),
+      articlesHeading: document.getElementById("articles-heading"),
+      articlesList: document.getElementById("articles-list"),
+      articlesSkeleton: document.getElementById("articles-skeleton"),
+      articleSkeleton: document.getElementById("article-skeleton"),
+      articleCard: document.getElementById("article-card"),
+      articleBoard: document.getElementById("article-board"),
+      articleHeading: document.getElementById("article-heading"),
+      articleMeta: document.getElementById("article-meta"),
+      articleContent: document.getElementById("article-content"),
+      articleCrumb: document.getElementById("article-crumb"),
+      articleStatus: document.getElementById("article-status"),
+    };
+
+    const state = {
+      view: "settings",
+      activeBoard: null,
+      activeArticleId: null,
+    };
+
+    function errMessage(error) {
+      if (error instanceof PttServiceError) return error.message;
+      return error?.message || "發生未知錯誤";
+    }
+
+    function updateModeBadge() {
+      const demo = ptt.demoMode || !ptt.workerUrl;
+      els.modeBadge.textContent = demo ? "Demo" : "Worker";
+      els.modeBadge.className = demo
+        ? "rounded-md border border-line bg-accent-soft px-2 py-1 text-[0.7rem] font-semibold text-accent-dark"
+        : "rounded-md border border-accent/30 bg-white px-2 py-1 text-[0.7rem] font-semibold text-accent";
+    }
+
+    function showView(name) {
+      state.view = name;
+      Object.entries(views).forEach(([key, node]) => {
+        node.classList.toggle("hidden", key !== name);
+        if (key === name) {
+          node.classList.remove("view-enter");
+          void node.offsetWidth;
+          node.classList.add("view-enter");
+        }
+      });
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+
+    function refreshVaultPanel() {
+      const meta = ptt.getVaultMeta();
+      if (!meta) {
+        els.vaultPanel.classList.add("hidden");
+        return;
+      }
+      els.vaultPanel.classList.remove("hidden");
+      els.vaultMeta.textContent = `提示：${meta.usernameHint || "?"}… · ${meta.alg || "AES-GCM"} · ${meta.savedAt ? new Date(meta.savedAt).toLocaleString() : ""}`;
+    }
+
+    async function afterLogin() {
+      updateModeBadge();
+      showView("boards");
+      await loadHotBoards();
+    }
+
+    async function loadHotBoards() {
+      els.boardsStatus.textContent = "";
+      els.boardsList.innerHTML = "";
+      els.boardsSkeleton.classList.remove("hidden");
+      try {
+        const { boards } = await ptt.getHotBoards();
+        els.boardsSkeleton.classList.add("hidden");
+        if (!boards.length) {
+          els.boardsStatus.textContent = "目前沒有熱門看板。";
+          return;
+        }
+        els.boardsList.innerHTML = boards
+          .map(
+            (board) => `
+            <button type="button"
+              class="group rounded-2xl border border-line bg-white p-4 text-left shadow-card transition hover:border-accent/35 hover:shadow-md"
+              data-board="${escapeAttr(board.name)}">
+              <div class="flex items-start justify-between gap-2">
+                <div>
+                  <p class="font-semibold tracking-tight text-ink group-hover:text-accent">${escapeHtml(board.name)}</p>
+                  <p class="mt-1 text-sm text-muted">${escapeHtml(board.title || board.name)}</p>
+                </div>
+                ${board.hot ? '<span class="rounded-md bg-accent-soft px-2 py-0.5 text-[0.65rem] font-bold text-accent-dark">HOT</span>' : ""}
+              </div>
+              <p class="mt-3 text-xs text-muted">${board.nuser != null ? `${Number(board.nuser).toLocaleString()} 人氣` : "—"}</p>
+            </button>`
+          )
+          .join("");
+      } catch (error) {
+        els.boardsSkeleton.classList.add("hidden");
+        els.boardsStatus.textContent = errMessage(error);
+      }
+    }
+
+    async function loadBoardArticles(boardName) {
+      state.activeBoard = boardName;
+      els.articlesPanel.classList.remove("hidden");
+      els.articlesHeading.textContent = `${boardName} · 文章列表`;
+      els.articlesList.innerHTML = "";
+      els.articlesSkeleton.classList.remove("hidden");
+      els.boardsStatus.textContent = "";
+      try {
+        const { articles } = await ptt.getBoardArticles(boardName);
+        els.articlesSkeleton.classList.add("hidden");
+        if (!articles.length) {
+          els.articlesList.innerHTML = `<p class="text-sm text-muted">此看板暫無文章。</p>`;
+          return;
+        }
+        els.articlesList.innerHTML = articles
+          .map(
+            (article) => `
+            <button type="button"
+              class="flex w-full items-start gap-3 rounded-xl border border-line bg-white px-3.5 py-3 text-left transition hover:border-accent/35"
+              data-article-board="${escapeAttr(article.board || boardName)}"
+              data-article-id="${escapeAttr(article.id)}">
+              <span class="mt-0.5 w-10 shrink-0 text-center text-sm font-bold text-accent">${article.push != null ? article.push : "·"}</span>
+              <span class="min-w-0 flex-1">
+                <span class="block truncate font-medium text-ink">${escapeHtml(article.title)}</span>
+                <span class="mt-1 block text-xs text-muted">${escapeHtml(article.author)} · ${escapeHtml(article.date || "")}</span>
+              </span>
+            </button>`
+          )
+          .join("");
+        els.articlesPanel.scrollIntoView({ behavior: "smooth", block: "start" });
+      } catch (error) {
+        els.articlesSkeleton.classList.add("hidden");
+        els.boardsStatus.textContent = errMessage(error);
+      }
+    }
+
+    async function openArticle(boardName, articleId) {
+      state.activeBoard = boardName;
+      state.activeArticleId = articleId;
+      showView("article");
+      els.articleCrumb.textContent = `${boardName} / ${articleId}`;
+      els.articleCard.classList.add("hidden");
+      els.articleSkeleton.classList.remove("hidden");
+      els.articleStatus.textContent = "載入文章中…";
+      try {
+        const { article } = await ptt.getArticleContent(boardName, articleId);
+        els.articleSkeleton.classList.add("hidden");
+        els.articleCard.classList.remove("hidden");
+        els.articleBoard.textContent = article.board || boardName;
+        els.articleHeading.textContent = article.title || articleId;
+        els.articleMeta.textContent = [
+          article.author ? `作者 ${article.author}` : null,
+          article.date || null,
+          article.push != null ? `推 ${article.push}` : null,
+        ]
+          .filter(Boolean)
+          .join(" · ");
+        els.articleContent.textContent = article.content || "";
+        els.articleStatus.textContent = "";
+      } catch (error) {
+        els.articleSkeleton.classList.add("hidden");
+        els.articleStatus.textContent = errMessage(error);
+      }
+    }
+
+    function escapeHtml(value) {
+      return String(value ?? "")
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;");
+    }
+
+    function escapeAttr(value) {
+      return escapeHtml(value).replace(/'/g, "&#39;");
+    }
+
+    // Events
+    document.getElementById("btn-nav-settings").addEventListener("click", () => {
+      refreshVaultPanel();
+      updateModeBadge();
+      showView("settings");
+    });
+
+    document.getElementById("btn-refresh-boards").addEventListener("click", () => loadHotBoards());
+    document.getElementById("btn-close-articles").addEventListener("click", () => {
+      els.articlesPanel.classList.add("hidden");
+      state.activeBoard = null;
+    });
+    document.getElementById("btn-back-boards").addEventListener("click", () => {
+      showView("boards");
+    });
+
+    els.boardsList.addEventListener("click", (event) => {
+      const btn = event.target.closest("[data-board]");
+      if (!btn) return;
+      loadBoardArticles(btn.getAttribute("data-board"));
+    });
+
+    els.articlesList.addEventListener("click", (event) => {
+      const btn = event.target.closest("[data-article-id]");
+      if (!btn) return;
+      openArticle(btn.getAttribute("data-article-board"), btn.getAttribute("data-article-id"));
+    });
+
+    els.loginForm.addEventListener("submit", async (event) => {
+      event.preventDefault();
+      els.settingsStatus.textContent = "加密憑證並登入中…";
+      const username = els.username.value.trim();
+      const password = els.password.value;
+      const unlock = els.unlock.value;
+      const worker = els.workerUrl.value.trim();
+
+      try {
+        if (worker) {
+          ptt.setWorkerUrl(worker);
+          ptt.setDemoMode(false);
+        } else {
+          ptt.setWorkerUrl("");
+          ptt.setDemoMode(true);
+        }
+
+        await ptt.saveEncryptedCredentials({ username, password }, unlock);
+        const result = await ptt.login({ username, password });
+        els.password.value = "";
+        refreshVaultPanel();
+        els.settingsStatus.textContent = result.message || `已登入 ${username}`;
+        await afterLogin();
+      } catch (error) {
+        els.settingsStatus.textContent = errMessage(error);
+      }
+    });
+
+    document.getElementById("btn-unlock-login").addEventListener("click", async () => {
+      const unlock = els.unlock.value;
+      if (!unlock) {
+        els.settingsStatus.textContent = "請先輸入本機解鎖密語。";
+        return;
+      }
+      els.settingsStatus.textContent = "解鎖憑證中…";
+      try {
+        const credentials = await ptt.loadEncryptedCredentials(unlock);
+        els.username.value = credentials.username;
+        const worker = els.workerUrl.value.trim();
+        if (worker) {
+          ptt.setWorkerUrl(worker);
+          ptt.setDemoMode(false);
+        }
+        const result = await ptt.login(credentials);
+        els.settingsStatus.textContent = result.message || "解鎖登入成功";
+        await afterLogin();
+      } catch (error) {
+        els.settingsStatus.textContent = errMessage(error);
+      }
+    });
+
+    document.getElementById("btn-clear-vault").addEventListener("click", () => {
+      ptt.clearVault();
+      ptt.logout();
+      refreshVaultPanel();
+      els.settingsStatus.textContent = "已清除本機加密憑證。";
+    });
+
+    document.getElementById("btn-webauthn").addEventListener("click", async () => {
+      const result = await ptt.unlockWithWebAuthn();
+      els.settingsStatus.textContent = result.message;
+    });
+
+    // Boot
+    els.workerUrl.value = ptt.workerUrl || "";
+    updateModeBadge();
+    refreshVaultPanel();
+    if (ptt.isLoggedIn()) {
+      showView("boards");
+      loadHotBoards();
+    } else {
+      showView("settings");
+    }
+  </script>
+</body>
+</html>
