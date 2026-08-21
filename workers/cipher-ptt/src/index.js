@@ -140,6 +140,8 @@ async function handleLogin(request, env) {
     throw httpError("invalid username", 400);
   }
 
+  // Decrypt RSA-OAEP blob in memory, then send the plaintext password to
+  // PTT over the WebSocket. The password is never logged or stored.
   const password = await decryptPasswordEnc(body?.passwordEnc, env);
   if (!password) {
     throw httpError("passwordEnc is required", 400);
@@ -158,6 +160,7 @@ async function handleLogin(request, env) {
     mode: "ptt",
     sessionToken,
     user: { username },
+    favorites: result.favorites || [],
     message: "已登入 PTT",
   };
 }

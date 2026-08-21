@@ -77,6 +77,10 @@ const PHRASES = {
     text: ["目前顯示", "q)離開", "←/q)離開", "瀏覽 第"],
     bytes: [u8("e7 9b ae e5 89 8d e9 a1 a5 e7 a4 ba"), u8("e9 9b a2 e9 96 8b")],
   },
+  favList: {
+    text: ["看板列表"],
+    bytes: [u8("ac dd aa 4f a6 43 aa ed"), u8("e7 9c 8b e6 9d bf e5 88 97 e8 a1 a8")],
+  },
 };
 
 function u8(hex) {
@@ -286,21 +290,90 @@ function sanitizeTail(bot) {
   return bot.tail.replace(/\s+/g, " ").slice(-360);
 }
 
+function sleep(ms) {
+  return new Promise((r) => setTimeout(r, ms));
+}
+
 async function logoutBestEffort(bot) {
   bot.send("q");
-  await new Promise((r) => setTimeout(r, 200));
+  await sleep(200);
   bot.send("q");
-  await new Promise((r) => setTimeout(r, 200));
+  await sleep(200);
   bot.send(`G${KEY_ENTER}Y${KEY_ENTER}`);
-  await new Promise((r) => setTimeout(r, 400));
+  await sleep(400);
   bot.send(KEY_ENTER);
+}
+
+const SKIP_BOARD_NAMES = new Set([
+  "announce", "boards", "class", "favorite", "mail", "chat", "talk", "user",
+  "help", "guest", "new", "ptt", "bbs", "index",
+]);
+
+/**
+ * After login, open (F)avorite and parse the board list. Best-effort: an
+ * empty array is fine — login itself still succeeds.
+ * @param {PttSocket} bot
+ * @returns {Promise<Array<{ name: string, title: string }>>}
+ */
+async function scrapeFavorites(bot) {
+  try {
+    for (let i = 0; i < 8; i += 1) {
+      await bot.drain();
+      if (bot.has(PHRASES.mainMenu)) break;
+      bot.send("q");
+      await sleep(220);
+    }
+    bot.send(`F${KEY_ENTER}`);
+    const ok = await bot.waitFor((sock) => sock.has(PHRASES.favList), 5_000);
+    if (!ok) {
+      console.log(`ptt favorites screen missing tail=${sanitizeTail(bot)}`);
+      return [];
+    }
+    await sleep(350);
+    await bot.drain();
+    let boards = parseFavoriteBoards(bot.screen);
+    if (boards.length < 6) {
+      bot.send(" ");
+      await sleep(400);
+      await bot.drain();
+      boards = parseFavoriteBoards(bot.screen);
+    }
+    console.log(`ptt favorites scraped ${boards.length}`);
+    return boards;
+  } catch (error) {
+    console.log(`ptt favorites scrape failed: ${error?.message || error}`);
+    return [];
+  }
+}
+
+/**
+ * @param {string} screen
+ * @returns {Array<{ name: string, title: string }>}
+ */
+function parseFavoriteBoards(screen) {
+  const text = String(screen || "").replace(/\x1b\[[\??!>]?[0-9;]*[@A-Za-z`]/g, "");
+  const found = [];
+  const seen = new Set();
+  const numbered = /(?:^|[\n\r])[> ]{0,4}\s*\d{1,3}\s+([A-Za-z][A-Za-z0-9_-]{1,19})\s+([^\n\r]*)/gm;
+  let match;
+  while ((match = numbered.exec(text))) {
+    const name = match[1];
+    const key = name.toLowerCase();
+    if (seen.has(key) || SKIP_BOARD_NAMES.has(key)) continue;
+    seen.add(key);
+    const rest = String(match[2] || "").trim();
+    const titleMatch = rest.match(/◎\s*(\[[^\]]+\]|[^\s]+)/);
+    const title = (titleMatch?.[1] || name).replace(/[\[\]]/g, "").trim() || name;
+    found.push({ name, title });
+  }
+  return found.slice(0, 40);
 }
 
 /**
  * @param {string} username
  * @param {string} password
  * @param {{ kick?: boolean }} [options]
- * @returns {Promise<{ ok: true, elapsedMs: number } | { ok: false, reason: string, elapsedMs: number }>}
+ * @returns {Promise<{ ok: true, elapsedMs: number, favorites: Array<{ name: string, title: string }> } | { ok: false, reason: string, elapsedMs: number }>}
  */
 export async function loginToPtt(username, password, options = {}) {
   const kick = options.kick === true;
@@ -356,12 +429,18 @@ export async function loginToPtt(username, password, options = {}) {
         bot.has(PHRASES.browsing) ||
         (bot.has(PHRASES.iAm) && (bot.tail.includes("聊天") || bot.tail.includes("電子郵件") || bot.has(PHRASES.mainMenu, false)));
       if (loggedIn && !bot.has(PHRASES.loggingIn)) {
+        let favorites = [];
+        try {
+          favorites = await scrapeFavorites(bot);
+        } catch {
+          favorites = [];
+        }
         try {
           await logoutBestEffort(bot);
         } catch {
           /* logout is best-effort */
         }
-        return { ok: true, elapsedMs: Date.now() - started };
+        return { ok: true, elapsedMs: Date.now() - started, favorites };
       }
 
       await new Promise((r) => setTimeout(r, 250));

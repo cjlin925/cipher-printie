@@ -22,6 +22,7 @@ const STORAGE_KEYS = Object.freeze({
   demoMode: "cipher-ptt-speed.demo.v1",
   rememberUser: "cipher-ptt-speed.remember-user.v1",
   favorites: "cipher-ptt-speed.favorites.v1",
+  pttFavorites: "cipher-ptt-speed.ptt-favorites.v1",
 });
 
 const DEFAULT_WORKER_URL = "";
@@ -290,12 +291,20 @@ export class PttService {
   }
 
   /**
-   * Local favorite boards (★). Shown above hot boards after login.
+   * PTT 我的最愛 (from last login) merged with local ★ extras.
    * @returns {Array<{ name: string, title?: string }>}
    */
   getFavoriteBoards() {
+    const ptt = this.#readBoardList(STORAGE_KEYS.pttFavorites);
+    const local = this.#readBoardList(STORAGE_KEYS.favorites);
+    const seen = new Set(ptt.map((board) => board.name.toLowerCase()));
+    return [...ptt, ...local.filter((board) => !seen.has(board.name.toLowerCase()))];
+  }
+
+  /** @param {string} key */
+  #readBoardList(key) {
     try {
-      const raw = localStorage.getItem(STORAGE_KEYS.favorites);
+      const raw = localStorage.getItem(key);
       const list = raw ? JSON.parse(raw) : [];
       if (!Array.isArray(list)) return [];
       return list
@@ -307,6 +316,19 @@ export class PttService {
     } catch {
       return [];
     }
+  }
+
+  /** @param {Array<{ name: string, title?: string }>} boards */
+  savePttFavorites(boards) {
+    const cleaned = (Array.isArray(boards) ? boards : [])
+      .map((item) => ({
+        name: String(item?.name || "").trim(),
+        title: String(item?.title || item?.name || "").trim(),
+      }))
+      .filter((item) => item.name)
+      .slice(0, 40);
+    localStorage.setItem(STORAGE_KEYS.pttFavorites, JSON.stringify(cleaned));
+    return cleaned;
   }
 
   /** @param {Array<{ name: string, title?: string }>} boards */
@@ -563,10 +585,12 @@ export class PttService {
         mode: "demo",
         at: Date.now(),
       });
+      this.savePttFavorites(DemoData.boards.slice(0, 4));
       return {
         ok: true,
         mode: "demo",
         user: { username },
+        favorites: this.getFavoriteBoards(),
         message: "Demo Mode：未連 Worker，使用本機示範資料。",
       };
     }
@@ -588,6 +612,7 @@ export class PttService {
       mode: "worker",
       at: Date.now(),
     });
+    if (Array.isArray(data.favorites)) this.savePttFavorites(data.favorites);
 
     return { ok: true, mode: "worker", user: data.user || { username }, ...data };
   }
