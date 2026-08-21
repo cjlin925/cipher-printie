@@ -233,8 +233,8 @@
       <div class="rounded-2xl border border-line bg-white p-5 shadow-card sm:p-6">
         <h2 id="settings-heading" class="text-xl font-semibold tracking-tight">設定 / 登入</h2>
         <p class="mt-2 text-sm leading-relaxed text-muted">
-          PTT 帳密只在你的瀏覽器以 AES-GCM 加密保存，不會寫入任何伺服器資料庫。
-          Cloudflare Worker 會向 PTT 驗證帳密（不落盤），看板與文章則讀 www.ptt.cc。
+          PTT 帳密只在你的瀏覽器以 AES-GCM 加密保存，送到 Worker 前會再用 RSA-OAEP 包一層，不會以明文出現在請求內容。
+          Worker 向 PTT 驗證後立即丟棄密碼；看板與文章讀 www.ptt.cc。
         </p>
 
         <form id="login-form" class="mt-5 space-y-4" autocomplete="off">
@@ -353,7 +353,7 @@
 
   <footer class="mx-auto max-w-3xl px-4 pb-8 text-center text-xs text-muted sm:px-6">
     Cipher Printie · Speed PTT 實驗模組 · 帳密不上雲端資料庫
-    <span class="ml-1 inline-block rounded-full border border-line bg-white px-2 py-0.5 font-mono text-[0.65rem] font-bold tracking-wide text-accent-dark">Speed PTT v0.2.0</span>
+    <span class="ml-1 inline-block rounded-full border border-line bg-white px-2 py-0.5 font-mono text-[0.65rem] font-bold tracking-wide text-accent-dark">Speed PTT v0.2.1</span>
   </footer>
 
   <script type="module">

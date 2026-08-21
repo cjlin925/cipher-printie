@@ -2,7 +2,9 @@
  * Cipher PTT Speed — Cloudflare Worker
  *
  * Contract (see ../../pttService.js):
- *   POST /login              → real PTT WebSocket login (password not stored)
+ *   GET  /crypto             → { alg, publicKey } RSA-OAEP-256 JWK
+ *   POST /login              → { username, passwordEnc } encrypted password only
+
  *   GET  /hot-boards         → www.ptt.cc/bbs/hotboards.html
  *   GET  /boards/:name       → www.ptt.cc board index
  *   GET  /boards/:name/:id   → www.ptt.cc article
@@ -12,6 +14,7 @@
 
 import { loginToPtt, LOGIN_REASONS } from "./pttWs.js";
 import { fetchHotBoards, fetchBoardArticles, fetchArticle } from "./pttWeb.js";
+import { LOGIN_PUBLIC_JWK } from "./loginPub.js";
 
 const DEFAULT_ORIGINS = [
   "https://cjlin925.github.io",
@@ -38,7 +41,7 @@ const LOGIN_ERROR_MAP = {
 export default {
   /**
    * @param {Request} request
-   * @param {{ EXTRA_ORIGINS?: string, SESSION_SECRET?: string }} env
+   * @param {{ EXTRA_ORIGINS?: string, SESSION_SECRET?: string, LOGIN_PRIVATE_JWK?: string }} env
    */
   async fetch(request, env) {
     const origin = request.headers.get("Origin") || "";
@@ -51,6 +54,14 @@ export default {
     try {
       const url = new URL(request.url);
       const path = url.pathname.replace(/\/+$/, "") || "/";
+
+      if (request.method === "GET" && path === "/crypto") {
+        return json(
+          { alg: "RSA-OAEP-256", publicKey: LOGIN_PUBLIC_JWK },
+          200,
+          cors
+        );
+      }
 
       if (request.method === "POST" && path === "/login") {
         return json(await handleLogin(request, env), 200, cors);
@@ -87,9 +98,9 @@ export default {
           {
             ok: true,
             service: "cipher-ptt-worker",
-            version: "0.2.0",
+            version: "0.2.1",
             mode: "ptt",
-            endpoints: ["/login", "/hot-boards", "/boards/:name", "/boards/:name/:id"],
+            endpoints: ["/crypto", "/login", "/hot-boards", "/boards/:name", "/boards/:name/:id"],
           },
           200,
           cors
@@ -117,14 +128,21 @@ async function handleLogin(request, env) {
     throw httpError("Invalid JSON body", 400);
   }
 
-  const username = String(body?.username || "").trim();
-  const password = String(body?.password || "");
+  if (body?.password != null && String(body.password).length > 0) {
+    throw httpError("plaintext password is not accepted; send passwordEnc", 400);
+  }
 
-  if (!username || !password) {
-    throw httpError("username and password are required", 400);
+  const username = String(body?.username || "").trim();
+  if (!username) {
+    throw httpError("username is required", 400);
   }
   if (!/^[A-Za-z0-9]{2,20}$/.test(username)) {
     throw httpError("invalid username", 400);
+  }
+
+  const password = await decryptPasswordEnc(body?.passwordEnc, env);
+  if (!password) {
+    throw httpError("passwordEnc is required", 400);
   }
 
   const result = await loginToPtt(username, password, { kick: false });
@@ -240,11 +258,51 @@ function b64urlEncodeBytes(bytes) {
 }
 
 function b64urlDecode(text) {
+  return new TextDecoder().decode(b64urlDecodeBytes(text));
+}
+
+function b64urlDecodeBytes(text) {
   const padded = text.replace(/-/g, "+").replace(/_/g, "/") + "===".slice((text.length + 3) % 4);
   const binary = atob(padded);
   const bytes = new Uint8Array(binary.length);
   for (let i = 0; i < binary.length; i += 1) bytes[i] = binary.charCodeAt(i);
-  return new TextDecoder().decode(bytes);
+  return bytes;
+}
+
+/**
+ * @param {unknown} passwordEnc
+ * @param {{ LOGIN_PRIVATE_JWK?: string }} env
+ */
+async function decryptPasswordEnc(passwordEnc, env) {
+  const blob = String(passwordEnc || "").trim();
+  if (!blob) return "";
+  const raw = String(env?.LOGIN_PRIVATE_JWK || "").trim();
+  if (!raw) {
+    throw httpError("Worker LOGIN_PRIVATE_JWK is not configured", 500);
+  }
+  let jwk;
+  try {
+    jwk = JSON.parse(raw);
+  } catch {
+    throw httpError("Worker LOGIN_PRIVATE_JWK is invalid", 500);
+  }
+  try {
+    const key = await crypto.subtle.importKey(
+      "jwk",
+      jwk,
+      { name: "RSA-OAEP", hash: "SHA-256" },
+      false,
+      ["decrypt"]
+    );
+    const plain = await crypto.subtle.decrypt(
+      { name: "RSA-OAEP" },
+      key,
+      b64urlDecodeBytes(blob)
+    );
+    return new TextDecoder().decode(plain);
+  } catch {
+    throw httpError("passwordEnc could not be decrypted", 400);
+  }
 }
 
 function assertBoard(name) {

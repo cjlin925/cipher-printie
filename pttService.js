@@ -5,10 +5,14 @@
  * credentials on any server; encrypted blobs stay in the browser.
  *
  * Worker contract (expected JSON endpoints):
- *   POST /login              { username, password } → { ok, sessionToken?, user? }
+ *   GET  /crypto             → { alg, publicKey } RSA-OAEP-256 JWK
+ *   POST /login              { username, passwordEnc } → { ok, sessionToken?, user? }
  *   GET  /hot-boards         → { boards: HotBoard[] }
  *   GET  /boards/:name       → { board, articles: ArticleSummary[] }
  *   GET  /boards/:name/:id   → { article: ArticleDetail }
+ *
+ * passwordEnc is RSA-OAEP-SHA-256 ciphertext (base64url). Plaintext
+ * passwords are never sent to the Worker.
  */
 
 const STORAGE_KEYS = Object.freeze({
@@ -379,13 +383,12 @@ export class PttService {
 
     const headers = new Headers(options.headers || {});
     headers.set("Accept", "application/json");
+    headers.set("X-Cipher-Client", "cipher-ptt-speed");
     if (options.json !== undefined) {
       headers.set("Content-Type", "application/json");
     }
     if (this.sessionToken) {
       headers.set("Authorization", `Bearer ${this.sessionToken}`);
-      // Optional Worker-side envelope key header (not the PTT password).
-      headers.set("X-Cipher-Client", "cipher-ptt-speed");
     }
 
     const { json, ...rest } = options;
@@ -422,6 +425,43 @@ export class PttService {
     return data;
   }
 
+  /**
+   * Wrap the PTT password with the Worker's RSA-OAEP public key so the
+   * JSON body never contains plaintext credentials.
+   * @param {string} password
+   */
+  async #encryptPassword(password) {
+    if (!window.crypto?.subtle) {
+      throw new PttServiceError("此瀏覽器無法加密密碼（需要 Web Crypto）。", {
+        code: "CRYPTO_UNAVAILABLE",
+      });
+    }
+    const data = await this.#request("/crypto");
+    if (!data?.publicKey) {
+      throw new PttServiceError("Worker 未提供加密公鑰。", { code: "NO_PUBKEY" });
+    }
+    try {
+      const key = await crypto.subtle.importKey(
+        "jwk",
+        data.publicKey,
+        { name: "RSA-OAEP", hash: "SHA-256" },
+        false,
+        ["encrypt"]
+      );
+      const cipher = await crypto.subtle.encrypt(
+        { name: "RSA-OAEP" },
+        key,
+        new TextEncoder().encode(password)
+      );
+      return CryptoVault.bytesToBase64(new Uint8Array(cipher))
+        .replace(/\+/g, "-")
+        .replace(/\//g, "_")
+        .replace(/=+$/g, "");
+    } catch (cause) {
+      throw new PttServiceError("密碼加密失敗。", { code: "ENCRYPT_FAILED", cause });
+    }
+  }
+
   #delay(ms) {
     return new Promise((resolve) => setTimeout(resolve, ms));
   }
@@ -452,9 +492,10 @@ export class PttService {
       };
     }
 
+    const passwordEnc = await this.#encryptPassword(password);
     const data = await this.#request("/login", {
       method: "POST",
-      json: { username, password },
+      json: { username, passwordEnc },
     });
 
     const token = data.sessionToken || data.token || null;

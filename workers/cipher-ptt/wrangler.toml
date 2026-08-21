@@ -2,6 +2,7 @@ name = "cipher-ptt-worker"
 main = "src/index.js"
 compatibility_date = "2026-08-21"
 workers_dev = true
+compatibility_flags = ["text_decoder_cjk_decoder"]
 
 # Optional: bind a custom route later
 # routes = [{ pattern = "ptt-api.example.com/*", zone_name = "example.com" }]

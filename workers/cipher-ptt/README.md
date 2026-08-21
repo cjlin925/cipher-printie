@@ -4,7 +4,7 @@ Cloudflare Worker for **Speed PTT**. Matches `pttService.js` routes, enables COR
 
 ## How it works
 
-1. **`POST /login`** — opens `wss://ws.ptt.cc/bbs`, logs into PTT, then logs out. Password is used only for that request.
+1. **`POST /login`** — browser wraps the password with RSA-OAEP (`passwordEnc`); Worker decrypts in memory, logs into `wss://ws.ptt.cc/bbs`, then logs out. Plaintext passwords are rejected. Nothing is stored.
 2. **Boards / articles** — fetched from `https://www.ptt.cc` (with `over18=1`) so the reader stays fast and does not keep a BBS session open.
 3. **Session token** — HMAC-signed, 12-hour browser token. Not a PTT cookie.
 
@@ -13,7 +13,8 @@ Cloudflare Worker for **Speed PTT**. Matches `pttService.js` routes, enables COR
 | Method | Path | Response |
 |--------|------|----------|
 | `OPTIONS` | `*` | CORS preflight |
-| `POST` | `/login` | `{ ok, sessionToken, user }` |
+| `GET` | `/crypto` | `{ alg, publicKey }` RSA-OAEP-256 JWK |
+| `POST` | `/login` | `{ username, passwordEnc }` → `{ ok, sessionToken, user }` |
 | `GET` | `/hot-boards` | `{ boards }` |
 | `GET` | `/boards/:name` | `{ board, articles }` |
 | `GET` | `/boards/:name/:id` | `{ article }` |
@@ -24,8 +25,9 @@ Cloudflare Worker for **Speed PTT**. Matches `pttService.js` routes, enables COR
 cd workers/cipher-ptt
 npm install
 npx wrangler login
-npx wrangler secret put SESSION_SECRET   # random string; signs session tokens only
-npm run dev      # local: http://127.0.0.1:8787
+npx wrangler secret put SESSION_SECRET      # signs browser session tokens
+npx wrangler secret put LOGIN_PRIVATE_JWK   # RSA private JWK; paste from .dev.vars
+npm run dev      # local: http://127.0.0.1:8787  (reads .dev.vars)
 npm run deploy   # → https://cipher-ptt-worker.<account>.workers.dev
 ```
 
@@ -45,7 +47,8 @@ Allowed browser origins (CORS):
 ## Security checklist
 
 - [x] Do not log `password`
+- [x] Reject plaintext `password` on `/login` (RSA-OAEP `passwordEnc` only)
 - [x] Do not `env.KV.put` credentials
 - [x] Prefer short-lived session tokens
 - [ ] Tighten CORS to production origins only before public launch
-- [ ] `npx wrangler secret put SESSION_SECRET` on the deployed worker
+- [ ] `npx wrangler secret put SESSION_SECRET` and `LOGIN_PRIVATE_JWK` on the deployed worker
